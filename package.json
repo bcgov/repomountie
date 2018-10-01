@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "nodemon --watch src --inspect=0.0.0.0:9229 --exec \"npm start\"",
-    "start": "probot run ./lib/index.js",
+    "start": "probot run ./build/index.js",
     "test:lint": "tslint src/**/*.ts  --fix",
     "test": "jest && standard **/*.ts",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"

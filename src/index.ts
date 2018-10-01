@@ -30,7 +30,7 @@ const loadTemplate = async (path: string): Promise<string> => {
   const read = util.promisify(fs.readFile);
 
   if (access(path, fs.constants.R_OK)) {
-    return read(path, "utf8");
+    return await read(path, "utf8");
   }
 
   return Promise.reject();
@@ -44,34 +44,38 @@ const addLicense = async (context: Context) => {
   please merge it when you can. If you have an exception please add comments to
   this PR and close it without merging it.`;
 
-  const master = await context.github.gitdata.getReference(context.repo({
-    ref: "heads/master",
-  }));
-
-  if (!master) { return; }
-
-  await context.github.gitdata.createReference(context.repo({
-    ref: LICENSE_BRANCH_NAME,
-    sha: master.data.object.sha,
-  }));
-
-  const data = await loadTemplate(TEMPLATES.LICENSE);
-  if (!data) { return; }
-
-  await context.github.repos.createFile(context.repo({
-    branch: LICENSE_BRANCH_NAME,
-    content: Buffer.from(data).toString("base64"),
-    message: commitMessage,
-    path: "LICENSE",
-  }));
-
-  await context.github.pullRequests.create(context.repo({
-    base: "master",
-    body,
-    head: LICENSE_BRANCH_NAME,
-    maintainer_can_modify: true, // maintainers cat edit your this PR
-    title: "Add missing license",
-  }));
+  try {
+    const master = await context.github.gitdata.getReference(context.repo({
+      ref: "heads/master",
+    }));
+  
+    if (!master) { return; }
+  
+    await context.github.gitdata.createReference(context.repo({
+      ref: LICENSE_BRANCH_NAME,
+      sha: master.data.object.sha,
+    }));
+  
+    const data = await loadTemplate(TEMPLATES.LICENSE);
+    if (!data) { return; }
+  
+    await context.github.repos.createFile(context.repo({
+      branch: LICENSE_BRANCH_NAME,
+      content: Buffer.from(data).toString("base64"),
+      message: commitMessage,
+      path: "LICENSE",
+    }));
+  
+    await context.github.pullRequests.create(context.repo({
+      base: "master",
+      body,
+      head: LICENSE_BRANCH_NAME,
+      maintainer_can_modify: true, // maintainers cat edit your this PR
+      title: "Add missing license",
+    }));
+  } catch (err) {
+    logger.log(err.message)
+  }
 };
 
 export = (app: Application) => {
@@ -87,23 +91,27 @@ export = (app: Application) => {
   });
 
   app.on("schedule.repository", async (context) => {
-    const master = await context.github.gitdata.getReference(context.repo({
-      ref: "heads/master",
-    }));
-
-    if (context.payload.repository.license && context.payload.repository.license === "apache-2.0") {
-      scheduler.stop(context.payload.repository);
-      return;
-    }
-
-    if (!context.payload.repository.license && master) {
-      const licenseBranch = await context.github.gitdata.getReference(context.repo({
-        ref: LICENSE_BRANCH_NAME,
+    try {
+      const master = await context.github.gitdata.getReference(context.repo({
+        ref: "heads/master",
       }));
-
-      if (licenseBranch) { return; }
-
-      addLicense(context);
+  
+      if (context.payload.repository.license && context.payload.repository.license === "apache-2.0") {
+        scheduler.stop(context.payload.repository);
+        return;
+      }
+  
+      if (!context.payload.repository.license && master) {
+        const licenseBranch = await context.github.gitdata.getReference(context.repo({
+          ref: LICENSE_BRANCH_NAME,
+        }));
+  
+        if (licenseBranch) { return; }
+  
+        addLicense(context);
+      }
+    } catch (error) {
+      logger.error(error.message);
     }
   });
 };
