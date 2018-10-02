@@ -19,10 +19,10 @@
 //
 
 import { logger } from '@bcgov/nodejs-common-utils';
-import { Application } from 'probot';
+import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { BRANCHES, SCHEDULER_DELAY, VALID_LICENSES } from './constants';
-import { addLicense } from './lib/content';
+import { addLicense } from './libs/content';
 
 export = (app: Application) => {
   logger.info('Loaded!!!');
@@ -32,11 +32,12 @@ export = (app: Application) => {
     interval: SCHEDULER_DELAY,
   });
 
-  app.on('repository.deleted', async context => {
+  app.on('repository.deleted', async (context: Context) => {
     scheduler.stop(context.payload.repository);
   });
 
-  app.on('schedule.repository', async context => {
+  app.on('schedule.repository', async (context: Context) => {
+    // writeEvent(context);
     try {
       // Currently we only have one cultural rule, a repo must have a licence. If this
       // is true then we can safely disable the bot for the particular repo.
@@ -57,6 +58,7 @@ export = (app: Application) => {
         })
       );
 
+      // fs.writeFileSync(`./master.json`, Buffer.from(JSON.stringify(master)));
       if (!master) {
         return;
       }

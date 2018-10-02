@@ -19,6 +19,7 @@
 //
 
 import fs from 'fs';
+import { Context } from 'probot';
 import util from 'util';
 
 /**
@@ -36,4 +37,11 @@ export const loadTemplate = async (path: string): Promise<string> => {
   }
 
   return Promise.reject();
+};
+
+export const writeEvent = (context: Context) => {
+  fs.writeFileSync(
+    `./${context.payload.repository.name}.json`,
+    Buffer.from(JSON.stringify(context.payload))
+  );
 };
