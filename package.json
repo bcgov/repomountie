@@ -17,7 +17,7 @@
     "dev": "nodemon --watch src --inspect=0.0.0.0:9229 --exec \"npm start\"",
     "start": "probot run ./build/index.js",
     "test:lint": "tslint src/**/*.ts  --fix",
-    "test": "jest && standard **/*.ts",
+    "test": "NODE_ENV=test jest __tests__",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
@@ -43,14 +43,5 @@
   },
   "engines": {
     "node": ">= 8.3.0"
-  },
-  "standard": {
-    "parser": "typescript-eslint-parser",
-    "env": [
-      "jest"
-    ],
-    "plugins": [
-      "typescript"
-    ]
   }
 }
