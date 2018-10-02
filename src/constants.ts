@@ -1,4 +1,3 @@
-
 //
 // Repo Mountie
 //
@@ -21,11 +20,13 @@
 
 export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
-export const LICENSE_BRANCH_NAME: string = "refs/heads/fix/add-license";
+export const BRANCHES = {
+  LICENSE: "refs/heads/fix/add-license"
+};
 
 export const TEMPLATES = {
-    CONDUCT: "templates/CODE_OF_CONDUCT.md",
-    CONTRIBUTE: "templates/CONTRIBUTING.md",
-    LICENSE: "templates/license",
-    README: "templates/README.md",
+  CONDUCT: "templates/CODE_OF_CONDUCT.md",
+  CONTRIBUTE: "templates/CONTRIBUTING.md",
+  LICENSE: "templates/LICENSE",
+  README: "templates/README.md"
 };

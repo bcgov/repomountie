@@ -23,7 +23,7 @@ import fs from "fs";
 import { Application, Context } from "probot";
 import createScheduler from "probot-scheduler";
 import util from "util";
-import { LICENSE_BRANCH_NAME, SCHEDULER_DELAY, TEMPLATES } from "./constants";
+import { BRANCHES, SCHEDULER_DELAY, TEMPLATES } from "./constants";
 
 const loadTemplate = async (path: string): Promise<string> => {
   const access = util.promisify(fs.access);
@@ -45,36 +45,48 @@ const addLicense = async (context: Context) => {
   this PR and close it without merging it.`;
 
   try {
-    const master = await context.github.gitdata.getReference(context.repo({
-      ref: "heads/master",
-    }));
-  
-    if (!master) { return; }
-  
-    await context.github.gitdata.createReference(context.repo({
-      ref: LICENSE_BRANCH_NAME,
-      sha: master.data.object.sha,
-    }));
-  
+    const master = await context.github.gitdata.getReference(
+      context.repo({
+        ref: "heads/master"
+      })
+    );
+
+    if (!master) {
+      return;
+    }
+
+    await context.github.gitdata.createReference(
+      context.repo({
+        ref: BRANCHES.LICENSE,
+        sha: master.data.object.sha
+      })
+    );
+
     const data = await loadTemplate(TEMPLATES.LICENSE);
-    if (!data) { return; }
-  
-    await context.github.repos.createFile(context.repo({
-      branch: LICENSE_BRANCH_NAME,
-      content: Buffer.from(data).toString("base64"),
-      message: commitMessage,
-      path: "LICENSE",
-    }));
-  
-    await context.github.pullRequests.create(context.repo({
-      base: "master",
-      body,
-      head: LICENSE_BRANCH_NAME,
-      maintainer_can_modify: true, // maintainers cat edit your this PR
-      title: "Add missing license",
-    }));
+    if (!data) {
+      return;
+    }
+
+    await context.github.repos.createFile(
+      context.repo({
+        branch: BRANCHES.LICENSE,
+        content: Buffer.from(data).toString("base64"),
+        message: commitMessage,
+        path: "LICENSE"
+      })
+    );
+
+    await context.github.pullRequests.create(
+      context.repo({
+        base: "master",
+        body,
+        head: BRANCHES.LICENSE,
+        maintainer_can_modify: true, // maintainers cat edit your this PR
+        title: "Add missing license"
+      })
+    );
   } catch (err) {
-    logger.log(err.message)
+    logger.log(err.message);
   }
 };
 
@@ -83,31 +95,40 @@ export = (app: Application) => {
 
   const scheduler = createScheduler(app, {
     delay: false, // !!process.env.DISABLE_DELAY, // delay is enabled on first run
-    interval: SCHEDULER_DELAY,
+    interval: SCHEDULER_DELAY
   });
 
-  app.on("repository.deleted", async (context) => {
+  app.on("repository.deleted", async context => {
     scheduler.stop(context.payload.repository);
   });
 
-  app.on("schedule.repository", async (context) => {
+  app.on("schedule.repository", async context => {
     try {
-      const master = await context.github.gitdata.getReference(context.repo({
-        ref: "heads/master",
-      }));
-  
-      if (context.payload.repository.license && context.payload.repository.license === "apache-2.0") {
+      const master = await context.github.gitdata.getReference(
+        context.repo({
+          ref: "heads/master"
+        })
+      );
+
+      if (
+        context.payload.repository.license &&
+        context.payload.repository.license === "apache-2.0"
+      ) {
         scheduler.stop(context.payload.repository);
         return;
       }
-  
+
       if (!context.payload.repository.license && master) {
-        const licenseBranch = await context.github.gitdata.getReference(context.repo({
-          ref: LICENSE_BRANCH_NAME,
-        }));
-  
-        if (licenseBranch) { return; }
-  
+        const licenseBranch = await context.github.gitdata.getReference(
+          context.repo({
+            ref: BRANCHES.LICENSE
+          })
+        );
+
+        if (licenseBranch) {
+          return;
+        }
+
         addLicense(context);
       }
     } catch (error) {
