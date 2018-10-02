@@ -1,16 +1,14 @@
 {
-    "defaultSeverity": "error",
-    "extends": [
-        "tslint:latest",
-        "tslint-config-prettier"
-    ],
-    "jsRules": {
-        "no-empty": true
+  "defaultSeverity": "error",
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "jsRules": {
+    "no-empty": true
+  },
+  "rules": {
+    "max-line-length": {
+      "options": [120]
     },
-    "rules": {
-        "max-line-length": {
-            "options": [120]
-        }
-    },
-    "rulesDirectory": []
+    "quotemark": [true, "single"]
+  },
+  "rulesDirectory": []
 }
