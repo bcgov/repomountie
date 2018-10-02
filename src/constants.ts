@@ -21,16 +21,16 @@
 export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
 export const BRANCHES = {
-  LICENSE: "refs/heads/fix/add-license"
+  LICENSE: 'refs/heads/fix/add-license',
 };
 
 export const TEMPLATES = {
-  CONDUCT: "templates/CODE_OF_CONDUCT.md",
-  CONTRIBUTE: "templates/CONTRIBUTING.md",
-  LICENSE: "templates/LICENSE",
-  README: "templates/README.md"
+  CONDUCT: 'templates/CODE_OF_CONDUCT.md',
+  CONTRIBUTE: 'templates/CONTRIBUTING.md',
+  LICENSE: 'templates/LICENSE',
+  README: 'templates/README.md',
 };
 
 export const VALID_LICENSES = {
-  APACHE: "apache-2.0"
+  APACHE: 'apache-2.0',
 };
