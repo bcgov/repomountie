@@ -30,3 +30,7 @@ export const TEMPLATES = {
   LICENSE: "templates/LICENSE",
   README: "templates/README.md"
 };
+
+export const VALID_LICENSES = {
+  APACHE: "apache-2.0"
+};

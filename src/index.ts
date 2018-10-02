@@ -23,7 +23,12 @@ import fs from "fs";
 import { Application, Context } from "probot";
 import createScheduler from "probot-scheduler";
 import util from "util";
-import { BRANCHES, SCHEDULER_DELAY, TEMPLATES } from "./constants";
+import {
+  BRANCHES,
+  SCHEDULER_DELAY,
+  TEMPLATES,
+  VALID_LICENSES
+} from "./constants";
 
 const loadTemplate = async (path: string): Promise<string> => {
   const access = util.promisify(fs.access);
@@ -112,7 +117,9 @@ export = (app: Application) => {
 
       if (
         context.payload.repository.license &&
-        context.payload.repository.license === "apache-2.0"
+        Object.values(VALID_LICENSES).includes(
+          context.payload.repository.license
+        )
       ) {
         scheduler.stop(context.payload.repository);
         return;
