@@ -38,12 +38,8 @@ export = (app: Application) => {
 
   app.on('schedule.repository', async context => {
     try {
-      const master = await context.github.gitdata.getReference(
-        context.repo({
-          ref: 'heads/master',
-        })
-      );
-
+      // Currently we only have one cultural rule, a repo must have a licence. If this
+      // is true then we can safely disable the bot for the particular repo.
       if (
         context.payload.repository.license &&
         Object.values(VALID_LICENSES).includes(context.payload.repository.license)
@@ -52,7 +48,22 @@ export = (app: Application) => {
         return;
       }
 
-      if (!context.payload.repository.license && master) {
+      // If the repo does *not* have a master branch then we don't want to add one.
+      // The dev team may be doing this off-line and when they go to push master it
+      // will cause a conflict because there will be no common root commit.
+      const master = await context.github.gitdata.getReference(
+        context.repo({
+          ref: 'heads/master',
+        })
+      );
+
+      if (!master) {
+        return;
+      }
+
+      if (!context.payload.repository.license) {
+        // Check if we have already created a branch for licencing. If we have then
+        // move along, otherwise add one.
         const licenseBranch = await context.github.gitdata.getReference(
           context.repo({
             ref: BRANCHES.LICENSE,
@@ -63,6 +74,7 @@ export = (app: Application) => {
           return;
         }
 
+        // Add a license via a PR
         addLicense(context);
       }
     } catch (error) {

@@ -9,7 +9,6 @@ dist/
 *.pem
 .env
 coverage
-lib
 
 *~
 *.seed
