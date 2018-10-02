@@ -18,108 +18,35 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-import { logger } from "@bcgov/nodejs-common-utils";
-import fs from "fs";
-import { Application, Context } from "probot";
-import createScheduler from "probot-scheduler";
-import util from "util";
-import {
-  BRANCHES,
-  SCHEDULER_DELAY,
-  TEMPLATES,
-  VALID_LICENSES
-} from "./constants";
-
-const loadTemplate = async (path: string): Promise<string> => {
-  const access = util.promisify(fs.access);
-  const read = util.promisify(fs.readFile);
-
-  if (access(path, fs.constants.R_OK)) {
-    return await read(path, "utf8");
-  }
-
-  return Promise.reject();
-};
-
-const addLicense = async (context: Context) => {
-  const commitMessage: string = "Add Apache License 2.0";
-  const body: string = `
-  Repos in our organization need to be licensed under the Apache License 2.0.
-  To help you get up to spec I've added one for you as part of this PR;
-  please merge it when you can. If you have an exception please add comments to
-  this PR and close it without merging it.`;
-
-  try {
-    const master = await context.github.gitdata.getReference(
-      context.repo({
-        ref: "heads/master"
-      })
-    );
-
-    if (!master) {
-      return;
-    }
-
-    await context.github.gitdata.createReference(
-      context.repo({
-        ref: BRANCHES.LICENSE,
-        sha: master.data.object.sha
-      })
-    );
-
-    const data = await loadTemplate(TEMPLATES.LICENSE);
-    if (!data) {
-      return;
-    }
-
-    await context.github.repos.createFile(
-      context.repo({
-        branch: BRANCHES.LICENSE,
-        content: Buffer.from(data).toString("base64"),
-        message: commitMessage,
-        path: "LICENSE"
-      })
-    );
-
-    await context.github.pullRequests.create(
-      context.repo({
-        base: "master",
-        body,
-        head: BRANCHES.LICENSE,
-        maintainer_can_modify: true, // maintainers cat edit your this PR
-        title: "Add missing license"
-      })
-    );
-  } catch (err) {
-    logger.log(err.message);
-  }
-};
+import { logger } from '@bcgov/nodejs-common-utils';
+import { Application } from 'probot';
+import createScheduler from 'probot-scheduler';
+import { BRANCHES, SCHEDULER_DELAY, VALID_LICENSES } from './constants';
+import { addLicense } from './lib/content';
 
 export = (app: Application) => {
-  logger.info("Loaded!!!");
+  logger.info('Loaded!!!');
 
   const scheduler = createScheduler(app, {
     delay: false, // !!process.env.DISABLE_DELAY, // delay is enabled on first run
-    interval: SCHEDULER_DELAY
+    interval: SCHEDULER_DELAY,
   });
 
-  app.on("repository.deleted", async context => {
+  app.on('repository.deleted', async context => {
     scheduler.stop(context.payload.repository);
   });
 
-  app.on("schedule.repository", async context => {
+  app.on('schedule.repository', async context => {
     try {
       const master = await context.github.gitdata.getReference(
         context.repo({
-          ref: "heads/master"
+          ref: 'heads/master',
         })
       );
 
       if (
         context.payload.repository.license &&
-        Object.values(VALID_LICENSES).includes(
-          context.payload.repository.license
-        )
+        Object.values(VALID_LICENSES).includes(context.payload.repository.license)
       ) {
         scheduler.stop(context.payload.repository);
         return;
@@ -128,7 +55,7 @@ export = (app: Application) => {
       if (!context.payload.repository.license && master) {
         const licenseBranch = await context.github.gitdata.getReference(
           context.repo({
-            ref: BRANCHES.LICENSE
+            ref: BRANCHES.LICENSE,
           })
         );
 
