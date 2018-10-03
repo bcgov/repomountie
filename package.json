@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A bot to help ensure cultural niceties are respected.",
   "author": "Jason C. Leach <jason.leach@fullboar.ca>",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "repository": "https://github.com/jleach/repo-mountie.git",
   "homepage": "https://github.com/jleach/repo-mountie",
   "bugs": "https://github.com/jleach/repo-mountie/issues",

@@ -29,7 +29,7 @@ import { loadTemplate } from './utils';
  * @param {Context} context The repo context
  * @returns
  */
-export const addLicense = async (context: Context) => {
+export const addLicenseFile = async (context: Context) => {
   const commitMessage: string = 'Add Apache License 2.0';
   const body: string = `
     Repos in our organization need to be licensed under the Apache License 2.0.
@@ -45,21 +45,17 @@ export const addLicense = async (context: Context) => {
       })
     );
 
-    if (!master) {
-      return;
-    }
-
     // Create a branch to commit to commit the license file
     await context.github.gitdata.createReference(
       context.repo({
-        ref: BRANCHES.LICENSE,
+        ref: `refs/heads/${BRANCHES.LICENSE}`,
         sha: master.data.object.sha,
       })
     );
 
     const data = await loadTemplate(TEMPLATES.LICENSE);
     if (!data) {
-      return;
+      throw new Error(`Unable to load template ${TEMPLATES.LICENSE}`);
     }
 
     // Add the file to the new branch
@@ -83,7 +79,8 @@ export const addLicense = async (context: Context) => {
       })
     );
   } catch (err) {
-    logger.log(err.message);
+    logger.error(`Unable to add LICENSE to ${context.payload.repository.name}`);
+    logger.error(err.message);
 
     throw err;
   }

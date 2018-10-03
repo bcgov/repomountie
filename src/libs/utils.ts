@@ -39,9 +39,31 @@ export const loadTemplate = async (path: string): Promise<string> => {
   return Promise.reject();
 };
 
+/**
+ * Write the payload of an event to the local file system
+ *
+ * @param {Context} context The context being worked on
+ */
 export const writeEvent = (context: Context) => {
   fs.writeFileSync(
     `./${context.payload.repository.name}.json`,
     Buffer.from(JSON.stringify(context.payload))
   );
+};
+
+/**
+ * Extract and return and API response message
+ * The errors received from using the github API via Probot
+ * will return an Error message with a JSON encoded string in the
+ * message property.
+ * @param {Error} error The error from which to extract the message
+ * @returns Undefined if unparsable, a resolved promise containing the results otherwise
+ */
+export const extractMessage = async (error: Error): Promise<string> => {
+  try {
+    const message = JSON.parse(error.message);
+    return message;
+  } catch (error) {
+    return Promise.reject();
+  }
 };

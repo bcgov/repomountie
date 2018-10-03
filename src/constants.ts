@@ -21,7 +21,7 @@
 export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
 export const BRANCHES = {
-  LICENSE: 'refs/heads/fix/add-license',
+  LICENSE: 'fix/add-license',
 };
 
 export const TEMPLATES = {
