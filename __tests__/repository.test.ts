@@ -28,12 +28,13 @@ const payload = JSON.parse(fs.readFileSync(p1, 'utf8'));
 const p2 = path.join(__dirname, 'fixtures/master.json');
 const master = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
-describe('Repository management', () => {
+describe('Repository integration tests', () => {
   let app;
   let github;
 
   beforeEach(() => {
     app = new Application();
+    app.app = () => 'Token';
     app.load(robot);
 
     github = {
