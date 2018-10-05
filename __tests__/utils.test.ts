@@ -18,7 +18,7 @@
 // Created by Jason Leach on 2018-10-04.
 //
 
-import { loadTemplate } from '../src/libs/utils';
+import { extractMessage, loadTemplate } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -26,5 +26,11 @@ describe('Utility functions', () => {
   test('A template can be loaded', async () => {
     const data = await loadTemplate('some-file-name');
     expect(data).not.toBeUndefined();
+  });
+
+  test('API error message extracted from Error message', async () => {
+    const err = new Error('{"message": "Hello World"}');
+    const message = await extractMessage(err);
+    expect(message).toEqual('Hello World');
   });
 });
