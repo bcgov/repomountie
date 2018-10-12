@@ -29,7 +29,7 @@ import { loadTemplate } from './utils';
  * @param {Context} context The repo context
  * @returns
  */
-export const addLicenseFile = async (context: Context) => {
+export const addLicenseFileToRepo = async (context: Context) => {
   const commitMessage: string = 'Add Apache License 2.0';
 
   try {
@@ -39,14 +39,6 @@ export const addLicenseFile = async (context: Context) => {
         ref: 'heads/master',
       })
     );
-
-    // // Check if we have already created a branch for licencing. If we have then
-    // // move along, otherwise add one.
-    // ref = await context.github.gitdata.getReference(
-    //   context.repo({
-    //     ref: `heads/${BRANCHES.ADD_LICENSE}`,
-    //   })
-    // );
 
     // Create a branch to commit to commit the license file
     await context.github.gitdata.createReference(

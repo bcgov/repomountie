@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/nodejs-common-utils';
 import { Context } from 'probot';
 import { PR_TITLES, VALID_LICENSES } from '../constants';
-import { addLicenseFile } from './content';
+import { addLicenseFileToRepo } from './content';
 import { extractMessage } from './utils';
 
 export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
@@ -30,7 +30,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
     // is true then we can safely disable the bot for the particular repo.
     if (
       context.payload.repository.license &&
-      Object.values(VALID_LICENSES).includes(context.payload.repository.license)
+      Object.values(VALID_LICENSES).includes(context.payload.repository.license.key)
     ) {
       scheduler.stop(context.payload.repository);
       return;
@@ -66,10 +66,10 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
           logger.info(`Licencing PR exists in ${context.payload.repository.name}`);
         } else {
           // Add a license via a PR
-          await addLicenseFile(context);
+          await addLicenseFileToRepo(context);
         }
       } catch (err) {
-        logger.info(`No licencing branch exists in ${context.payload.repository.name}`);
+        logger.info(`Unable to add license to ${context.payload.repository.name}`);
       }
     }
   } catch (error) {
