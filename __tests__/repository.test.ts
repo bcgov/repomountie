@@ -23,10 +23,16 @@ import path from 'path';
 import { Application } from 'probot';
 import robot from '../src';
 
+jest.mock('fs');
+
 const p1 = path.join(__dirname, 'fixtures/installation.created.json');
 const payload = JSON.parse(fs.readFileSync(p1, 'utf8'));
 const p2 = path.join(__dirname, 'fixtures/master.json');
 const master = JSON.parse(fs.readFileSync(p2, 'utf8'));
+// const p3 = path.join(__dirname, 'fixtures/fix-add-license.json');
+// const fixAddLicense = JSON.parse(fs.readFileSync(p3, 'utf8'));
+const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
+const prNoAddLicense = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
 describe('Repository integration tests', () => {
   let app;
@@ -36,10 +42,21 @@ describe('Repository integration tests', () => {
     app = new Application();
     app.app = () => 'Token';
     app.load(robot);
+    const getReference = jest.fn();
+    getReference.mockReturnValueOnce(Promise.resolve(master));
+    getReference.mockReturnValueOnce(Promise.resolve(master));
 
     github = {
       gitdata: {
-        getReference: jest.fn().mockReturnValue(Promise.resolve(master)),
+        createReference: jest.fn(),
+        getReference,
+      },
+      pullRequests: {
+        create: jest.fn().mockReturnValueOnce(Promise.resolve()),
+        getAll: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
+      },
+      repos: {
+        createFile: jest.fn(),
       },
     };
 
@@ -54,7 +71,10 @@ describe('Repository integration tests', () => {
       payload,
     });
 
-    expect(github.gitdata.getReference).toHaveBeenCalled();
+    expect(github.gitdata.getReference.mock.calls.length).toBe(2);
+    expect(github.pullRequests.getAll).toHaveBeenCalled();
+    expect(github.gitdata.createReference).toHaveBeenCalled();
+    expect(github.repos.createFile).toHaveBeenCalled();
   });
 });
 
