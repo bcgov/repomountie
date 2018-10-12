@@ -25,12 +25,18 @@ import robot from '../src';
 
 jest.mock('fs');
 
-const p1 = path.join(__dirname, 'fixtures/installation.created.json');
-const payload = JSON.parse(fs.readFileSync(p1, 'utf8'));
+const p0 = path.join(__dirname, 'fixtures/repo-created-lic.json');
+const payloadWithLic = JSON.parse(fs.readFileSync(p0, 'utf8'));
+
+const p1 = path.join(__dirname, 'fixtures/repo-created-no-lic.json');
+const payloadNoLic = JSON.parse(fs.readFileSync(p1, 'utf8'));
+
 const p2 = path.join(__dirname, 'fixtures/master.json');
 const master = JSON.parse(fs.readFileSync(p2, 'utf8'));
+
 // const p3 = path.join(__dirname, 'fixtures/fix-add-license.json');
 // const fixAddLicense = JSON.parse(fs.readFileSync(p3, 'utf8'));
+
 const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
 const prNoAddLicense = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
@@ -68,13 +74,26 @@ describe('Repository integration tests', () => {
     // Simulates delivery of an issues.opened webhook
     await app.receive({
       name: 'schedule.repository',
-      payload,
+      payload: payloadNoLic,
     });
 
     expect(github.gitdata.getReference.mock.calls.length).toBe(2);
     expect(github.pullRequests.getAll).toHaveBeenCalled();
     expect(github.gitdata.createReference).toHaveBeenCalled();
     expect(github.repos.createFile).toHaveBeenCalled();
+  });
+
+  test('A repository with a license should be skipped', async () => {
+    // Simulates delivery of an issues.opened webhook
+    await app.receive({
+      name: 'schedule.repository',
+      payload: payloadWithLic,
+    });
+
+    expect(github.gitdata.getReference.mock.calls.length).toBe(0);
+    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.repos.createFile).not.toHaveBeenCalled();
   });
 });
 
