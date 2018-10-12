@@ -20,12 +20,11 @@
 
 import { logger } from '@bcgov/nodejs-common-utils';
 import { Context } from 'probot';
-import { BRANCHES, VALID_LICENSES } from '../constants';
+import { PR_TITLES, VALID_LICENSES } from '../constants';
 import { addLicenseFile } from './content';
 import { extractMessage } from './utils';
 
 export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
-  // writeEvent(context);
   try {
     // Currently we only have one cultural rule, a repo must have a licence. If this
     // is true then we can safely disable the bot for the particular repo.
@@ -52,25 +51,25 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
     }
 
     if (!context.payload.repository.license) {
-      let ref;
       try {
-        // Check if we have already created a branch for licencing. If we have then
-        // move along, otherwise add one.
-        ref = await context.github.gitdata.getReference(
+        const allPullRequests = await context.github.pullRequests.getAll(
           context.repo({
-            ref: `heads/${BRANCHES.LICENSE}`,
+            state: 'all',
           })
         );
-      } catch (err) {
-        logger.info(`No licencing branch exists in ${context.payload.repository.name}`);
-      } finally {
-        if (ref) {
+
+        const hasLicensePR =
+          allPullRequests.data.filter(pr => pr.title === PR_TITLES.ADD_LICENSE).length > 0;
+
+        if (hasLicensePR) {
           // Do nothing
-          logger.info(`Licencing branch exists in ${context.payload.repository.name}`);
+          logger.info(`Licencing PR exists in ${context.payload.repository.name}`);
         } else {
           // Add a license via a PR
           addLicenseFile(context);
         }
+      } catch (err) {
+        logger.info(`No licencing branch exists in ${context.payload.repository.name}`);
       }
     }
   } catch (error) {

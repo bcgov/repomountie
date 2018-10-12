@@ -20,8 +20,16 @@
 
 export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
+export const HELP_DESK = {
+  LICENSE_SUPPORT_USERS: ['jleach'],
+};
+
+export const PR_TITLES = {
+  ADD_LICENSE: 'Add missing license!',
+};
+
 export const BRANCHES = {
-  LICENSE: 'fix/add-license',
+  ADD_LICENSE: 'fix/add-license',
 };
 
 export const TEMPLATES = {
@@ -33,4 +41,8 @@ export const TEMPLATES = {
 
 export const VALID_LICENSES = {
   APACHE: 'apache-2.0',
+};
+
+export const TEXT_FILES = {
+  WHY_LICENSE: 'templates/why-license.md',
 };

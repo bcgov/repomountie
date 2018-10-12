@@ -22,7 +22,10 @@ import { logger } from '@bcgov/nodejs-common-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { SCHEDULER_DELAY } from './constants';
+import { issueCommentCreated } from './libs/issue';
 import { addLicenseIfRequired } from './libs/repository';
+
+process.env.TZ = 'UTC';
 
 export = (app: Application) => {
   logger.info('Loaded!!!');
@@ -32,6 +35,7 @@ export = (app: Application) => {
     interval: SCHEDULER_DELAY,
   });
 
+  app.on('issue_comment.created', issueCommentCreated);
   app.on('schedule.repository', repositoryScheduled);
   app.on('repository.deleted', repositoryDelete);
 

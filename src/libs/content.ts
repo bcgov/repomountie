@@ -19,10 +19,13 @@
 //
 
 import { logger } from '@bcgov/nodejs-common-utils';
+import fs from 'fs';
 import { Context } from 'probot';
-import { BRANCHES, TEMPLATES } from '../constants';
+import util from 'util';
+import { BRANCHES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
 import { loadTemplate } from './utils';
 
+const read = util.promisify(fs.readFile);
 /**
  * Add a license file via PR to a given repo
  *
@@ -31,13 +34,10 @@ import { loadTemplate } from './utils';
  */
 export const addLicenseFile = async (context: Context) => {
   const commitMessage: string = 'Add Apache License 2.0';
-  const body: string = `
-    Repos in our organization need to be licensed under the Apache License 2.0.
-    To help you get up to spec I've added one for you as part of this PR;
-    please merge it when you can. If you have an exception please add comments to
-    this PR and close it without merging it.`;
 
   try {
+    const body: string = (await read(TEXT_FILES.WHY_LICENSE)).toString();
+
     // If we don't have a master we won't have know where to merge the PR
     const master = await context.github.gitdata.getReference(
       context.repo({
@@ -45,10 +45,18 @@ export const addLicenseFile = async (context: Context) => {
       })
     );
 
+    // // Check if we have already created a branch for licencing. If we have then
+    // // move along, otherwise add one.
+    // ref = await context.github.gitdata.getReference(
+    //   context.repo({
+    //     ref: `heads/${BRANCHES.ADD_LICENSE}`,
+    //   })
+    // );
+
     // Create a branch to commit to commit the license file
     await context.github.gitdata.createReference(
       context.repo({
-        ref: `refs/heads/${BRANCHES.LICENSE}`,
+        ref: `refs/heads/${BRANCHES.ADD_LICENSE}`,
         sha: master.data.object.sha,
       })
     );
@@ -61,7 +69,7 @@ export const addLicenseFile = async (context: Context) => {
     // Add the file to the new branch
     await context.github.repos.createFile(
       context.repo({
-        branch: BRANCHES.LICENSE,
+        branch: BRANCHES.ADD_LICENSE,
         content: Buffer.from(data).toString('base64'),
         message: commitMessage,
         path: 'LICENSE',
@@ -73,9 +81,9 @@ export const addLicenseFile = async (context: Context) => {
       context.repo({
         base: 'master',
         body,
-        head: BRANCHES.LICENSE,
+        head: BRANCHES.ADD_LICENSE,
         maintainer_can_modify: true, // maintainers cat edit your this PR
-        title: 'Add missing license',
+        title: PR_TITLES.ADD_LICENSE,
       })
     );
   } catch (err) {
