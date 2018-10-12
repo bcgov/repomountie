@@ -35,7 +35,8 @@ export const loadTemplate = async (path: string): Promise<string> => {
     return read(path, 'utf8');
   }
 
-  return Promise.reject();
+  const message = `Unable to load template ${path}`;
+  return Promise.reject(new Error(message));
 };
 
 /**

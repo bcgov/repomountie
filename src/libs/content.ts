@@ -19,13 +19,10 @@
 //
 
 import { logger } from '@bcgov/nodejs-common-utils';
-import fs from 'fs';
 import { Context } from 'probot';
-import util from 'util';
 import { BRANCHES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
 import { loadTemplate } from './utils';
 
-const read = util.promisify(fs.readFile);
 /**
  * Add a license file via PR to a given repo
  *
@@ -36,8 +33,6 @@ export const addLicenseFile = async (context: Context) => {
   const commitMessage: string = 'Add Apache License 2.0';
 
   try {
-    const body: string = (await read(TEXT_FILES.WHY_LICENSE)).toString();
-
     // If we don't have a master we won't have know where to merge the PR
     const master = await context.github.gitdata.getReference(
       context.repo({
@@ -61,16 +56,14 @@ export const addLicenseFile = async (context: Context) => {
       })
     );
 
-    const data = await loadTemplate(TEMPLATES.LICENSE);
-    if (!data) {
-      throw new Error(`Unable to load template ${TEMPLATES.LICENSE}`);
-    }
+    const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_LICENSE);
+    const licenseData: string = await loadTemplate(TEMPLATES.LICENSE);
 
     // Add the file to the new branch
     await context.github.repos.createFile(
       context.repo({
         branch: BRANCHES.ADD_LICENSE,
-        content: Buffer.from(data).toString('base64'),
+        content: Buffer.from(licenseData).toString('base64'),
         message: commitMessage,
         path: 'LICENSE',
       })
@@ -80,15 +73,15 @@ export const addLicenseFile = async (context: Context) => {
     await context.github.pullRequests.create(
       context.repo({
         base: 'master',
-        body,
         head: BRANCHES.ADD_LICENSE,
         maintainer_can_modify: true, // maintainers cat edit your this PR
+        prMessageBody,
         title: PR_TITLES.ADD_LICENSE,
       })
     );
   } catch (err) {
-    logger.error(`Unable to add LICENSE to ${context.payload.repository.name}`);
-    logger.error(err.message);
+    const message = `Unable to add LICENSE to ${context.payload.repository.name}`;
+    logger.error(`${message}, error = ${err.message}`);
 
     throw err;
   }
