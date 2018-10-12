@@ -66,7 +66,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
           logger.info(`Licencing PR exists in ${context.payload.repository.name}`);
         } else {
           // Add a license via a PR
-          addLicenseFile(context);
+          await addLicenseFile(context);
         }
       } catch (err) {
         logger.info(`No licencing branch exists in ${context.payload.repository.name}`);
