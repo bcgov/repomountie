@@ -5,7 +5,6 @@ const fs = jest.requireActual('fs');
 
 function access(path, flag, cb) {
   if (path === 'no-file-access') {
-    console.log(path, 'dfddfdfwe222');
     return cb(new Error('No access to this file - mock'));
   }
 
