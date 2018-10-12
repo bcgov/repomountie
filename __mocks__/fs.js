@@ -8,8 +8,11 @@ function access(path, flag, cb) {
 }
 
 function readFile(path, options, cb) {
-  cb(undefined, Buffer.from('Hello World', 'utf8'));
-  // cb(undefined, 'Hello World');
+  if (path === 'no-file') {
+    return cb(new Error('Message'), undefined);
+  }
+
+  return cb(undefined, Buffer.from('Hello World', 'utf8'));
 }
 
 fs.readFile = readFile;

@@ -24,8 +24,12 @@ jest.mock('fs');
 
 describe('Utility functions', () => {
   test('A template can be loaded', async () => {
-    const data = await loadTemplate('some-file-name');
+    const data = await loadTemplate('some-file');
     expect(data).not.toBeUndefined();
+  });
+
+  test('A non-existent template throws', async () => {
+    await expect(loadTemplate('no-file')).rejects.toThrow(Error);
   });
 
   test('API error message extracted from Error message', async () => {
