@@ -22,13 +22,13 @@ import { logger } from '@bcgov/nodejs-common-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { SCHEDULER_DELAY } from './constants';
-import { issueCommentCreated } from './libs/issue';
+import { created } from './libs/issue';
 import { addLicenseIfRequired } from './libs/repository';
 
 process.env.TZ = 'UTC';
 
 export = (app: Application) => {
-  logger.info('Loaded!!!');
+  logger.info('Robot Loaded!!!');
 
   const scheduler = createScheduler(app, {
     delay: false, // !!process.env.DISABLE_DELAY, // delay is enabled on first run
@@ -38,6 +38,17 @@ export = (app: Application) => {
   app.on('issue_comment.created', issueCommentCreated);
   app.on('schedule.repository', repositoryScheduled);
   app.on('repository.deleted', repositoryDelete);
+
+  async function issueCommentCreated(context: Context) {
+    logger.info(`Processing issue ${context.payload.payload.issue.id}`);
+
+    if (context.isBot) {
+      // Don't act crazy.
+      return;
+    }
+
+    created(context);
+  }
 
   async function repositoryDelete(context: Context) {
     scheduler.stop(context.payload.repository);

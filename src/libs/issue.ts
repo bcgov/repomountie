@@ -66,12 +66,7 @@ export const assignHelpDeskMembers = async (context: Context) => {
  * @param {Context} context The event context context
  * @returns No return value
  */
-export const issueCommentCreated = async (context: Context) => {
-  if (context.isBot) {
-    // Don't act crazy.
-    return;
-  }
-
+export const created = async (context: Context) => {
   // For we just assign help desk willynilly, going forward we should
   // better identify the issue and assign users with surgical precision.
 
