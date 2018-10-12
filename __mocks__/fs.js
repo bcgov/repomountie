@@ -4,12 +4,17 @@
 const fs = jest.requireActual('fs');
 
 function access(path, flag, cb) {
-  cb(undefined);
+  if (path === 'no-file-access') {
+    console.log(path, 'dfddfdfwe222');
+    return cb(new Error('No access to this file - mock'));
+  }
+
+  return cb(undefined);
 }
 
 function readFile(path, options, cb) {
   if (path === 'no-file') {
-    return cb(new Error('Message'), undefined);
+    return cb(new Error('No such file - mock'), undefined);
   }
 
   return cb(undefined, Buffer.from('Hello World', 'utf8'));

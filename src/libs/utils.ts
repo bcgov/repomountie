@@ -31,12 +31,13 @@ export const loadTemplate = async (path: string): Promise<string> => {
   const access = util.promisify(fs.access);
   const read = util.promisify(fs.readFile);
 
-  if (access(path, fs.constants.R_OK)) {
+  try {
+    await access(path, fs.constants.R_OK);
     return read(path, 'utf8');
+  } catch (err) {
+    const message = `Unable to load template ${path}`;
+    throw new Error(`${message}, error = ${err.message}`);
   }
-
-  const message = `Unable to load template ${path}`;
-  return Promise.reject(new Error(message));
 };
 
 /**
@@ -52,6 +53,7 @@ export const extractMessage = async (error: Error): Promise<string> => {
     const data = JSON.parse(error.message);
     return data.message;
   } catch (error) {
-    return Promise.reject();
+    const message = `Unable to extract message from error`;
+    return Promise.reject(new Error(message));
   }
 };

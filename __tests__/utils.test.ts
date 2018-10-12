@@ -28,6 +28,10 @@ describe('Utility functions', () => {
     expect(data).not.toBeUndefined();
   });
 
+  test('A file with no read access throws', async () => {
+    await expect(loadTemplate('no-file-access')).rejects.toThrow(Error);
+  });
+
   test('A non-existent template throws', async () => {
     await expect(loadTemplate('no-file')).rejects.toThrow(Error);
   });
@@ -36,5 +40,10 @@ describe('Utility functions', () => {
     const err = new Error('{"message": "Hello World"}');
     const message = await extractMessage(err);
     expect(message).toEqual('Hello World');
+  });
+
+  test('Non existent error message throws', async () => {
+    const err = new Error();
+    await expect(extractMessage(err)).rejects.toThrow(Error);
   });
 });
