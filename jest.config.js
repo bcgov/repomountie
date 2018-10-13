@@ -19,14 +19,16 @@
 //
 
 module.exports = {
+  // collectCoverage: true,
+  collectCoverageFrom: ['src/**/*.{ts}'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  moduleDirectories: ['node_modules'],
   // roots: ['<rootDir>/src/', '<rootDir>/test/'],
-  verbose: false,
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
     // '^.+\\.jsx?$': 'babel-jest',
   },
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|\\.(test|spec))\\.[ts]sx?$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  moduleDirectories: ['node_modules'],
+  verbose: false,
 };
