@@ -30,7 +30,9 @@ import { HELP_DESK } from '../constants';
 export const helpDeskSupportRequired = (issue: any) => {
   const triggerWord = 'help';
   const noHelpRequired = issue.comment.body.search(triggerWord) === -1;
-  const isAssigned = issue.issue.assignees.some(e => HELP_DESK.LICENSE_SUPPORT_USERS.includes(e));
+  const isAssigned = issue.issue.assignees.some(e =>
+    HELP_DESK.LICENSE_SUPPORT_USERS.includes(e.login)
+  );
 
   // early return
   if (isAssigned || noHelpRequired) {
@@ -71,7 +73,7 @@ export const created = async (context: Context) => {
   // better identify the issue and assign users with surgical precision.
 
   if (helpDeskSupportRequired(context.payload)) {
-    assignHelpDeskMembers(context);
+    await assignHelpDeskMembers(context);
     return;
   }
 };
