@@ -47,7 +47,11 @@ export = (app: Application) => {
       return;
     }
 
-    created(context);
+    try {
+      await created(context);
+    } catch (err) {
+      logger.error(`Unable to process issue ${context.payload.payload.issue.id}`);
+    }
   }
 
   async function repositoryDelete(context: Context) {
