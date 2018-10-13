@@ -40,17 +40,22 @@ export = (app: Application) => {
   app.on('repository.deleted', repositoryDelete);
 
   async function issueCommentCreated(context: Context) {
-    logger.info(`Processing issue ${context.payload.payload.issue.id}`);
+    logger.info(`Processing issue ${context.payload.issue.id}`);
 
-    if (context.isBot) {
-      // Don't act crazy.
-      return;
+    try {
+      // This can throw a `TypeError` during testing.
+      if (context.isBot) {
+        // Don't act crazy.
+        return;
+      }
+    } catch (err) {
+      logger.info('Unable to determine if the sender is a bot');
     }
 
     try {
       await created(context);
     } catch (err) {
-      logger.error(`Unable to process issue ${context.payload.payload.issue.id}`);
+      logger.error(`Unable to process issue ${context.payload.issue.id}`);
     }
   }
 

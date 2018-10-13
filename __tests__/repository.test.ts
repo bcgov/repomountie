@@ -57,6 +57,9 @@ describe('Repository integration tests', () => {
         createReference: jest.fn(),
         getReference,
       },
+      issues: {
+        addAssigneesToIssue: jest.fn(),
+      },
       pullRequests: {
         create: jest.fn().mockReturnValueOnce(Promise.resolve()),
         getAll: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
@@ -81,6 +84,7 @@ describe('Repository integration tests', () => {
     expect(github.pullRequests.create).toHaveBeenCalled();
     expect(github.gitdata.createReference).toHaveBeenCalled();
     expect(github.repos.createFile).toHaveBeenCalled();
+    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
   });
 
   // Test error path execution when `getReference` first fails to
@@ -99,6 +103,7 @@ describe('Repository integration tests', () => {
     expect(github.pullRequests.create).not.toHaveBeenCalled();
     expect(github.gitdata.createReference).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
+    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
   });
 
   // Test error path execution when `getReference` fails to
@@ -120,6 +125,7 @@ describe('Repository integration tests', () => {
     expect(github.pullRequests.create).not.toHaveBeenCalled();
     expect(github.gitdata.createReference).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
+    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
   });
 
   test('A repository with a license should be skipped', async () => {
@@ -133,6 +139,7 @@ describe('Repository integration tests', () => {
     expect(github.pullRequests.create).not.toHaveBeenCalled();
     expect(github.gitdata.createReference).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
+    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
   });
 });
 
