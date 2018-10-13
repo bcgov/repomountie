@@ -84,21 +84,21 @@ describe('Repository integration tests', () => {
     expect(github.repos.createFile).toHaveBeenCalled();
   });
 
-  test('A repository with a license should not have one added', async () => {
-    // Simulates delivery of an issues.opened webhook
+  // test('A repository with a license should not have one added', async () => {
+  //   // Simulates delivery of an issues.opened webhook
 
-    // github.gitdata.getReference = jest.fn().mockReturnValueOnce(new Error());
-    await app.receive({
-      name: 'schedule.repository',
-      payload: payloadWithLic,
-    });
+  //   // github.gitdata.getReference = jest.fn().mockReturnValueOnce(new Error());
+  //   await app.receive({
+  //     name: 'schedule.repository',
+  //     payload: payloadWithLic,
+  //   });
 
-    expect(github.gitdata.getReference).not.toBeCalled();
-    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
-    expect(github.repos.createFile).not.toHaveBeenCalled();
-  });
+  //   expect(github.gitdata.getReference).not.toBeCalled();
+  //   expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+  //   expect(github.pullRequests.create).not.toHaveBeenCalled();
+  //   expect(github.gitdata.createReference).not.toHaveBeenCalled();
+  //   expect(github.repos.createFile).not.toHaveBeenCalled();
+  // });
 
   test('A repository with a license should be skipped', async () => {
     // Simulates delivery of an issues.opened webhook
@@ -107,8 +107,9 @@ describe('Repository integration tests', () => {
       payload: payloadWithLic,
     });
 
-    expect(github.gitdata.getReference.mock.calls.length).toBe(0);
+    expect(github.gitdata.getReference).not.toBeCalled();
     expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.pullRequests.create).not.toHaveBeenCalled();
     expect(github.gitdata.createReference).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
   });
