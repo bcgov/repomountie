@@ -70,14 +70,16 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
         }
       } catch (err) {
         logger.info(`Unable to add license to ${context.payload.repository.name}`);
+        throw err;
       }
     }
-  } catch (error) {
-    const message = extractMessage(error);
+  } catch (err) {
+    const message = extractMessage(err);
     if (message) {
       logger.error(`Error validating license for ${context.payload.repository.name}`);
     } else {
-      logger.error(error.message);
+      logger.error(err.message);
     }
+    throw err;
   }
 };

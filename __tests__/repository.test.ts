@@ -71,7 +71,6 @@ describe('Repository integration tests', () => {
   });
 
   test('A repository without a license should have one added', async () => {
-    // Simulates delivery of an issues.opened webhook
     await app.receive({
       name: 'schedule.repository',
       payload: payloadNoLic,
@@ -84,24 +83,46 @@ describe('Repository integration tests', () => {
     expect(github.repos.createFile).toHaveBeenCalled();
   });
 
-  // test('A repository with a license should not have one added', async () => {
-  //   // Simulates delivery of an issues.opened webhook
+  // Test error path execution when `getReference` first fails to
+  // get the master branch.
+  test('A repo with no master branch is skipped 1', async () => {
+    const err = new Error('{"message": "Big Trouble"}');
+    github.gitdata.getReference = jest.fn().mockReturnValueOnce(Promise.reject(err));
 
-  //   // github.gitdata.getReference = jest.fn().mockReturnValueOnce(new Error());
-  //   await app.receive({
-  //     name: 'schedule.repository',
-  //     payload: payloadWithLic,
-  //   });
+    await app.receive({
+      name: 'schedule.repository',
+      payload: payloadNoLic,
+    });
 
-  //   expect(github.gitdata.getReference).not.toBeCalled();
-  //   expect(github.pullRequests.getAll).not.toHaveBeenCalled();
-  //   expect(github.pullRequests.create).not.toHaveBeenCalled();
-  //   expect(github.gitdata.createReference).not.toHaveBeenCalled();
-  //   expect(github.repos.createFile).not.toHaveBeenCalled();
-  // });
+    expect(github.gitdata.getReference).toBeCalled();
+    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.pullRequests.create).not.toHaveBeenCalled();
+    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.repos.createFile).not.toHaveBeenCalled();
+  });
+
+  // Test error path execution when `getReference` fails to
+  // get the master branch the second time it is called.
+  test('A repo with no master branch is skipped 2', async () => {
+    const err = new Error('{"message": "Big Trouble"}');
+    const getReference = jest.fn();
+    getReference.mockReturnValueOnce(master);
+    getReference.mockReturnValueOnce(Promise.reject(err));
+    github.gitdata.getReference = getReference;
+
+    await app.receive({
+      name: 'schedule.repository',
+      payload: payloadNoLic,
+    });
+
+    expect(github.gitdata.getReference.mock.calls.length).toBe(2);
+    expect(github.pullRequests.getAll).toHaveBeenCalled();
+    expect(github.pullRequests.create).not.toHaveBeenCalled();
+    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.repos.createFile).not.toHaveBeenCalled();
+  });
 
   test('A repository with a license should be skipped', async () => {
-    // Simulates delivery of an issues.opened webhook
     await app.receive({
       name: 'schedule.repository',
       payload: payloadWithLic,
