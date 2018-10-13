@@ -49,8 +49,8 @@ describe('Repository integration tests', () => {
     app.app = () => 'Token';
     app.load(robot);
     const getReference = jest.fn();
-    getReference.mockReturnValueOnce(Promise.resolve(master));
-    getReference.mockReturnValueOnce(Promise.resolve(master));
+    getReference.mockReturnValueOnce(master);
+    getReference.mockReturnValueOnce(master);
 
     github = {
       gitdata: {
@@ -79,8 +79,25 @@ describe('Repository integration tests', () => {
 
     expect(github.gitdata.getReference.mock.calls.length).toBe(2);
     expect(github.pullRequests.getAll).toHaveBeenCalled();
+    expect(github.pullRequests.create).toHaveBeenCalled();
     expect(github.gitdata.createReference).toHaveBeenCalled();
     expect(github.repos.createFile).toHaveBeenCalled();
+  });
+
+  test('A repository with a license should not have one added', async () => {
+    // Simulates delivery of an issues.opened webhook
+
+    // github.gitdata.getReference = jest.fn().mockReturnValueOnce(new Error());
+    await app.receive({
+      name: 'schedule.repository',
+      payload: payloadWithLic,
+    });
+
+    expect(github.gitdata.getReference).not.toBeCalled();
+    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.pullRequests.create).not.toHaveBeenCalled();
+    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.repos.createFile).not.toHaveBeenCalled();
   });
 
   test('A repository with a license should be skipped', async () => {
