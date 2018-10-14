@@ -17,6 +17,6 @@
     "esModuleInterop": true,
     "declaration": true
   },
-  "include": ["src/**/*", "__tests__/**/*"],
+  "include": ["src/**/*"],
   "compileOnSave": false
 }
