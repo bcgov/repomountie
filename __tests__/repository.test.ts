@@ -34,11 +34,14 @@ const payloadNoLic = JSON.parse(fs.readFileSync(p1, 'utf8'));
 const p2 = path.join(__dirname, 'fixtures/master.json');
 const master = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
-// const p3 = path.join(__dirname, 'fixtures/fix-add-license.json');
-// const fixAddLicense = JSON.parse(fs.readFileSync(p3, 'utf8'));
+const p3 = path.join(__dirname, 'fixtures/repo-archived-no-lic.json');
+const archivedNoLic = JSON.parse(fs.readFileSync(p3, 'utf8'));
 
 const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
 const prNoAddLicense = JSON.parse(fs.readFileSync(p4, 'utf8'));
+
+const p5 = path.join(__dirname, 'fixtures/repo-archived-lic.json');
+const archivedLic = JSON.parse(fs.readFileSync(p5, 'utf8'));
 
 describe('Repository integration tests', () => {
   let app;
@@ -90,7 +93,7 @@ describe('Repository integration tests', () => {
   // Test error path execution when `getReference` first fails to
   // get the master branch.
   test('A repo with no master branch is skipped 1', async () => {
-    const err = new Error('{"message": "Big Trouble"}');
+    const err = new Error('{"message": "Big Trouble 1"}');
     github.gitdata.getReference = jest.fn().mockReturnValueOnce(Promise.reject(err));
 
     await app.receive({
@@ -109,7 +112,7 @@ describe('Repository integration tests', () => {
   // Test error path execution when `getReference` fails to
   // get the master branch the second time it is called.
   test('A repo with no master branch is skipped 2', async () => {
-    const err = new Error('{"message": "Big Trouble"}');
+    const err = new Error('{"message": "Big Trouble 2"}');
     const getReference = jest.fn();
     getReference.mockReturnValueOnce(master);
     getReference.mockReturnValueOnce(Promise.reject(err));
@@ -132,6 +135,34 @@ describe('Repository integration tests', () => {
     await app.receive({
       name: 'schedule.repository',
       payload: payloadWithLic,
+    });
+
+    expect(github.gitdata.getReference).not.toBeCalled();
+    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.pullRequests.create).not.toHaveBeenCalled();
+    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.repos.createFile).not.toHaveBeenCalled();
+    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+  });
+
+  test('An archived repository (no lic) should be skipped', async () => {
+    await app.receive({
+      name: 'schedule.repository',
+      payload: archivedNoLic,
+    });
+
+    expect(github.gitdata.getReference).not.toBeCalled();
+    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.pullRequests.create).not.toHaveBeenCalled();
+    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.repos.createFile).not.toHaveBeenCalled();
+    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+  });
+
+  test('An archived repository (lic) should be skipped', async () => {
+    await app.receive({
+      name: 'schedule.repository',
+      payload: archivedLic,
     });
 
     expect(github.gitdata.getReference).not.toBeCalled();

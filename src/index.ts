@@ -67,8 +67,12 @@ export = (app: Application) => {
     logger.info(`Processing ${context.payload.repository.name}`);
 
     try {
-      await addLicenseIfRequired(context, scheduler);
+      if (!context.payload.repository.archived) {
+        logger.warn(`The repo ${context.payload.repository.name} is archived. Skipping.`);
+        await addLicenseIfRequired(context, scheduler);
+      }
     } catch (err) {
+      // console.log(err.message);
       logger.error(`Unable to add license to ${context.payload.repository.name}`);
     }
   }

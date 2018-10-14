@@ -30,5 +30,6 @@ module.exports = {
   },
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|\\.(test|spec))\\.[ts]sx?$',
+  testPathIgnorePatterns: ['node_modules', 'build'],
   verbose: false,
 };
