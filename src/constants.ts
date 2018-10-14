@@ -25,7 +25,7 @@ export const HELP_DESK = {
 };
 
 export const PR_TITLES = {
-  ADD_LICENSE: 'Add missing license!',
+  ADD_LICENSE: 'Add missing license',
 };
 
 export const BRANCHES = {
