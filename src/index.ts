@@ -72,7 +72,6 @@ export = (app: Application) => {
         await addLicenseIfRequired(context, scheduler);
       }
     } catch (err) {
-      // console.log(err.message);
       logger.error(`Unable to add license to ${context.payload.repository.name}`);
     }
   }
