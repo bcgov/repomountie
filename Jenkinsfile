@@ -28,6 +28,7 @@ def PIRATE_ICO = 'http://icons.iconarchive.com/icons/aha-soft/torrent/64/pirate-
 def JENKINS_ICO = 'https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png'
 def OPENSHIFT_ICO = 'https://commons.wikimedia.org/wiki/File:OpenShift-LogoType.svg'
 def SLACK_CHANNEL = '${SLACK_CHANNEL}'
+def GIT_BRANCH_NAME = 'master'
 
 def notifySlack(text, channel, url, attachments, icon) {
     def slackURL = url
