@@ -34,7 +34,7 @@ describe('Additional routes', () => {
 
   // Testing additional routes is under construction
   // https://github.com/probot/probot/issues/699
-  test('Health check probe should return OK', async () => {
+  test.skip('Health check probe should return OK', async () => {
     await request(app.server)
       .get('/bot/ehlo')
       .expect(200); // Ok
