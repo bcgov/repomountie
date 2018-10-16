@@ -18,26 +18,25 @@
 // Created by Jason Leach on 2018-10-15.
 //
 
-// import { Application } from 'probot';
-// import { default as request } from 'supertest';
-// import robot from '../src';
+import { Probot } from 'probot';
+import { default as request } from 'supertest';
+import robot from '../src';
 
 describe('Additional routes', () => {
-  // let app;
+  let app;
+  let probot;
 
   beforeEach(() => {
-    // const github = {};
-    // app = new Application();
-    // app.load(robot);
-    // app.app = () => 'Token';
-    // app.auth = () => Promise.resolve(github);
+    probot = new Probot({ id: 123, cert: 'test' });
+    app = probot.load(robot);
+    app.app = () => 'test';
   });
 
   // Testing additional routes is under construction
   // https://github.com/probot/probot/issues/699
-  test.skip('Health check probe should return OK', async () => {
-    // await request(app.server)
-    //   .get('/bot/ehlo')
-    //   .expect(200); // Ok
+  test('Health check probe should return OK', async () => {
+    await request(app.server)
+      .get('/bot/ehlo')
+      .expect(200); // Ok
   });
 });
