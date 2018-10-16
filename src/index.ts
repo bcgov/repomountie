@@ -24,11 +24,14 @@ import createScheduler from 'probot-scheduler';
 import { SCHEDULER_DELAY } from './constants';
 import { created } from './libs/issue';
 import { addLicenseIfRequired } from './libs/repository';
+import { monitor } from './libs/routes';
 
 process.env.TZ = 'UTC';
 
 export = (app: Application) => {
   logger.info('Robot Loaded!!!');
+
+  monitor(app); // add monitoring routes
 
   const scheduler = createScheduler(app, {
     delay: false, // !!process.env.DISABLE_DELAY, // delay is enabled on first run
