@@ -46,3 +46,12 @@ export const VALID_LICENSES = {
 export const TEXT_FILES = {
   WHY_LICENSE: 'templates/why-license.md',
 };
+
+export const ALLOWED_REPOS = [
+  'repo-mountie',
+  'devhub-signing-api',
+  'devhub-signing-web',
+  'devhub-signing-agent',
+  'range-api',
+  'range-web',
+];

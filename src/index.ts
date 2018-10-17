@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/nodejs-common-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
-import { SCHEDULER_DELAY } from './constants';
+import { ALLOWED_REPOS, SCHEDULER_DELAY } from './constants';
 import { created } from './libs/issue';
 import { addLicenseIfRequired } from './libs/repository';
 
@@ -41,6 +41,11 @@ export = (app: Application) => {
 
   async function issueCommentCreated(context: Context) {
     logger.info(`Processing issue ${context.payload.issue.id}`);
+
+    if (!isRepositoryAllowed) {
+      scheduler.stop(context.payload.repository);
+      return;
+    }
 
     try {
       // This can throw a `TypeError` during testing.
@@ -66,6 +71,11 @@ export = (app: Application) => {
   async function repositoryScheduled(context: Context) {
     logger.info(`Processing ${context.payload.repository.name}`);
 
+    if (!isRepositoryAllowed(context)) {
+      scheduler.stop(context.payload.repository);
+      return;
+    }
+
     try {
       if (!context.payload.repository.archived) {
         logger.warn(`The repo ${context.payload.repository.name} is archived. Skipping.`);
@@ -75,4 +85,18 @@ export = (app: Application) => {
       logger.error(`Unable to add license to ${context.payload.repository.name}`);
     }
   }
+
+  const isRepositoryAllowed = (context: Context) => {
+    const env = process.env.NODE_ENV || 'development';
+
+    if (env === 'production') {
+      return true;
+    }
+
+    if (ALLOWED_REPOS.includes(context.payload.repository.name)) {
+      return true;
+    }
+
+    return false;
+  };
 };
