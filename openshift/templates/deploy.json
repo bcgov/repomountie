@@ -261,6 +261,7 @@
       "name": "GITHUB_WEBHOOK_SECRET_VALUE",
       "displayName": "SSO secret name",
       "description": "The secret name of sso-credentials.",
+      "from": "[a-zA-Z0-9]{32}",
       "required": true
     },
     {
