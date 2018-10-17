@@ -38,11 +38,13 @@
         }
       },
       "spec": {
-        "ports": [{
-          "name": "8080-tcp",
-          "port": 8080,
-          "targetPort": 8080
-        }],
+        "ports": [
+          {
+            "name": "8080-tcp",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ],
         "selector": {
           "deploymentconfig": "${NAME}"
         }
@@ -66,7 +68,7 @@
           "kind": "Service",
           "name": "${NAME}",
           "weight": 100
-        },  
+        },
         "tls": {
           "termination": "edge"
         }
@@ -85,13 +87,12 @@
         "strategy": {
           "type": "Rolling"
         },
-        "triggers": [{
+        "triggers": [
+          {
             "type": "ImageChange",
             "imageChangeParams": {
               "automatic": true,
-              "containerNames": [
-                "${NAME}"
-              ],
+              "containerNames": ["${NAME}"],
               "from": {
                 "kind": "ImageStreamTag",
                 "namespace": "${IMAGE_NAMESPACE}",
@@ -115,76 +116,80 @@
             }
           },
           "spec": {
-            "containers": [{
-              "name": "${NAME}",
-              "image": " ",
-              "ports": [{
-                "containerPort": 8080,
-                "protocol": "TCP"
-              }],
-              "readinessProbe": {
-                "timeoutSeconds": 3,
-                "initialDelaySeconds": 3,
-                "httpGet": {
-                  "path": "/api/v1/ehlo",
-                  "port": 8080
-                }
-              },
-              "livenessProbe": {
-                "timeoutSeconds": 3,
-                "initialDelaySeconds": 300,
-                "httpGet": {
-                  "path": "/api/v1/ehlo",
-                  "port": 8080
-                }
-              },
-              "env": [
-                {
-                  "name": "APP_ID",
-                  "value": "${GITHUB_APP_ID}"
-                },
-                {
-                  "name": "LOG_LEVEL",
-                  "value": "${LOG_LEVEL}"
-                },
-                {
-                  "name": "WEBHOOK_PROXY_URL",
-                  "value": "${WEBHOOK_PROXY_URL}"
-                },
-                {
-                  "name": "PRIVATE_KEY",
-                  "valueFrom": {
-                    "secretKeyRef": {
-                      "key": "key",
-                      "name": "${GITHUB_SECRET_NAME}"
-                    }
+            "containers": [
+              {
+                "name": "${NAME}",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 3,
+                  "httpGet": {
+                    "path": "/api/v1/ehlo",
+                    "port": 8080
                   }
                 },
-                {
-                  "name": "WEBHOOK_SECRET",
-                  "valueFrom": {
-                    "secretKeyRef": {
-                      "key": "secret",
-                      "name": "${GITHUB_SECRET_NAME}"
-                    }
+                "livenessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 300,
+                  "httpGet": {
+                    "path": "/api/v1/ehlo",
+                    "port": 8080
                   }
                 },
-                {
-                  "name": "PORT",
-                  "value": "${PORT}"
-                },
-                {
-                  "name": "NODE_ENV",
-                  "value": "${NODE_ENV}"
-                }
-              ],
-              "resources": {
-                "limits": {
-                  "memory": "${MEMORY_LIMIT}",
-                  "cpu": "${CPU_LIMIT}"
+                "env": [
+                  {
+                    "name": "APP_ID",
+                    "value": "${GITHUB_APP_ID}"
+                  },
+                  {
+                    "name": "LOG_LEVEL",
+                    "value": "${LOG_LEVEL}"
+                  },
+                  {
+                    "name": "WEBHOOK_PROXY_URL",
+                    "value": "${WEBHOOK_PROXY_URL}"
+                  },
+                  {
+                    "name": "PRIVATE_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "key",
+                        "name": "${GITHUB_SECRET_NAME}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "secret",
+                        "name": "${GITHUB_SECRET_NAME}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PORT",
+                    "value": "${PORT}"
+                  },
+                  {
+                    "name": "NODE_ENV",
+                    "value": "${NODE_ENV}"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "${MEMORY_LIMIT}",
+                    "cpu": "${CPU_LIMIT}"
+                  }
                 }
               }
-            }]
+            ]
           }
         }
       }
@@ -202,8 +207,7 @@
       "name": "IMAGE_TAG",
       "displayName": "Output Image Tag",
       "description": "The tag given to the built image.",
-      "required": true,
-      "value": "latest"
+      "required": true
     },
     {
       "name": "IMAGE_NAMESPACE",
