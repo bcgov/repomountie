@@ -4,23 +4,13 @@ The _repo mountie_ is a GitHup application (bot) help ensure cultural niceties a
 
 ## Usage
 
-### API Usage & Documentation
+### Local Development
 
-To run the bot locally ensure you have a `.env` file in the project root and run the following command:
+To run the bot locally ensure you have a `.env` file in the project root; see `env.example` for required contents. Once your environment is setup run the following command:
 
 ```console
 npm run build && npm start
 ```
-
-The parameters for the `.env` file are:
-
-| Parameter         | Optional | Description                |
-| ----------------- | -------- | -------------------------- |
-| APP_ID            | NO       | The GitHub APP ID          |
-| WEBHOOK_SECRET    | NO       | The GitHub Webhook secret  |
-| PRIVATE_KEY       | NO       | The GiHub App private key  |
-| LOG_LEVEL         | YES      | Default `debug`            |
-| WEBHOOK_PROXY_URL | YES      | Used for local development |
 
 \* Pro Tip: You can generate a webhook secret with the command:
 
@@ -28,9 +18,11 @@ The parameters for the `.env` file are:
 openssl rand -hex 20
 ```
 
+\* Pro Tip: Log levels are _trace_, _debug_ or _info_.
+
 \* Pro Tip: You can use `smee.io` or perhaps `ngrok` to proxy GitHub events.
 
-## Build
+### Build
 
 Use the OpenShift `build.json` template in this repo with the following (sample) command. The build is meant to be a CI process to confirm that a build can happen without error, that no code quality, security or test errors occur.
 
@@ -38,7 +30,9 @@ Use the OpenShift `build.json` template in this repo with the following (sample)
 
 \*\* To build multiple branches you'll use the config file multiple times. This will create errors from the `oc` command output that can safely be ignored. For example: `Error from server (AlreadyExists): secrets "github" already exists`
 
-## Deployment
+// TODO:(jl) Add sample `oc` command.
+
+### Deployment (OpenShift)
 
 Use the OpenShift `deploy.json` template in this repo with the following (sample) command to build an environment (namesapce) and deploy the code and dependencies:
 
