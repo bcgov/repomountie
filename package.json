@@ -1,6 +1,6 @@
 {
   "name": "repo-mountie",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A bot to help ensure cultural niceties are respected.",
   "author": "Jason C. Leach <jason.leach@fullboar.ca>",
   "license": "Apache-2.0",
