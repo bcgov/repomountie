@@ -23,10 +23,10 @@
   },
   "dependencies": {
     "@bcgov/nodejs-common-utils": "0.0.16",
+    "@bcgov/probot-scheduler": "^1.2.1",
     "babel": "^6.23.0",
     "babel-jest": "^23.6.0",
     "probot": "^7.0.0",
-    "probot-scheduler": "^1.2.0",
     "transform-runtime": "0.0.0"
   },
   "devDependencies": {
