@@ -19,8 +19,8 @@
 //
 
 import { logger } from '@bcgov/nodejs-common-utils';
+import createScheduler from '@bcgov/probot-scheduler';
 import { Application, Context } from 'probot';
-import createScheduler from 'probot-scheduler';
 import { SCHEDULER_DELAY } from './constants';
 import { created } from './libs/issue';
 import { addLicenseIfRequired } from './libs/repository';
