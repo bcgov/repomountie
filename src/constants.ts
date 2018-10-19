@@ -21,7 +21,7 @@
 export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
 export const HELP_DESK = {
-  LICENSE_SUPPORT_USERS: ['jleach'],
+  LICENSE_SUPPORT_USERS: ['jleach', 'kelpisland'],
 };
 
 export const PR_TITLES = {
