@@ -65,9 +65,9 @@ export const addLicenseFileToRepo = async (context: Context) => {
     await context.github.pullRequests.create(
       context.repo({
         base: 'master',
+        body: prMessageBody,
         head: BRANCHES.ADD_LICENSE,
         maintainer_can_modify: true, // maintainers cat edit your this PR
-        prMessageBody,
         title: PR_TITLES.ADD_LICENSE,
       })
     );

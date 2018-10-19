@@ -39,7 +39,7 @@ gulp.task('transpile-src', () =>
   tsp
     .src()
     .pipe(sourcemaps.init())
-    .pipe(ts(tsp))
+    .pipe(tsp())
     .js.pipe(
       sourcemaps.write('.', {
         includeContent: false,
