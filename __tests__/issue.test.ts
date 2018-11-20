@@ -31,6 +31,9 @@ const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
 const p1 = path.join(__dirname, 'fixtures/issue-comment-created-assigned.json');
 const assignedIssueCommentCreated = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
+const p2 = path.join(__dirname, 'fixtures/issue-comment-created-notme.json');
+const unassignedIssueNotMineCommentCreated = JSON.parse(fs.readFileSync(p2, 'utf8'));
+
 describe('Repository integration tests', () => {
   let app;
   let github;
@@ -79,6 +82,20 @@ describe('Repository integration tests', () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: assignedIssueCommentCreated,
+    });
+
+    expect(github.gitdata.getReference).not.toBeCalled();
+    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.pullRequests.create).not.toHaveBeenCalled();
+    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.repos.createFile).not.toHaveBeenCalled();
+    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+  });
+
+  test('An issue not created by me is ignored', async () => {
+    await app.receive({
+      name: 'issue_comment.created',
+      payload: unassignedIssueNotMineCommentCreated,
     });
 
     expect(github.gitdata.getReference).not.toBeCalled();
