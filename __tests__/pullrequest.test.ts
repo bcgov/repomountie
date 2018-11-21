@@ -22,7 +22,7 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
-import { fetchRepoMountieConfig } from '../src/libs/pullrequest';
+import { fetchRepoMountieConfig, isValidPullRequestLength } from '../src/libs/pullrequest';
 
 jest.mock('fs');
 
@@ -86,6 +86,30 @@ describe('Repository integration tests', () => {
 
     await expect(fetchRepoMountieConfig(context)).rejects.toThrow(err);
     expect(github.repos.getContent).toHaveBeenCalled();
+  });
+
+  test('A PR with less changes is accepted', () => {
+    context.payload.pull_request.additions = 5;
+    const myConfig = { ...repoMountieConfig };
+    myConfig.pullRequest.maxLinesChanged = 10;
+
+    expect(isValidPullRequestLength(context, myConfig)).toBeTruthy();
+  });
+
+  test('A PR with more changes is rejected', () => {
+    context.payload.pull_request.additions = 10;
+    const myConfig = { ...repoMountieConfig };
+    myConfig.pullRequest.maxLinesChanged = 5;
+
+    expect(isValidPullRequestLength(context, myConfig)).toBeFalsy();
+  });
+
+  test('A PR with the same number of changes is rejected', () => {
+    context.payload.pull_request.additions = 10;
+    const myConfig = { ...repoMountieConfig };
+    myConfig.pullRequest.maxLinesChanged = 10;
+
+    expect(isValidPullRequestLength(context, myConfig)).toBeFalsy();
   });
 });
 

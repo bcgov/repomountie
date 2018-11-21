@@ -63,7 +63,7 @@ export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMoun
  * @param {RepoMountieConfig} config The repo config file
  * @returns True if the length is valid, False otherwise
  */
-const isValidPullRequestLength = (context: Context, config: RepoMountieConfig): boolean => {
+export const isValidPullRequestLength = (context: Context, config: RepoMountieConfig): boolean => {
   const linesChanged =
     context.payload.pull_request.additions + context.payload.pull_request.deletions;
 
