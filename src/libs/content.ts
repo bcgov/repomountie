@@ -34,14 +34,14 @@ export const addLicenseFileToRepo = async (context: Context) => {
 
   try {
     // If we don't have a master we won't have know where to merge the PR
-    const master = await context.github.gitdata.getReference(
+    const master = await context.github.gitdata.getRef(
       context.repo({
         ref: 'heads/master',
       })
     );
 
     // Create a branch to commit to commit the license file
-    await context.github.gitdata.createReference(
+    await context.github.gitdata.createRef(
       context.repo({
         ref: `refs/heads/${BRANCHES.ADD_LICENSE}`,
         sha: master.data.object.sha,

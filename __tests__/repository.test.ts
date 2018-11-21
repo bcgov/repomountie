@@ -51,21 +51,21 @@ describe('Repository integration tests', () => {
     app = new Application();
     app.app = () => 'Token';
     app.load(robot);
-    const getReference = jest.fn();
-    getReference.mockReturnValueOnce(master);
-    getReference.mockReturnValueOnce(master);
+    const getRef = jest.fn();
+    getRef.mockReturnValueOnce(master);
+    getRef.mockReturnValueOnce(master);
 
     github = {
       gitdata: {
-        createReference: jest.fn(),
-        getReference,
+        createRef: jest.fn(),
+        getRef,
       },
       issues: {
-        addAssigneesToIssue: jest.fn(),
+        addAssignees: jest.fn(),
       },
       pullRequests: {
         create: jest.fn().mockReturnValueOnce(Promise.resolve()),
-        getAll: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
+        list: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
       },
       repos: {
         createFile: jest.fn(),
@@ -82,53 +82,53 @@ describe('Repository integration tests', () => {
       payload: payloadNoLic,
     });
 
-    expect(github.gitdata.getReference.mock.calls.length).toBe(2);
-    expect(github.pullRequests.getAll).toHaveBeenCalled();
+    expect(github.gitdata.getRef.mock.calls.length).toBe(2);
+    expect(github.pullRequests.list).toHaveBeenCalled();
     expect(github.pullRequests.create).toHaveBeenCalled();
-    expect(github.gitdata.createReference).toHaveBeenCalled();
+    expect(github.gitdata.createRef).toHaveBeenCalled();
     expect(github.repos.createFile).toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
-  // Test error path execution when `getReference` first fails to
+  // Test error path execution when `getRef` first fails to
   // get the master branch.
   test('A repo with no master branch is skipped 1', async () => {
     const err = new Error('{"message": "Big Trouble 1"}');
-    github.gitdata.getReference = jest.fn().mockReturnValueOnce(Promise.reject(err));
+    github.gitdata.getRef = jest.fn().mockReturnValueOnce(Promise.reject(err));
 
     await app.receive({
       name: 'schedule.repository',
       payload: payloadNoLic,
     });
 
-    expect(github.gitdata.getReference).toBeCalled();
-    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.gitdata.getRef).toBeCalled();
+    expect(github.pullRequests.list).not.toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
-  // Test error path execution when `getReference` fails to
+  // Test error path execution when `getRef` fails to
   // get the master branch the second time it is called.
   test('A repo with no master branch is skipped 2', async () => {
     const err = new Error('{"message": "Big Trouble 2"}');
-    const getReference = jest.fn();
-    getReference.mockReturnValueOnce(master);
-    getReference.mockReturnValueOnce(Promise.reject(err));
-    github.gitdata.getReference = getReference;
+    const getRef = jest.fn();
+    getRef.mockReturnValueOnce(master);
+    getRef.mockReturnValueOnce(Promise.reject(err));
+    github.gitdata.getRef = getRef;
 
     await app.receive({
       name: 'schedule.repository',
       payload: payloadNoLic,
     });
 
-    expect(github.gitdata.getReference.mock.calls.length).toBe(2);
-    expect(github.pullRequests.getAll).toHaveBeenCalled();
+    expect(github.gitdata.getRef.mock.calls.length).toBe(2);
+    expect(github.pullRequests.list).toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
   test('A repository with a license should be skipped', async () => {
@@ -137,12 +137,12 @@ describe('Repository integration tests', () => {
       payload: payloadWithLic,
     });
 
-    expect(github.gitdata.getReference).not.toBeCalled();
-    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.gitdata.getRef).not.toBeCalled();
+    expect(github.pullRequests.list).not.toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
   test('An archived repository (no lic) should be skipped', async () => {
@@ -151,12 +151,12 @@ describe('Repository integration tests', () => {
       payload: archivedNoLic,
     });
 
-    expect(github.gitdata.getReference).not.toBeCalled();
-    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.gitdata.getRef).not.toBeCalled();
+    expect(github.pullRequests.list).not.toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
   test('An archived repository (lic) should be skipped', async () => {
@@ -165,12 +165,12 @@ describe('Repository integration tests', () => {
       payload: archivedLic,
     });
 
-    expect(github.gitdata.getReference).not.toBeCalled();
-    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.gitdata.getRef).not.toBeCalled();
+    expect(github.pullRequests.list).not.toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 });
 

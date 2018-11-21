@@ -40,7 +40,7 @@ interface RepoMountieConfig {
  */
 export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConfig> => {
   try {
-    const response = await context.github.repos.getContent(
+    const response = await context.github.repos.getContents(
       context.repo({
         branch: 'master',
         path: REPO_CONFIG_FILE,

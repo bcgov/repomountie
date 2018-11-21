@@ -51,7 +51,7 @@ export const helpDeskSupportRequired = (issue: any) => {
 export const assignHelpDeskMembers = async (context: Context) => {
   try {
     // Assign our help desk license specialists ;)
-    await context.github.issues.addAssigneesToIssue(
+    await context.github.issues.addAssignees(
       context.issue({
         assignees: HELP_DESK.LICENSE_SUPPORT_USERS,
       })
