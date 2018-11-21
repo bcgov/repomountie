@@ -38,7 +38,7 @@ interface RepoMountieConfig {
  * @param {Context} context The event context context
  * @returns A `RepoMountieConfig` object if one exists
  */
-const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConfig> => {
+export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConfig> => {
   try {
     const response = await context.github.repos.getContent(
       context.repo({
@@ -49,8 +49,10 @@ const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConf
 
     const content = Buffer.from(response.data.content, 'base64').toString();
     return JSON.parse(content);
-  } catch (error) {
-    throw new Error('This repo does not have a repo mountie config file');
+  } catch (err) {
+    const message = 'Unable to process config file.';
+    logger.error(`${message}, error = ${err.message}`);
+    throw new Error(message);
   }
 };
 
