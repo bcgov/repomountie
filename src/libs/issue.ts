@@ -20,7 +20,7 @@
 
 import { logger } from '@bcgov/nodejs-common-utils';
 import { Context } from 'probot';
-import { HELP_DESK } from '../constants';
+import { COMMENT_TRIGGER_WORD, GITHUB_ID, HELP_DESK } from '../constants';
 
 /**
  * Determine if help desk support is required
@@ -28,14 +28,15 @@ import { HELP_DESK } from '../constants';
  * @returns True if support is required, false otherwise.
  */
 export const helpDeskSupportRequired = (issue: any) => {
-  const triggerWord = 'help';
+  const triggerWord = COMMENT_TRIGGER_WORD;
+  const notMyIssue = issue.issue.user.login !== `${GITHUB_ID}[bot]`;
   const noHelpRequired = issue.comment.body.search(triggerWord) === -1;
   const isAssigned = issue.issue.assignees.some(e =>
     HELP_DESK.LICENSE_SUPPORT_USERS.includes(e.login)
   );
 
   // early return
-  if (isAssigned || noHelpRequired) {
+  if (isAssigned || noHelpRequired || notMyIssue) {
     return false;
   }
 
