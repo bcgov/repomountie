@@ -24,7 +24,7 @@ export const COMMENT_TRIGGER_WORD = 'help';
 
 export const GITHUB_ID = 'test-3kdjfksd';
 
-export const REPO_CONFIG_FILE = 'repomountie.json';
+export const REPO_CONFIG_FILE = 'rmconfig.json';
 
 export const HELP_DESK = {
   LICENSE_SUPPORT_USERS: ['jleach', 'kelpisland'],
