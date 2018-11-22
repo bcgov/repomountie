@@ -81,15 +81,13 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
 export const validatePullRequestIfRequired = async (context: Context) => {
   try {
     const config = await fetchRepoMountieConfig(context);
-
-    if (isValidPullRequestLength(context, config)) {
+    if (!isValidPullRequestLength(context, config)) {
       const rawMessageBody: string = await loadTemplate(TEXT_FILES.HOWTO_PR);
       const messageBody = rawMessageBody
         .replace('[USER_NAME]', context.payload.pull_request.user.login)
         .replace('[MAX_LINES]', `${config.pullRequest.maxLinesChanged}`);
-      const params = context.issue({ body: messageBody });
 
-      await context.github.issues.createComment(params);
+      await context.github.issues.createComment(context.issue({ body: messageBody }));
     }
   } catch (err) {
     const message = 'Unable to validate pull request.';

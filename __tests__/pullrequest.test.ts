@@ -26,7 +26,7 @@ import { fetchRepoMountieConfig, isValidPullRequestLength } from '../src/libs/pu
 
 jest.mock('fs');
 
-const p0 = path.join(__dirname, 'fixtures/issue-opened.json');
+const p0 = path.join(__dirname, 'fixtures/pr-opened-event.json');
 const issueOpenedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
 const p1 = path.join(__dirname, 'fixtures/repo-get-content.json');
@@ -44,24 +44,12 @@ describe('Repository integration tests', () => {
     app = new Application();
     app.app = () => 'Token';
     app.load(robot);
-    const getReference = jest.fn();
-    // getReference.mockReturnValueOnce(master);
-    // getReference.mockReturnValueOnce(master);
 
     github = {
-      gitdata: {
-        createReference: jest.fn(),
-        getReference,
-      },
       issues: {
-        addAssigneesToIssue: jest.fn(),
-      },
-      pullRequests: {
-        // create: jest.fn().mockReturnValueOnce(Promise.resolve()),
-        // getAll: jest.fn().mockReturnValueOnce(Promise.resolve(issueOpened)),
+        createComment: jest.fn(),
       },
       repos: {
-        createFile: jest.fn(),
         getContent: jest.fn().mockReturnValueOnce(Promise.resolve(repoFileContent)),
       },
     };
@@ -110,6 +98,17 @@ describe('Repository integration tests', () => {
     myConfig.pullRequest.maxLinesChanged = 10;
 
     expect(isValidPullRequestLength(context, myConfig)).toBeFalsy();
+  });
+
+  test('Blarb', async () => {
+    context.payload.pull_request.additions = 1000;
+    await app.receive({
+      name: 'pull_request.opened',
+      payload: issueOpenedEvent.payload,
+    });
+
+    expect(github.repos.getContent).toHaveBeenCalled();
+    expect(github.issues.createComment).toHaveBeenCalled();
   });
 });
 
