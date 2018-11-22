@@ -97,7 +97,7 @@ describe('Repository integration tests', () => {
     const myConfig = { ...repoMountieConfig };
     myConfig.pullRequest.maxLinesChanged = 10;
 
-    expect(isValidPullRequestLength(context, myConfig)).toBeFalsy();
+    expect(isValidPullRequestLength(context, myConfig)).toBeTruthy();
   });
 
   test('A long PR should trigger a help comment to be added', async () => {

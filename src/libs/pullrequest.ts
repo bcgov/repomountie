@@ -67,7 +67,7 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
   const linesChanged =
     context.payload.pull_request.additions + context.payload.pull_request.deletions;
 
-  if (linesChanged < config.pullRequest.maxLinesChanged) {
+  if (linesChanged <= config.pullRequest.maxLinesChanged) {
     return true;
   }
 
