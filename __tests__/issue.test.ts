@@ -53,6 +53,7 @@ describe('Repository integration tests', () => {
       },
       pullRequests: {
         create: jest.fn(),
+        getAll: jest.fn(),
         list: jest.fn(),
       },
       repos: {
@@ -98,12 +99,12 @@ describe('Repository integration tests', () => {
       payload: unassignedIssueNotMineCommentCreated,
     });
 
-    expect(github.gitdata.getReference).not.toBeCalled();
+    expect(github.gitdata.getRef).not.toBeCalled();
     expect(github.pullRequests.getAll).not.toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 });
 

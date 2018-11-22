@@ -108,7 +108,7 @@ describe('Repository integration tests', () => {
       payload: issueOpenedEvent.payload,
     });
 
-    expect(github.repos.getContent).toHaveBeenCalled();
+    expect(github.repos.getContents).toHaveBeenCalled();
     expect(github.issues.createComment).toHaveBeenCalled();
   });
 });
