@@ -15,8 +15,8 @@ function readFile(path, options, cb) {
   if (path === 'no-file') {
     return cb(new Error('No such file - mock'), undefined);
   }
-
-  return cb(undefined, Buffer.from('Hello World', 'utf8'));
+  const text = 'Hello World';
+  return cb(undefined, typeof options === 'undefined' ? Buffer.from(text, 'utf8') : text);
 }
 
 fs.readFile = readFile;
