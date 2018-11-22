@@ -81,6 +81,7 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
 export const validatePullRequestIfRequired = async (context: Context) => {
   try {
     const config = await fetchRepoMountieConfig(context);
+
     if (!isValidPullRequestLength(context, config)) {
       const rawMessageBody: string = await loadTemplate(TEXT_FILES.HOWTO_PR);
       const messageBody = rawMessageBody
