@@ -100,7 +100,7 @@ describe('Repository integration tests', () => {
     expect(isValidPullRequestLength(context, myConfig)).toBeFalsy();
   });
 
-  test('Blarb', async () => {
+  test('A long PR should trigger a help comment to be added', async () => {
     context.payload.pull_request.additions = 1000;
     await app.receive({
       name: 'pull_request.opened',
