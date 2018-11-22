@@ -1,0 +1,78 @@
+{
+  "event": "installation_repositories",
+  "payload": {
+    "action": "added",
+    "installation": {
+      "id": 356276,
+      "account": {
+        "login": "fullboar",
+        "id": 762183,
+        "node_id": "MDEyOk9yZ2FuaXphdGlvbjc2MjE4Mw==",
+        "avatar_url": "https://avatars0.githubusercontent.com/u/762183?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/fullboar",
+        "html_url": "https://github.com/fullboar",
+        "followers_url": "https://api.github.com/users/fullboar/followers",
+        "following_url": "https://api.github.com/users/fullboar/following{/other_user}",
+        "gists_url": "https://api.github.com/users/fullboar/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/fullboar/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/fullboar/subscriptions",
+        "organizations_url": "https://api.github.com/users/fullboar/orgs",
+        "repos_url": "https://api.github.com/users/fullboar/repos",
+        "events_url": "https://api.github.com/users/fullboar/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/fullboar/received_events",
+        "type": "Organization",
+        "site_admin": false
+      },
+      "repository_selection": "all",
+      "access_tokens_url": "https://api.github.com/installations/356276/access_tokens",
+      "repositories_url": "https://api.github.com/installation/repositories",
+      "html_url": "https://github.com/organizations/fullboar/settings/installations/356276",
+      "app_id": 18286,
+      "target_id": 762183,
+      "target_type": "Organization",
+      "permissions": {
+        "contents": "write",
+        "pull_requests": "write",
+        "administration": "read",
+        "metadata": "read",
+        "issues": "read"
+      },
+      "events": ["issue_comment", "repository"],
+      "created_at": 1538258502,
+      "updated_at": 1539303368,
+      "single_file_name": null
+    },
+    "repository_selection": "all",
+    "repositories_added": [
+      {
+        "id": 158440612,
+        "node_id": "MDEwOlJlcG9zaXRvcnkxNTg0NDA2MTI=",
+        "name": "glarb",
+        "full_name": "fullboar/glarb",
+        "private": false
+      }
+    ],
+    "repositories_removed": [],
+    "sender": {
+      "login": "jleach",
+      "id": 390891,
+      "node_id": "MDQ6VXNlcjM5MDg5MQ==",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/390891?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jleach",
+      "html_url": "https://github.com/jleach",
+      "followers_url": "https://api.github.com/users/jleach/followers",
+      "following_url": "https://api.github.com/users/jleach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jleach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jleach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jleach/subscriptions",
+      "organizations_url": "https://api.github.com/users/jleach/orgs",
+      "repos_url": "https://api.github.com/users/jleach/repos",
+      "events_url": "https://api.github.com/users/jleach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jleach/received_events",
+      "type": "User",
+      "site_admin": false
+    }
+  }
+}

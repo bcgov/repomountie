@@ -26,13 +26,13 @@ import { fetchRepoMountieConfig, isValidPullRequestLength } from '../src/libs/pu
 
 jest.mock('fs');
 
-const p0 = path.join(__dirname, 'fixtures/pr-opened-event.json');
+const p0 = path.join(__dirname, 'fixtures/pull_request-opened-event.json');
 const issueOpenedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
 const p1 = path.join(__dirname, 'fixtures/repo-get-content.json');
 const repoFileContent = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
-const p2 = path.join(__dirname, 'fixtures/rm-config.json');
+const p2 = path.join(__dirname, 'fixtures/rmconfig.json');
 const repoMountieConfig = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
 describe('Repository integration tests', () => {
