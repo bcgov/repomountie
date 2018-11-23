@@ -42,37 +42,43 @@ export = (app: Application) => {
   app.on('repository.deleted', repositoryDelete);
 
   async function pullRequestOpened(context: Context) {
+    try {
+      // This can throw a `TypeError` during testing.
+      if (context.isBot) {
+        // Don't act crazy.
+        logger.info(
+          `Skipping PR ${context.payload.pull_request.number} for repo ${
+            context.payload.repository.name
+          } because its from a bot`
+        );
+        return;
+      }
+    } catch (err) {
+      logger.info('Unable to determine if the sender is a bot');
+    }
+
     logger.info(
       `Processing PR ${context.payload.pull_request.number} for repo ${
         context.payload.repository.name
       }`
     );
 
-    try {
-      // This can throw a `TypeError` during testing.
-      if (context.isBot) {
-        // Don't act crazy.
-        return;
-      }
-    } catch (err) {
-      logger.info('Unable to determine if the sender is a bot');
-    }
-
     await validatePullRequestIfRequired(context);
   }
 
   async function issueCommentCreated(context: Context) {
-    logger.info(`Processing issue ${context.payload.issue.id}`);
-
     try {
       // This can throw a `TypeError` during testing.
       if (context.isBot) {
         // Don't act crazy.
+        logger.info(`Skipping issue ${context.payload.issue.id} because its from a bot`);
         return;
       }
     } catch (err) {
       logger.info('Unable to determine if the sender is a bot');
     }
+
+    logger.info(`Processing issue ${context.payload.issue.id}`);
 
     try {
       await created(context);

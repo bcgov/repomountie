@@ -50,7 +50,8 @@ describe('Repository integration tests', () => {
         createComment: jest.fn(),
       },
       repos: {
-        getContent: jest.fn().mockReturnValueOnce(Promise.resolve(repoFileContent)),
+        createFile: jest.fn(),
+        getContents: jest.fn().mockReturnValueOnce(Promise.resolve(repoFileContent)),
       },
     };
 
@@ -64,16 +65,16 @@ describe('Repository integration tests', () => {
     const response = await fetchRepoMountieConfig(context);
 
     expect(response).not.toBe(repoMountieConfig);
-    expect(github.repos.getContent).toHaveBeenCalled();
+    expect(github.repos.getContents).toHaveBeenCalled();
   });
 
   test('A repo with no config should be handled gracefully', async () => {
     const err = new Error('Unable to process config file.');
-    const getContent = jest.fn().mockReturnValueOnce(Promise.reject(err));
-    github.repos.getContent = getContent;
+    const getContents = jest.fn().mockReturnValueOnce(Promise.reject(err));
+    github.repos.getContents = getContents;
 
     await expect(fetchRepoMountieConfig(context)).rejects.toThrow(err);
-    expect(github.repos.getContent).toHaveBeenCalled();
+    expect(github.repos.getContents).toHaveBeenCalled();
   });
 
   test('A PR with less changes is accepted', () => {
@@ -107,7 +108,7 @@ describe('Repository integration tests', () => {
       payload: issueOpenedEvent.payload,
     });
 
-    expect(github.repos.getContent).toHaveBeenCalled();
+    expect(github.repos.getContents).toHaveBeenCalled();
     expect(github.issues.createComment).toHaveBeenCalled();
   });
 });

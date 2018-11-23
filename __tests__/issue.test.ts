@@ -45,15 +45,16 @@ describe('Repository integration tests', () => {
 
     github = {
       gitdata: {
-        createReference: jest.fn(),
-        getReference: jest.fn(),
+        createRef: jest.fn(),
+        getRef: jest.fn(),
       },
       issues: {
-        addAssigneesToIssue: jest.fn(),
+        addAssignees: jest.fn(),
       },
       pullRequests: {
         create: jest.fn(),
         getAll: jest.fn(),
+        list: jest.fn(),
       },
       repos: {
         createFile: jest.fn(),
@@ -70,12 +71,12 @@ describe('Repository integration tests', () => {
       payload: unassignedIssueCommentCreated,
     });
 
-    expect(github.gitdata.getReference).not.toBeCalled();
-    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.gitdata.getRef).not.toBeCalled();
+    expect(github.pullRequests.list).not.toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).toHaveBeenCalled();
+    expect(github.issues.addAssignees).toHaveBeenCalled();
   });
 
   test('An assigned PR (issue) is skipped', async () => {
@@ -84,12 +85,12 @@ describe('Repository integration tests', () => {
       payload: assignedIssueCommentCreated,
     });
 
-    expect(github.gitdata.getReference).not.toBeCalled();
-    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
+    expect(github.gitdata.getRef).not.toBeCalled();
+    expect(github.pullRequests.list).not.toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
   test('An issue not created by me is ignored', async () => {
@@ -98,12 +99,12 @@ describe('Repository integration tests', () => {
       payload: unassignedIssueNotMineCommentCreated,
     });
 
-    expect(github.gitdata.getReference).not.toBeCalled();
+    expect(github.gitdata.getRef).not.toBeCalled();
     expect(github.pullRequests.getAll).not.toHaveBeenCalled();
     expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createReference).not.toHaveBeenCalled();
+    expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssigneesToIssue).not.toHaveBeenCalled();
+    expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 });
 

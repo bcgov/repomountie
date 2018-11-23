@@ -40,7 +40,7 @@ interface RepoMountieConfig {
  */
 export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConfig> => {
   try {
-    const response = await context.github.repos.getContent(
+    const response = await context.github.repos.getContents(
       context.repo({
         branch: 'master',
         path: REPO_CONFIG_FILE,
@@ -81,6 +81,7 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
 export const validatePullRequestIfRequired = async (context: Context) => {
   try {
     const config = await fetchRepoMountieConfig(context);
+
     if (!isValidPullRequestLength(context, config)) {
       const rawMessageBody: string = await loadTemplate(TEXT_FILES.HOWTO_PR);
       const messageBody = rawMessageBody
