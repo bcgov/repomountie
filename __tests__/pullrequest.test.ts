@@ -26,7 +26,7 @@ import {
   extractCommands,
   fetchRepoMountieConfig,
   isValidPullRequestLength,
-  shouldBeIgnored,
+  shouldIgnoredLengthCheck,
 } from '../src/libs/pullrequest';
 
 jest.mock('fs');
@@ -124,12 +124,12 @@ describe('Repository integration tests', () => {
   });
 
   test('A valid command is extracted', () => {
-    context.payload.pull_request.body += '\n /rm-ignore';
+    context.payload.pull_request.body += '\n /rm-ignore-length';
     expect(extractCommands(context.payload.pull_request.body).length).toBe(1);
   });
 
   test('Invalid commands are ignored', () => {
-    context.payload.pull_request.body += '\n /rm-ignore';
+    context.payload.pull_request.body += '\n /rm-ignore-length';
     context.payload.pull_request.body += '\n /rm-blarb';
 
     expect(extractCommands(context.payload.pull_request.body).length).toBe(1);
@@ -137,22 +137,22 @@ describe('Repository integration tests', () => {
 
   test('Empty commands should not be ignored', () => {
     const commands = [];
-    expect(shouldBeIgnored(commands)).toBeFalsy();
+    expect(shouldIgnoredLengthCheck(commands)).toBeFalsy();
   });
 
   test('The ignore command should be recognized', () => {
-    const commands = ['/rm-ignore'];
-    expect(shouldBeIgnored(commands)).toBeTruthy();
+    const commands = ['/rm-ignore-length'];
+    expect(shouldIgnoredLengthCheck(commands)).toBeTruthy();
   });
 
   test('A PR with the ignore command should be ignored', async () => {
-    context.payload.pull_request.body += '\n /rm-ignore';
+    issueOpenedEvent.payload.pull_request.body += '\n /rm-ignore-length';
     await app.receive({
       name: 'pull_request.opened',
       payload: issueOpenedEvent.payload,
     });
 
-    expect(github.repos.getContents).not.toHaveBeenCalled();
+    expect(github.repos.getContents).toHaveBeenCalled();
     expect(github.issues.createComment).not.toHaveBeenCalled();
   });
 });

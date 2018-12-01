@@ -62,7 +62,7 @@ export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMoun
  * @param {string} body The body of the PR
  * @returns True if the PR should be ignored, False otherwise
  */
-export const shouldBeIgnored = (commands: string[]): boolean => {
+export const shouldIgnoredLengthCheck = (commands: string[]): boolean => {
   if (commands.includes(COMMANDS.IGNORE)) {
     return true;
   }
@@ -88,10 +88,11 @@ export const extractCommands = (body: string): any[] => {
  * @returns True if the length is valid, False otherwise
  */
 export const isValidPullRequestLength = (context: Context, config: RepoMountieConfig): boolean => {
+  const commands = extractCommands(context.payload.pull_request.body);
   const linesChanged =
     context.payload.pull_request.additions + context.payload.pull_request.deletions;
 
-  if (linesChanged <= config.pullRequest.maxLinesChanged) {
+  if (shouldIgnoredLengthCheck(commands) || linesChanged <= config.pullRequest.maxLinesChanged) {
     return true;
   }
 
@@ -104,11 +105,6 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
  */
 export const validatePullRequestIfRequired = async (context: Context) => {
   try {
-    const commands = extractCommands(context.payload.pull_request.body);
-    if (shouldBeIgnored(commands)) {
-      return;
-    }
-
     const config = await fetchRepoMountieConfig(context);
 
     if (!isValidPullRequestLength(context, config)) {
