@@ -10,6 +10,7 @@
     },
     "quotemark": [true, "single"],
     "interface-name": [true, "never-prefix"]
+    // "no-console": [false, "log", "error"]
   },
   "rulesDirectory": []
 }
