@@ -7,3 +7,7 @@ Here are a few thoughtful articles on what a good PR should look like:
 [Optimal Pull Request Size](https://smallbusinessprogramming.com/optimal-pull-request-size/)
 
 [Best Practices for Code Review](https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/)
+
+### Pro Tip
+
+- Add the command `/rm-ignore-length` in the body (preferably as the last line) of a PR if you have a legitimate reason for lengthy PR.
