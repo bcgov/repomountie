@@ -20,7 +20,7 @@
 
 import { logger } from '@bcgov/nodejs-common-utils';
 import { Context } from 'probot';
-import { REPO_CONFIG_FILE, TEXT_FILES } from '../constants';
+import { COMMANDS, REPO_CONFIG_FILE, TEXT_FILES } from '../constants';
 import { loadTemplate } from '../libs/utils';
 
 interface RepoMountiePullRequestConfig {
@@ -57,6 +57,30 @@ export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMoun
 };
 
 /**
+ * Check to see if a pull request (PR) contains the command for ignore.
+ *
+ * @param {string} body The body of the PR
+ * @returns True if the PR should be ignored, False otherwise
+ */
+export const shouldIgnoredLengthCheck = (commands: string[]): boolean => {
+  if (commands.includes(COMMANDS.IGNORE)) {
+    return true;
+  }
+
+  return false;
+};
+
+/**
+ * Extract all commands from the body of a PR
+ *
+ * @param {string} body The body of the PR
+ * @returns An `string[]` any commands used
+ */
+export const extractCommands = (body: string): any[] => {
+  return Object.values(COMMANDS).filter(cmd => body.includes(cmd));
+};
+
+/**
  * Validate the length of a pull request
  * The length of a PR is determined by adding the lines deleted and added
  * @param {Context} context The event context context
@@ -64,10 +88,11 @@ export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMoun
  * @returns True if the length is valid, False otherwise
  */
 export const isValidPullRequestLength = (context: Context, config: RepoMountieConfig): boolean => {
+  const commands = extractCommands(context.payload.pull_request.body);
   const linesChanged =
     context.payload.pull_request.additions + context.payload.pull_request.deletions;
 
-  if (linesChanged <= config.pullRequest.maxLinesChanged) {
+  if (shouldIgnoredLengthCheck(commands) || linesChanged <= config.pullRequest.maxLinesChanged) {
     return true;
   }
 

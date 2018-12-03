@@ -53,3 +53,7 @@ export const TEXT_FILES = {
   HOWTO_PR: 'templates/howto_pull_request.md',
   WHY_LICENSE: 'templates/why-license.md',
 };
+
+export const COMMANDS = {
+  IGNORE: '/bot-ignore-length',
+};

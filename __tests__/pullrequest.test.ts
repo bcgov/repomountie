@@ -22,28 +22,35 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
-import { fetchRepoMountieConfig, isValidPullRequestLength } from '../src/libs/pullrequest';
+import {
+  extractCommands,
+  fetchRepoMountieConfig,
+  isValidPullRequestLength,
+  shouldIgnoredLengthCheck,
+} from '../src/libs/pullrequest';
 
 jest.mock('fs');
 
 const p0 = path.join(__dirname, 'fixtures/pull_request-opened-event.json');
-const issueOpenedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
-
 const p1 = path.join(__dirname, 'fixtures/repo-get-content.json');
-const repoFileContent = JSON.parse(fs.readFileSync(p1, 'utf8'));
-
 const p2 = path.join(__dirname, 'fixtures/rmconfig.json');
-const repoMountieConfig = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
 describe('Repository integration tests', () => {
   let app;
   let github;
   let context;
+  let issueOpenedEvent;
+  let repoFileContent;
+  let repoMountieConfig;
 
   beforeEach(() => {
     app = new Application();
     app.app = () => 'Token';
     app.load(robot);
+
+    issueOpenedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
+    repoFileContent = JSON.parse(fs.readFileSync(p1, 'utf8'));
+    repoMountieConfig = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
     github = {
       issues: {
@@ -110,6 +117,43 @@ describe('Repository integration tests', () => {
 
     expect(github.repos.getContents).toHaveBeenCalled();
     expect(github.issues.createComment).toHaveBeenCalled();
+  });
+
+  test('No commands are processed correctly', () => {
+    expect(extractCommands(context.payload.pull_request.body).length).toBe(0);
+  });
+
+  test('A valid command is extracted', () => {
+    context.payload.pull_request.body += '\n /bot-ignore-length';
+    expect(extractCommands(context.payload.pull_request.body).length).toBe(1);
+  });
+
+  test('Invalid commands are ignored', () => {
+    context.payload.pull_request.body += '\n /bot-ignore-length';
+    context.payload.pull_request.body += '\n /rm-blarb';
+
+    expect(extractCommands(context.payload.pull_request.body).length).toBe(1);
+  });
+
+  test('Empty commands should not be ignored', () => {
+    const commands = [];
+    expect(shouldIgnoredLengthCheck(commands)).toBeFalsy();
+  });
+
+  test('The ignore command should be recognized', () => {
+    const commands = ['/bot-ignore-length'];
+    expect(shouldIgnoredLengthCheck(commands)).toBeTruthy();
+  });
+
+  test('A PR with the ignore command should be ignored', async () => {
+    issueOpenedEvent.payload.pull_request.body += '\n /bot-ignore-length';
+    await app.receive({
+      name: 'pull_request.opened',
+      payload: issueOpenedEvent.payload,
+    });
+
+    expect(github.repos.getContents).toHaveBeenCalled();
+    expect(github.issues.createComment).not.toHaveBeenCalled();
   });
 });
 
