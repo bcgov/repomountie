@@ -55,5 +55,5 @@ export const TEXT_FILES = {
 };
 
 export const COMMANDS = {
-  IGNORE: '/rm-ignore-length',
+  IGNORE: '/bot-ignore-length',
 };

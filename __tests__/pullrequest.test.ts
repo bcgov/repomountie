@@ -124,12 +124,12 @@ describe('Repository integration tests', () => {
   });
 
   test('A valid command is extracted', () => {
-    context.payload.pull_request.body += '\n /rm-ignore-length';
+    context.payload.pull_request.body += '\n /bot-ignore-length';
     expect(extractCommands(context.payload.pull_request.body).length).toBe(1);
   });
 
   test('Invalid commands are ignored', () => {
-    context.payload.pull_request.body += '\n /rm-ignore-length';
+    context.payload.pull_request.body += '\n /bot-ignore-length';
     context.payload.pull_request.body += '\n /rm-blarb';
 
     expect(extractCommands(context.payload.pull_request.body).length).toBe(1);
@@ -141,12 +141,12 @@ describe('Repository integration tests', () => {
   });
 
   test('The ignore command should be recognized', () => {
-    const commands = ['/rm-ignore-length'];
+    const commands = ['/bot-ignore-length'];
     expect(shouldIgnoredLengthCheck(commands)).toBeTruthy();
   });
 
   test('A PR with the ignore command should be ignored', async () => {
-    issueOpenedEvent.payload.pull_request.body += '\n /rm-ignore-length';
+    issueOpenedEvent.payload.pull_request.body += '\n /bot-ignore-length';
     await app.receive({
       name: 'pull_request.opened',
       payload: issueOpenedEvent.payload,
