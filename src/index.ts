@@ -25,11 +25,14 @@ import { SCHEDULER_DELAY } from './constants';
 import { created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired } from './libs/repository';
+import routes from './libs/routes';
 
 process.env.TZ = 'UTC';
 
 export = (app: Application) => {
   logger.info('Robot Loaded!!!');
+
+  routes(app);
 
   const scheduler = createScheduler(app, {
     delay: false, // !!process.env.DISABLE_DELAY, // delay is enabled on first run
