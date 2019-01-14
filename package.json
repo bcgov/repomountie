@@ -22,15 +22,21 @@
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "@bcgov/nodejs-common-utils": "0.0.16",
+    "@bcgov/common-nodejs-utils": "^0.1.17",
     "@bcgov/probot-scheduler": "^1.2.1",
     "babel": "^6.23.0",
     "babel-jest": "^23.6.0",
+    "dotenv": "^6.2.0",
+    "nconf": "^0.10.0",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
     "probot": "^7.0.0",
     "transform-runtime": "0.0.0"
   },
   "devDependencies": {
+    "@types/dotenv": "^6.1.0",
     "@types/jest": "^23.3.9",
+    "@types/nconf": "0.0.37",
     "@types/node": "^10.12.10",
     "eslint-plugin-typescript": "^0.13.0",
     "gulp": "^4.0.0",
