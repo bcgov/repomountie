@@ -18,7 +18,7 @@
 // Created by Jason Leach on 2018-10-02.
 //
 
-import { logger } from '@bcgov/nodejs-common-utils';
+import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import { PR_TITLES, VALID_LICENSES } from '../constants';
 import { addLicenseFileToRepo } from './content';

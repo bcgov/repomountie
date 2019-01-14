@@ -18,7 +18,7 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-import { logger } from '@bcgov/nodejs-common-utils';
+import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import { COMMENT_TRIGGER_WORD, GITHUB_ID, HELP_DESK } from '../constants';
 
