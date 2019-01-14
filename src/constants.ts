@@ -59,3 +59,7 @@ export const COMMANDS = {
 };
 
 export const ALLOWED_INSTALLATIONS = ['bcgov'];
+
+export const ACCESS_CONTROL = {
+  USER_ROLE: 'devhub_xxxxxxxx',
+};

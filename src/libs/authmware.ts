@@ -26,7 +26,7 @@ import { getJwtCertificate, logger } from '@bcgov/common-nodejs-utils';
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import config from '../config';
-// import { ACCESS_CONTROL } from '../constants';
+import { ACCESS_CONTROL } from '../constants';
 
 interface JwtStrategyConfig {
   jwtFromRequest: any;
@@ -37,26 +37,28 @@ interface JwtStrategyConfig {
 }
 
 export const isAuthorized = jwtPayload => {
-  // if (
-  //   jwtPayload.azp === ACCESS_CONTROL.AGENT_CLIENT_ID &&
-  //   jwtPayload.preferred_username === ACCESS_CONTROL.AGENT_USER
-  // ) {
-  //   return true;
-  // }
+  // (jwtPayload.azp === ACCESS_CONTROL.AGENT_CLIENT_ID &&
+  // jwtPayload.preferred_username === ACCESS_CONTROL.AGENT_USER) ||
+  if (jwtPayload.roles && jwtPayload.roles.includes(ACCESS_CONTROL.USER_ROLE)) {
+    return true;
+  }
 
-  return true;
+  return false;
 };
 
 export const verify = (req: any, jwtPayload: any, done: (err: any, user: any) => void) => {
+  // At this point we know the JWT is from our server and is valid.
   if (jwtPayload) {
-    // if (!isAuthorized(jwtPayload)) {
-    //   const err = new Error('You do not have the proper role for signing');
-    //   err.code = 401;
+    if (!isAuthorized(jwtPayload)) {
+      const message = 'This JWT does not have the proper role to use this service';
+      logger.error(message);
 
-    //   return done(err, null);
-    // }
+      // Returning an `Error` as the first parameter to `done` does not have a meaningful
+      // effect. Null returned in place.
+      return done(null, null);
+    }
 
-    return done(null, {}); // OK
+    return done(null, {}); // OK.
   }
 
   const err = new Error('Unable to authenticate');
@@ -67,7 +69,6 @@ export const verify = (req: any, jwtPayload: any, done: (err: any, user: any) =>
 
 // eslint-disable-next-line import/prefer-default-export
 export const authmware = async app => {
-  // app.use(session(sessionOptions));
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -77,7 +78,7 @@ export const authmware = async app => {
     done(null, {});
   });
 
-  // We don't load any addtional user information.
+  // We don't load any additional user information.
   passport.deserializeUser((id, done) => {
     logger.info('deserialize');
     done(null, {});
