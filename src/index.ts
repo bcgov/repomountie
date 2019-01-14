@@ -18,14 +18,14 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-import { logger } from '@bcgov/nodejs-common-utils';
+import { logger } from '@bcgov/common-nodejs-utils';
 import createScheduler from '@bcgov/probot-scheduler';
 import { Application, Context } from 'probot';
-import { SCHEDULER_DELAY } from './constants';
+import { ALLOWED_INSTALLATIONS, SCHEDULER_DELAY } from './constants';
 import { created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired } from './libs/repository';
-import routes from './libs/routes';
+import { routes } from './libs/routes';
 
 process.env.TZ = 'UTC';
 
@@ -46,8 +46,20 @@ export = (app: Application) => {
 
   async function pullRequestOpened(context: Context) {
     try {
+      const owner = context.payload.installation.account.login;
+      const isFromBot = context.isBot;
+
+      if (!ALLOWED_INSTALLATIONS.includes(owner)) {
+        logger.info(
+          `Skipping PR ${context.payload.pull_request.number} for repo ${
+            context.payload.repository.name
+          } because its not from an allowed installation`
+        );
+        return;
+      }
+
       // This can throw a `TypeError` during testing.
-      if (context.isBot) {
+      if (isFromBot) {
         // Don't act crazy.
         logger.info(
           `Skipping PR ${context.payload.pull_request.number} for repo ${
@@ -71,8 +83,20 @@ export = (app: Application) => {
 
   async function issueCommentCreated(context: Context) {
     try {
+      const owner = context.payload.installation.account.login;
+      const isFromBot = context.isBot;
+
+      if (!ALLOWED_INSTALLATIONS.includes(owner)) {
+        logger.info(
+          `Skipping issue ${context.payload.pull_request.number} for repo ${
+            context.payload.repository.name
+          } because its not from an allowed installation`
+        );
+        return;
+      }
+
       // This can throw a `TypeError` during testing.
-      if (context.isBot) {
+      if (isFromBot) {
         // Don't act crazy.
         logger.info(`Skipping issue ${context.payload.issue.id} because its from a bot`);
         return;
@@ -98,6 +122,16 @@ export = (app: Application) => {
     logger.info(`Processing ${context.payload.repository.name}`);
 
     try {
+      const owner = context.payload.installation.account.login;
+      if (!ALLOWED_INSTALLATIONS.includes(owner)) {
+        logger.info(
+          `Skipping scheduled repository ${
+            context.payload.repository.name
+          } because its not part of an allowed installation`
+        );
+        return;
+      }
+
       if (context.payload.repository.archived) {
         logger.warn(`The repo ${context.payload.repository.name} is archived. Skipping.`);
         return;
