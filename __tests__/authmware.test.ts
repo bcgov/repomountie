@@ -40,28 +40,3 @@ describe('Authentication tests', () => {
     expect(isAuthorized(saBadId)).toBeFalsy();
   });
 });
-
-// describe('Authentication integration tests', () => {
-//   test('A JWT without the correct role is not accepted', () => {
-//     const fn = (err, user) => {
-//       expect(err).toBeDefined();
-//       expect(user).toBeNull();
-//     };
-
-//     verify({}, noRole, fn);
-//   });
-
-//   test('A JWT with the correct role is accepted', () => {
-//     const fn = (err, user) => {
-//       expect(err).toBeNull();
-//       expect(user).toBeDefined();
-//       expect(user.roles).toBeDefined();
-//       expect(user.preferredUsername).toBeDefined();
-//       expect(user.givenName).toBeDefined();
-//       expect(user.familyName).toBeDefined();
-//       expect(user.email).toBeDefined();
-//     };
-
-//     verify({}, withRole, fn);
-//   });
-// });
