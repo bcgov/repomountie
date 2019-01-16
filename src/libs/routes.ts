@@ -18,14 +18,94 @@
 // Created by Jason Leach on 2018-10-15.
 //
 
+import { logger } from '@bcgov/common-nodejs-utils';
+import express from 'express'; // eslint-disable-line no-implicit-dependencies
+import passport from 'passport';
 import { Application } from 'probot';
+import { authmware } from './authmware';
 
-const routes = (app: Application) => {
+export const routes = (app: Application) => {
+  const exp = express();
+
+  // This middleware will get called before each route.
+  exp.use(async (req, res, next) => {
+    req.app = app;
+    next();
+  });
+
+  authmware(exp);
+
+  // // Error handleing middleware. This needs to be last in or it will
+  // // not get called.
+  // // eslint-disable-next-line no-unused-vars
+  // exp.use((err, req, res, next) => {
+  //   logger.error(err.message);
+  //   const code = err.code ? err.code : 500;
+  //   const message = err.message ? err.message : 'Internal Server Error';
+
+  //   res.status(code).json({ error: message, success: false });
+  // });
+
+  app.router.use(exp);
+
   // Get an express router to expose new HTTP endpoints
   const router = app.route('/bot');
 
   // Add a new route for health and liveliness probes.
   router.get('/ehlo', (req: any, res: any) => res.status(200).end());
-};
 
-export default routes;
+  router.get(
+    '/github/membership',
+    passport.authenticate('jwt', { session: false }),
+    async (req: any, res: any) => {
+      const myAppId = 18286;
+      const myApp = req.app;
+      const { userId } = req.query;
+
+      if (!userId) {
+        // throw errorWithCode('You are not able to download this artifact', 400);
+        res.status(200).json({ message: 'You must supply a valid github user ID' });
+        return;
+      }
+
+      try {
+        // Authenticate with no installation ID grants access to the `apps` API only. This is enough
+        // to lookup the correct installation ID. If you know it already you can skip this part.
+        const installations = (await (await myApp.auth()).apps.listInstallations()).data;
+        const myInstallation = installations.filter(i => i.app_id === myAppId);
+        const checks = myInstallation.map(async i => {
+          // Create a new GitHub client authentication as the installation.
+          const github = await myApp.auth(i.id);
+          try {
+            // 204 No Content - The user is a member;
+            // 404 Not Found  - The user is not a member of the org.
+            // 302 Found      - TBD
+
+            const response = await github.orgs.checkMembership({
+              org: i.account.login,
+              username: userId,
+            });
+
+            if (response.status === 204) {
+              return true;
+            }
+
+            return false;
+          } catch (checkMembershipApiCallError) {
+            return false;
+          }
+        });
+
+        const status = await Promise.all(checks);
+        const results = myInstallation.map((item, index) => {
+          return { org: item.account.login, membership: status[index] };
+        });
+
+        res.status(200).json(results);
+      } catch (err) {
+        logger.error(err.message);
+        res.status(500).end();
+      }
+    }
+  );
+};

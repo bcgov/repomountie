@@ -1,0 +1,12 @@
+{
+  "appUrl": "http://foo.bar.com",
+  "temporaryUploadPath": "uploads",
+  "archiveFileBaseName": "IMG_",
+  "minio": {
+    "bucket": "secure-image",
+    "endPoint": "127.0.0.1",
+    "port": 9000,
+    "secure": false,
+    "expiry": 604800
+  }
+}

@@ -57,3 +57,7 @@ export const TEXT_FILES = {
 export const COMMANDS = {
   IGNORE: '/bot-ignore-length',
 };
+
+export const ALLOWED_INSTALLATIONS = ['bcgov'];
+
+export const ALLOWED_SSO_CLIENTS = ['reggie-api'];
