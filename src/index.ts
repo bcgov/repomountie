@@ -29,6 +29,12 @@ import { routes } from './libs/routes';
 
 process.env.TZ = 'UTC';
 
+if ((process.env.NODE_ENV || 'development') === 'development') {
+  process.on('unhandledRejection', (reason, p) => {
+    logger.warn(`Unhandled Rejection at promise = ${p}, reason = ${reason}`);
+  });
+}
+
 export = (app: Application) => {
   logger.info('Robot Loaded!!!');
 
