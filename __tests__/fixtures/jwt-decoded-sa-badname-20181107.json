@@ -1,0 +1,28 @@
+{
+  "jti": "299a5eff-4723-4b7b-9b3d-9b2298fceb3d",
+  "exp": 1544213405,
+  "nbf": 0,
+  "iat": 1544213105,
+  "iss": "https://sso-dev.pathfinder.gov.bc.ca/auth/realms/devhub",
+  "aud": "reggie-api",
+  "sub": "cf660e9d-7796-46fb-9659-cb8b67d17a21",
+  "typ": "Bearer",
+  "azp": "reggie-api",
+  "auth_time": 0,
+  "session_state": "1b7f3667-06e6-432f-86bd-81325908b81b",
+  "acr": "1",
+  "allowed-origins": [],
+  "realm_access": {
+    "roles": ["uma_authorization"]
+  },
+  "resource_access": {
+    "account": {
+      "roles": []
+    }
+  },
+  "clientId": "reggie-api",
+  "clientHost": "192.168.0.1",
+  "preferred_username": "service-account-reggie-api-blarb",
+  "clientAddress": "192.168.0.1",
+  "email": "service-account-reggie-api-blarb@example.com"
+}
