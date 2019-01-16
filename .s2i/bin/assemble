@@ -4,10 +4,12 @@ echo "Before assembling"
 /usr/libexec/s2i/assemble
 rc=$?
 
-if [ $rc -eq 0 ]; then
-    # npm run build
-else
-    echo "After failed assembling"
-fi
+# if [ $rc -eq 0 ]; then
+#     rm -rf node_modules
+#     npm i
+#     # npm run build
+# else
+#     echo "After failed assembling"
+# fi
 
 exit $rc
