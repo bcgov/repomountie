@@ -31,9 +31,6 @@ const saOk = JSON.parse(fs.readFileSync(path2, 'utf8'));
 const path3 = path.join(__dirname, 'fixtures/jwt-decoded-sa-badid-20181107.json');
 const saBadId = JSON.parse(fs.readFileSync(path3, 'utf8'));
 
-const path4 = path.join(__dirname, 'fixtures/jwt-decoded-sa-badname-20181107.json');
-const saBadName = JSON.parse(fs.readFileSync(path4, 'utf8'));
-
 describe('Authentication tests', () => {
   test('A service account JWT with valid ID is accepted', () => {
     expect(isAuthorized(saOk)).toBeTruthy();
