@@ -1,7 +1,7 @@
 // __mocks__/fs.js
 'use strict';
 
-const fs = jest.requireActual('fs');
+const fs = require.requireActual('fs');
 
 function access(path, flag, cb) {
   if (path === 'no-file-access') {
