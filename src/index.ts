@@ -29,7 +29,7 @@ import { routes } from './libs/routes';
 
 process.env.TZ = 'UTC';
 
-if ((process.env.NODE_ENV || 'development') === 'development') {
+if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
     logger.warn(`Unhandled Rejection at promise = ${p}, reason = ${reason}`);
   });
