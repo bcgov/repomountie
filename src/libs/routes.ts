@@ -96,9 +96,9 @@ export const routes = (app: Application) => {
           }
         });
 
-        const presults = await Promise.all(checks);
+        const status = await Promise.all(checks);
         const results = myInstallation.map((item, index) => {
-          return { org: item.account.login, membership: presults[index] };
+          return { org: item.account.login, membership: status[index] };
         });
 
         res.status(200).json(results);
