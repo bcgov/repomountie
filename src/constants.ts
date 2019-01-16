@@ -60,6 +60,4 @@ export const COMMANDS = {
 
 export const ALLOWED_INSTALLATIONS = ['bcgov'];
 
-export const ACCESS_CONTROL = {
-  USER_ROLE: 'devhub_xxxxxxxx',
-};
+export const ALLOWED_SSO_CLIENTS = ['reggie-api'];

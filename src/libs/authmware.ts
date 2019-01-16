@@ -26,7 +26,7 @@ import { getJwtCertificate, logger } from '@bcgov/common-nodejs-utils';
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import config from '../config';
-import { ACCESS_CONTROL } from '../constants';
+import { ALLOWED_SSO_CLIENTS } from '../constants';
 
 interface JwtStrategyConfig {
   jwtFromRequest: any;
@@ -37,9 +37,9 @@ interface JwtStrategyConfig {
 }
 
 export const isAuthorized = jwtPayload => {
-  // (jwtPayload.azp === ACCESS_CONTROL.AGENT_CLIENT_ID &&
-  // jwtPayload.preferred_username === ACCESS_CONTROL.AGENT_USER) ||
-  if (jwtPayload.roles && jwtPayload.roles.includes(ACCESS_CONTROL.USER_ROLE)) {
+  // jwtPayload.azp - The client ID
+  // jwtPayload.preferred_username - The preferred user name
+  if (jwtPayload && jwtPayload.azp && ALLOWED_SSO_CLIENTS.includes(jwtPayload.azp)) {
     return true;
   }
 
