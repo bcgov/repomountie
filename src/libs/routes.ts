@@ -19,7 +19,7 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
-import express from 'express'; // eslint-disable-line no-implicit-dependencies
+import express from 'express'; // tslint:disable-line
 import passport from 'passport';
 import { Application } from 'probot';
 import { authmware } from './authmware';
