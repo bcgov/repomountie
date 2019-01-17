@@ -1,8 +1,9 @@
 __mocks__/
 __tests__/
-.git//
+.git/
 .github/
 .vscode/
+.gitignore
 .env.example
 .prettierrc
 *.md
