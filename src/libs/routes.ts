@@ -65,7 +65,7 @@ export const routes = (app: Application) => {
 
       if (!userId) {
         // throw errorWithCode('You are not able to download this artifact', 400);
-        res.status(200).json({ message: 'You must supply a valid github user ID' });
+        res.status(400).json({ message: 'You must supply a valid github user ID' });
         return;
       }
 
