@@ -22,6 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import express from 'express'; // tslint:disable-line
 import passport from 'passport';
 import { Application } from 'probot';
+import config from '../config';
 import { authmware } from './authmware';
 
 export const routes = (app: Application) => {
@@ -58,7 +59,7 @@ export const routes = (app: Application) => {
     '/github/membership',
     passport.authenticate('jwt', { session: false }),
     async (req: any, res: any) => {
-      const myAppId = 18286;
+      const myAppId = config.get('githubAppID');
       const myApp = req.app;
       const { userId } = req.query;
 

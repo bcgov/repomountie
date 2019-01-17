@@ -42,6 +42,7 @@ if (env === 'development') {
 // overrides are always as defined
 nconf.overrides({
   environment: env,
+  githubAppID: process.env.GITHUB_APP_ID,
   host: process.env.HOST || '127.0.0.1',
   port: process.env.PORT || defaultPort,
   sso: {
