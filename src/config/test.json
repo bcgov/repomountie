@@ -1,8 +1,7 @@
 {
   "sso": {
-    "clientId": "secode-sign-api",
-    "authUrl": "https://dev-sso.pathfinder.gov.bc.ca/auth/realms/mobile/protocol/openid-connect/auth",
-    "tokenUrl": "https://dev-sso.pathfinder.gov.bc.ca/auth/realms/mobile/protocol/openid-connect/token",
-    "certsUrl": "https://dev-sso.pathfinder.gov.bc.ca/auth/realms/mobile/protocol/openid-connect/certs"
+    "authUrl": "https://sso-test.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/auth",
+    "tokenUrl": "https://sso-test.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/token",
+    "certsUrl": "https://sso-test.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/certs"
   }
 }
