@@ -8,7 +8,5 @@ __tests__/
 *.md
 !README.md
 Jenkinsfile
-jest.config.jest
 rmconfig.json
-tsconfig.json
-tslint.json
+
