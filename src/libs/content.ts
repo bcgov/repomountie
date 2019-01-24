@@ -72,7 +72,7 @@ export const addLicenseFileToRepo = async (context: Context) => {
       })
     );
   } catch (err) {
-    const message = `Unable to add LICENSE to ${context.payload.repository.name}`;
+    const message = `Unable to add LICENSE file to ${context.payload.repository.name}`;
     logger.error(`${message}, error = ${err.message}`);
 
     throw err;
