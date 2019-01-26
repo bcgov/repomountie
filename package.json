@@ -25,7 +25,7 @@
     "@bcgov/common-nodejs-utils": "^0.1.17",
     "@bcgov/probot-scheduler": "^1.2.1",
     "babel": "^6.23.0",
-    "babel-jest": "^23.6.0",
+    "babel-jest": "^24.0.0",
     "dotenv": "^6.2.0",
     "nconf": "^0.10.0",
     "passport": "^0.4.0",
