@@ -145,7 +145,8 @@ export = (app: Application) => {
 
       await addLicenseIfRequired(context, scheduler);
     } catch (err) {
-      logger.error(`Unable to add license to ${context.payload.repository.name}`);
+      const message = `Unable to process repository ${context.payload.repository.name}`;
+      logger.error(`${message}, error = ${err.message}`);
     }
   }
 };

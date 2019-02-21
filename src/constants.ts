@@ -22,7 +22,7 @@ export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
 export const COMMENT_TRIGGER_WORD = 'help';
 
-export const GITHUB_ID = 'test-3kdjfksd';
+export const GITHUB_ID = 'repo-mountie';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 

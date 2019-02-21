@@ -69,7 +69,9 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
           await addLicenseFileToRepo(context);
         }
       } catch (err) {
-        logger.info(`Unable to add license to ${context.payload.repository.name}`);
+        const message = `Unable to add license to ${context.payload.repository.name}`;
+        logger.error(`${message}, error = ${err.message}`);
+
         throw err;
       }
     }
