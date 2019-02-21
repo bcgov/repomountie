@@ -1,5 +1,4 @@
 {
-  "githubAppID": 19327,
   "sso": {
     "authUrl": "https://sso-test.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/auth",
     "tokenUrl": "https://sso-test.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/token",
