@@ -56,14 +56,14 @@ describe('Repository integration tests', () => {
     getRef.mockReturnValueOnce(master);
 
     github = {
-      gitdata: {
+      git: {
         createRef: jest.fn(),
         getRef,
       },
       issues: {
         addAssignees: jest.fn(),
       },
-      pullRequests: {
+      pulls: {
         create: jest.fn().mockReturnValueOnce(Promise.resolve()),
         list: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
       },
@@ -82,10 +82,10 @@ describe('Repository integration tests', () => {
       payload: payloadNoLic,
     });
 
-    expect(github.gitdata.getRef.mock.calls.length).toBe(2);
-    expect(github.pullRequests.list).toHaveBeenCalled();
-    expect(github.pullRequests.create).toHaveBeenCalled();
-    expect(github.gitdata.createRef).toHaveBeenCalled();
+    expect(github.git.getRef.mock.calls.length).toBe(2);
+    expect(github.pulls.list).toHaveBeenCalled();
+    expect(github.pulls.create).toHaveBeenCalled();
+    expect(github.git.createRef).toHaveBeenCalled();
     expect(github.repos.createFile).toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
@@ -94,17 +94,17 @@ describe('Repository integration tests', () => {
   // get the master branch.
   test('A repo with no master branch is skipped 1', async () => {
     const err = new Error('{"message": "Big Trouble 1"}');
-    github.gitdata.getRef = jest.fn().mockReturnValueOnce(Promise.reject(err));
+    github.git.getRef = jest.fn().mockReturnValueOnce(Promise.reject(err));
 
     await app.receive({
       name: 'schedule.repository',
       payload: payloadNoLic,
     });
 
-    expect(github.gitdata.getRef).toBeCalled();
-    expect(github.pullRequests.list).not.toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createRef).not.toHaveBeenCalled();
+    expect(github.git.getRef).toBeCalled();
+    expect(github.pulls.list).not.toHaveBeenCalled();
+    expect(github.pulls.create).not.toHaveBeenCalled();
+    expect(github.git.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
@@ -116,17 +116,17 @@ describe('Repository integration tests', () => {
     const getRef = jest.fn();
     getRef.mockReturnValueOnce(master);
     getRef.mockReturnValueOnce(Promise.reject(err));
-    github.gitdata.getRef = getRef;
+    github.git.getRef = getRef;
 
     await app.receive({
       name: 'schedule.repository',
       payload: payloadNoLic,
     });
 
-    expect(github.gitdata.getRef.mock.calls.length).toBe(2);
-    expect(github.pullRequests.list).toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createRef).not.toHaveBeenCalled();
+    expect(github.git.getRef.mock.calls.length).toBe(2);
+    expect(github.pulls.list).toHaveBeenCalled();
+    expect(github.pulls.create).not.toHaveBeenCalled();
+    expect(github.git.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
@@ -137,10 +137,10 @@ describe('Repository integration tests', () => {
       payload: payloadWithLic,
     });
 
-    expect(github.gitdata.getRef).not.toBeCalled();
-    expect(github.pullRequests.list).not.toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createRef).not.toHaveBeenCalled();
+    expect(github.git.getRef).not.toBeCalled();
+    expect(github.pulls.list).not.toHaveBeenCalled();
+    expect(github.pulls.create).not.toHaveBeenCalled();
+    expect(github.git.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
@@ -151,10 +151,10 @@ describe('Repository integration tests', () => {
       payload: archivedNoLic,
     });
 
-    expect(github.gitdata.getRef).not.toBeCalled();
-    expect(github.pullRequests.list).not.toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createRef).not.toHaveBeenCalled();
+    expect(github.git.getRef).not.toBeCalled();
+    expect(github.pulls.list).not.toHaveBeenCalled();
+    expect(github.pulls.create).not.toHaveBeenCalled();
+    expect(github.git.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
@@ -165,10 +165,10 @@ describe('Repository integration tests', () => {
       payload: archivedLic,
     });
 
-    expect(github.gitdata.getRef).not.toBeCalled();
-    expect(github.pullRequests.list).not.toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createRef).not.toHaveBeenCalled();
+    expect(github.git.getRef).not.toBeCalled();
+    expect(github.pulls.list).not.toHaveBeenCalled();
+    expect(github.pulls.create).not.toHaveBeenCalled();
+    expect(github.git.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
