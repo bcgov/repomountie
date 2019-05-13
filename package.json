@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@bcgov/common-nodejs-utils": "^0.1.17",
-    "@bcgov/probot-scheduler": "^1.2.1",
+    "probot-scheduler": "^2.0.0-beta.1",
     "dotenv": "^8.0.0",
     "nconf": "^0.10.0",
     "passport": "^0.4.0",

@@ -19,8 +19,8 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
-import createScheduler from '@bcgov/probot-scheduler';
 import { Application, Context } from 'probot';
+import createScheduler from 'probot-scheduler';
 import { ALLOWED_INSTALLATIONS, SCHEDULER_DELAY } from './constants';
 import { created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
@@ -58,7 +58,7 @@ export = (app: Application) => {
       if (!ALLOWED_INSTALLATIONS.includes(owner)) {
         logger.info(
           `Skipping PR ${context.payload.pull_request.number} for repo ${
-            context.payload.repository.name
+          context.payload.repository.name
           } because its not from an allowed installation`
         );
         return;
@@ -69,7 +69,7 @@ export = (app: Application) => {
         // Don't act crazy.
         logger.info(
           `Skipping PR ${context.payload.pull_request.number} for repo ${
-            context.payload.repository.name
+          context.payload.repository.name
           } because its from a bot`
         );
         return;
@@ -80,7 +80,7 @@ export = (app: Application) => {
 
     logger.info(
       `Processing PR ${context.payload.pull_request.number} for repo ${
-        context.payload.repository.name
+      context.payload.repository.name
       }`
     );
 
@@ -95,7 +95,7 @@ export = (app: Application) => {
       if (!ALLOWED_INSTALLATIONS.includes(owner)) {
         logger.info(
           `Skipping issue ${context.payload.pull_request.number} for repo ${
-            context.payload.repository.name
+          context.payload.repository.name
           } because its not from an allowed installation`
         );
         return;
@@ -132,7 +132,7 @@ export = (app: Application) => {
       if (!ALLOWED_INSTALLATIONS.includes(owner)) {
         logger.info(
           `Skipping scheduled repository ${
-            context.payload.repository.name
+          context.payload.repository.name
           } because its not part of an allowed installation`
         );
         return;
