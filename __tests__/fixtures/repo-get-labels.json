@@ -1,0 +1,95 @@
+{
+  "status": 200,
+  "url": "https://api.github.com/repos/fullboar/goon/labels?number=undefined",
+  "headers": {
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type",
+    "cache-control": "private, max-age=60, s-maxage=60",
+    "connection": "close",
+    "content-encoding": "gzip",
+    "content-security-policy": "default-src 'none'",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Tue, 14 May 2019 23:39:00 GMT",
+    "etag": "W/\"088c51cce05fa76a6aae25fa7a30c997\"",
+    "referrer-policy": "origin-when-cross-origin, strict-origin-when-cross-origin",
+    "server": "GitHub.com",
+    "status": "200 OK",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "transfer-encoding": "chunked",
+    "vary": "Accept, Authorization, Cookie, X-GitHub-OTP",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "deny",
+    "x-github-media-type": "github.v3; format=json",
+    "x-github-request-id": "FA12:44AF:147CE:30B49:5CDB5194",
+    "x-ratelimit-limit": "5000",
+    "x-ratelimit-remaining": "4910",
+    "x-ratelimit-reset": "1557880604",
+    "x-xss-protection": "1; mode=block"
+  },
+  "data": [
+    {
+      "id": 1134689726,
+      "node_id": "MDU6TGFiZWwxMTM0Njg5NzI2",
+      "url": "https://api.github.com/repos/fullboar/goon/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true
+    },
+    {
+      "id": 1134689727,
+      "node_id": "MDU6TGFiZWwxMTM0Njg5NzI3",
+      "url": "https://api.github.com/repos/fullboar/goon/labels/duplicate",
+      "name": "duplicate",
+      "color": "cfd3d7",
+      "default": true
+    },
+    {
+      "id": 1134689728,
+      "node_id": "MDU6TGFiZWwxMTM0Njg5NzI4",
+      "url": "https://api.github.com/repos/fullboar/goon/labels/enhancement",
+      "name": "enhancement",
+      "color": "a2eeef",
+      "default": true
+    },
+    {
+      "id": 1134689730,
+      "node_id": "MDU6TGFiZWwxMTM0Njg5NzMw",
+      "url": "https://api.github.com/repos/fullboar/goon/labels/good%20first%20issue",
+      "name": "good first issue",
+      "color": "7057ff",
+      "default": true
+    },
+    {
+      "id": 1134689729,
+      "node_id": "MDU6TGFiZWwxMTM0Njg5NzI5",
+      "url": "https://api.github.com/repos/fullboar/goon/labels/help%20wanted",
+      "name": "help wanted",
+      "color": "008672",
+      "default": true
+    },
+    {
+      "id": 1134689731,
+      "node_id": "MDU6TGFiZWwxMTM0Njg5NzMx",
+      "url": "https://api.github.com/repos/fullboar/goon/labels/invalid",
+      "name": "invalid",
+      "color": "e4e669",
+      "default": true
+    },
+    {
+      "id": 1134689732,
+      "node_id": "MDU6TGFiZWwxMTM0Njg5NzMy",
+      "url": "https://api.github.com/repos/fullboar/goon/labels/question",
+      "name": "question",
+      "color": "d876e3",
+      "default": true
+    },
+    {
+      "id": 1134689733,
+      "node_id": "MDU6TGFiZWwxMTM0Njg5NzMz",
+      "url": "https://api.github.com/repos/fullboar/goon/labels/wontfix",
+      "name": "wontfix",
+      "color": "ffffff",
+      "default": true
+    }
+  ]
+}
