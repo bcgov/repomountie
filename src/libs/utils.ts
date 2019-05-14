@@ -95,10 +95,33 @@ export const extractMessage = async (error: Error): Promise<string> => {
   try {
     const data = JSON.parse(error.message);
     return data.message;
-  } catch (error) {
+  } catch (err) {
     const message = `Unable to extract message from error`;
-    return Promise.reject(new Error(message));
+    throw new Error(`${message}, error = ${err.message}`);
   }
 };
 
+/**
+ * Check if a label exists in a given context
+ * Check if a given label exists in the repo specified by
+ * the `context` argument.
+ * @param {Context} context The event context context
+ * @param {string} labelName The label name to be checked
+ * @returns `true` if the label exists, false otherwise.
+ */
+export const labelExists = async (context: Context, labelName: string): Promise<boolean> => {
+  try {
+    const result = await context.github.issues.listLabelsForRepo(context.issue());
+    if (!result.data) {
+      return false;
+    }
 
+    const myMatches = result.data.filter(item => item.name === labelName);
+    return myMatches.length > 0;
+  } catch (err) {
+    const message = 'Unable to fetch repo labels';
+    logger.error(`${message}, error = ${err.message}`);
+
+    return false
+  }
+}

@@ -19,9 +19,10 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import { flatten } from 'lodash';
 import { Context } from 'probot';
 import { COMMENT_TRIGGER_WORD, GITHUB_ID, HELP_DESK, TEXT_FILES } from '../constants';
-import { loadTemplate, RepoMountieConfig } from '../libs/utils';
+import { labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
 
 /**
  * Determine if help desk support is required
@@ -116,19 +117,23 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
     const body = rawMessageBody
       .replace(regex, `${config.staleIssue.maxDaysOld}`);
 
-    //    items.labels
+    let labels: Array<string> = [];
+    if (config.staleIssue && config.staleIssue.applyLabel && (await labelExists(context, config.staleIssue.applyLabel))) {
+      labels.push(config.staleIssue.applyLabel)
+    }
 
-    const createCommentPromises = items.map(item =>
-      context.github.issues.createComment(context.issue({ body, issue_number: item.number }))
-    );
+    const promises = items.map(item => {
+      // TODO:(jl) I think the probot framework includes the `number` parameter that is causing a
+      // deprecation warning. I'm leaving it for now to see if they fix it in a near-term release.
+      labels.concat(item.labels.map(l => l.name));
+      return [
+        context.github.issues.createComment(context.issue({ body, issue_number: item.number })),
+        context.github.issues.addLabels(context.issue({ issue_number: item.number, labels })),
+        context.github.issues.update(context.issue({ state: 'closed', issue_number: item.number }))
+      ]
+    });
 
-    await Promise.all(createCommentPromises);
-
-    const updateIssuePromises = items.map(item =>
-      context.github.issues.update(context.issue({ state: 'closed', issue_number: item.number }))
-    );
-
-    await Promise.all(updateIssuePromises);
+    await Promise.all(flatten(promises));
   } catch (err) {
     const message = 'Unable to process stale issue';
     logger.error(`${message}, error = ${err.message}`);
