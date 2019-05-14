@@ -22,10 +22,11 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { ALLOWED_INSTALLATIONS, SCHEDULER_DELAY } from './constants';
-import { created } from './libs/issue';
+import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
+import { fetchRepoMountieConfig } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
@@ -84,7 +85,9 @@ export = (app: Application) => {
       }`
     );
 
-    await validatePullRequestIfRequired(context);
+    const config = await fetchRepoMountieConfig(context);
+
+    await validatePullRequestIfRequired(context, config);
   }
 
   async function issueCommentCreated(context: Context) {
@@ -144,6 +147,15 @@ export = (app: Application) => {
       }
 
       await addLicenseIfRequired(context, scheduler);
+
+      // Functionality below here requires a `config` file exist in the repo.
+
+      try {
+        const config = await fetchRepoMountieConfig(context);
+        await checkForStaleIssues(context, config);
+      } catch (err) {
+        logger.info('No config file. Skipping.');
+      }
     } catch (err) {
       const message = `Unable to process repository ${context.payload.repository.name}`;
       logger.error(`${message}, error = ${err.message}`);

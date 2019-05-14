@@ -20,7 +20,8 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
-import { COMMENT_TRIGGER_WORD, GITHUB_ID, HELP_DESK } from '../constants';
+import { COMMENT_TRIGGER_WORD, GITHUB_ID, HELP_DESK, TEXT_FILES } from '../constants';
+import { loadTemplate, RepoMountieConfig } from '../libs/utils';
 
 /**
  * Determine if help desk support is required
@@ -78,3 +79,58 @@ export const created = async (context: Context) => {
     return;
   }
 };
+
+export const checkForStaleIssues = async (context: Context, config: RepoMountieConfig) => {
+  if (!config.staleIssue) {
+    return;
+  }
+
+  const aDate = new Date(Date.now() - (config.staleIssue.maxDaysOld * 24 * 60 * 60 * 1000));
+  const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
+  const owner = context.payload.repository.owner.login;
+  const repo = context.payload.repository.name;
+  const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`
+
+  // get all the old PRs.
+  // if we have some old ones,
+  // add a comment,
+  // add a label if it exists
+  // update the issue as closed.
+
+  try {
+    const response = await context.github.search.issuesAndPullRequests({
+      q: query,
+      sort: 'updated',
+      order: 'desc',
+      per_page: 100
+    });
+    const totalCount = response.data.total_count;
+    const items = response.data.items;
+
+    if (totalCount === 0) {
+      return;
+    }
+
+    const regex = /\[MAX_DAYS_OLD\]/gi;
+    const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_COMMENT);
+    const body = rawMessageBody
+      .replace(regex, `${config.staleIssue.maxDaysOld}`);
+
+    //    items.labels
+
+    const createCommentPromises = items.map(item =>
+      context.github.issues.createComment(context.issue({ body, issue_number: item.number }))
+    );
+
+    await Promise.all(createCommentPromises);
+
+    const updateIssuePromises = items.map(item =>
+      context.github.issues.update(context.issue({ state: 'closed', issue_number: item.number }))
+    );
+
+    await Promise.all(updateIssuePromises);
+  } catch (err) {
+    const message = 'Unable to process stale issue';
+    logger.error(`${message}, error = ${err.message}`);
+  }
+}

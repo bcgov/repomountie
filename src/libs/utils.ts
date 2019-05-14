@@ -18,8 +18,51 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
+import { logger } from '@bcgov/common-nodejs-utils';
 import fs from 'fs';
+import { Context } from 'probot';
 import util from 'util';
+import { REPO_CONFIG_FILE } from '../constants';
+
+interface RepoMountiePullRequestConfig {
+  maxLinesChanged: number;
+}
+
+interface RepoMountieStaleIssueConfig {
+  maxDaysOld: number;
+  applyLabel: string;
+}
+
+export interface RepoMountieConfig {
+  pullRequest: RepoMountiePullRequestConfig;
+  staleIssue?: RepoMountieStaleIssueConfig;
+}
+
+/**
+ * Fetch the repo configuration file
+ * The configuration file determines what, if any, cultural policies should
+ * be enforced.
+ * @param {Context} context The event context context
+ * @returns A `RepoMountieConfig` object if one exists
+ */
+export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConfig> => {
+  try {
+    const response = await context.github.repos.getContents(
+      context.repo({
+        branch: 'master',
+        path: REPO_CONFIG_FILE,
+      })
+    );
+
+    const content = Buffer.from(response.data.content, 'base64').toString();
+    return JSON.parse(content);
+  } catch (err) {
+    const message = 'Unable to process config file.';
+    logger.error(`${message}, error = ${err.message}`);
+    throw new Error(message);
+  }
+};
+
 
 /**
  * Load a template file file and return the contents.
@@ -57,3 +100,5 @@ export const extractMessage = async (error: Error): Promise<string> => {
     return Promise.reject(new Error(message));
   }
 };
+
+
