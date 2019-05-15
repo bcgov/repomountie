@@ -92,12 +92,6 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
   const repo = context.payload.repository.name;
   const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`
 
-  // get all the old PRs.
-  // if we have some old ones,
-  // add a comment,
-  // add a label if it exists
-  // update the issue as closed.
-
   try {
     const response = await context.github.search.issuesAndPullRequests({
       q: query,
@@ -107,6 +101,7 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
     });
     const totalCount = response.data.total_count;
     const items = response.data.items;
+
 
     if (totalCount === 0) {
       return;
