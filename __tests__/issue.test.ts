@@ -149,6 +149,20 @@ describe('Repository integration tests', () => {
     expect(github.issues.addLabels).not.toBeCalled();
     expect(github.issues.update).not.toBeCalled();
   });
+
+  test.skip('Applying labels is skipped if non-existent', async () => {
+    // github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty)),
+
+    //   await app.receive({
+    //     name: 'schedule.repository',
+    //     payload: payloadWithLic,
+    //   });
+
+    // expect(github.search.issuesAndPullRequests).toBeCalled();
+    // expect(github.issues.createComment).not.toBeCalled();
+    // expect(github.issues.addLabels).not.toBeCalled();
+    // expect(github.issues.update).not.toBeCalled();
+  });
 });
 
 // For more information about using TypeScript in your tests, Jest recommends:
