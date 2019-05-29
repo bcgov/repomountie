@@ -22,8 +22,7 @@ import fs from 'fs';
 import path from 'path';
 import { Application } from 'probot';
 import robot from '../src';
-
-jest.mock('../src/libs/utils')
+import { fetchRepoMountieConfig, labelExists, loadTemplate } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
 const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -42,6 +41,18 @@ const issuesAndPulls = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
 const p5 = path.join(__dirname, 'fixtures/issues-and-pulls-empty.json');
 const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p5, 'utf8'));
+
+const p6 = path.join(__dirname, 'fixtures/rmconfig.json');
+const config = JSON.parse(fs.readFileSync(p6, 'utf8'));
+
+const p7 = path.join(__dirname, '../templates/stale_issue_comment.md');
+const template = fs.readFileSync(p7, 'utf8');
+
+jest.mock('../src/libs/utils', () => ({
+  fetchRepoMountieConfig: jest.fn(),
+  loadTemplate: jest.fn(),
+  labelExists: jest.fn(),
+}));
 
 describe('Repository integration tests', () => {
   let app;
@@ -78,6 +89,13 @@ describe('Repository integration tests', () => {
 
     // Passes the mocked out GitHub API into out app instance
     app.auth = () => Promise.resolve(github);
+
+    // @ts-ignore
+    fetchRepoMountieConfig.mockReturnValue(config)
+    // @ts-ignore
+    loadTemplate.mockReturnValue(template)
+    // @ts-ignore
+    labelExists.mockReturnValue(true)
   });
 
   test('An unassigned PR (issue) assigned', async () => {
@@ -124,7 +142,6 @@ describe('Repository integration tests', () => {
 
   test('Old issues are closed out', async () => {
     github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
-
       await app.receive({
         name: 'schedule.repository',
         payload: payloadWithLic,
@@ -136,9 +153,32 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).toBeCalled();
   });
 
+
+  test('Stale config stanza missing skips', async () => {
+    const myConfig = Object.assign({}, config);
+    delete myConfig.staleIssue;
+
+    // @ts-ignore
+    fetchRepoMountieConfig.mockReturnValue(myConfig)
+    // @ts-ignore
+    loadTemplate.mockReturnValue(template)
+    // @ts-ignore
+    labelExists.mockReturnValue(true)
+
+    github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
+      await app.receive({
+        name: 'schedule.repository',
+        payload: payloadWithLic,
+      });
+
+    expect(github.search.issuesAndPullRequests).not.toBeCalled();
+    expect(github.issues.createComment).not.toBeCalled();
+    expect(github.issues.addLabels).not.toBeCalled();
+    expect(github.issues.update).not.toBeCalled();
+  });
+
   test('No stale issues are handled properly', async () => {
     github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty)),
-
       await app.receive({
         name: 'schedule.repository',
         payload: payloadWithLic,
@@ -150,18 +190,21 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).not.toBeCalled();
   });
 
-  test.skip('Applying labels is skipped if non-existent', async () => {
-    // github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty)),
+  test('Applying labels is skipped if non-existent', async () => {
+    // @ts-ignore
+    labelExists.mockReturnValue(false)
+    const addLabelsArgs = { "issue_number": 2, "labels": [], "number": undefined, "owner": "bcgov", "repo": "blarb" };
 
-    //   await app.receive({
-    //     name: 'schedule.repository',
-    //     payload: payloadWithLic,
-    //   });
+    github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
 
-    // expect(github.search.issuesAndPullRequests).toBeCalled();
-    // expect(github.issues.createComment).not.toBeCalled();
-    // expect(github.issues.addLabels).not.toBeCalled();
-    // expect(github.issues.update).not.toBeCalled();
+      await app.receive({
+        name: 'schedule.repository',
+        payload: payloadWithLic,
+      });
+    expect(github.search.issuesAndPullRequests).toBeCalled();
+    expect(github.issues.createComment).toBeCalled();
+    expect(github.issues.addLabels).toBeCalledWith(addLabelsArgs);
+    expect(github.issues.update).toBeCalled();
   });
 });
 
