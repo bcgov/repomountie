@@ -72,11 +72,6 @@ describe('Utility functions', () => {
     expect(message).toEqual('Hello World');
   });
 
-  test('Non existent error message throws', async () => {
-    const err = new Error();
-    await expect(extractMessage(err)).rejects.toThrow(Error);
-  });
-
   test('Labels should be fetched for lookup', async () => {
     await labelExists(context, 'blarb');
     expect(github.issues.listLabelsForRepo).toHaveBeenCalled();

@@ -38,6 +38,14 @@ export interface RepoMountieConfig {
   staleIssue?: RepoMountieStaleIssueConfig;
 }
 
+export const isJSON = (aString: string): boolean => {
+  try {
+    JSON.parse(aString);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 /**
  * Fetch the repo configuration file
  * The configuration file determines what, if any, cultural policies should
@@ -93,11 +101,15 @@ export const loadTemplate = async (path: string): Promise<string> => {
  */
 export const extractMessage = async (error: Error): Promise<string> => {
   try {
-    const data = JSON.parse(error.message);
-    return data.message;
+    if (isJSON(error.message)) {
+      const data = JSON.parse(error.message);
+      return data.message;
+    }
+
+    return error.message;
   } catch (err) {
-    const message = `Unable to extract message from error`;
-    throw new Error(`${message}, error = ${err.message}`);
+    const message = 'Unable to extract message from error';
+    return message;
   }
 };
 
