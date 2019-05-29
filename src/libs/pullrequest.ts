@@ -20,41 +20,8 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
-import { COMMANDS, REPO_CONFIG_FILE, TEXT_FILES } from '../constants';
-import { loadTemplate } from '../libs/utils';
-
-interface RepoMountiePullRequestConfig {
-  maxLinesChanged: number;
-}
-
-interface RepoMountieConfig {
-  pullRequest: RepoMountiePullRequestConfig;
-}
-
-/**
- * Fetch the repo configuration file
- * The configuration file determines what, if any, cultural policies should
- * be enforced.
- * @param {Context} context The event context context
- * @returns A `RepoMountieConfig` object if one exists
- */
-export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConfig> => {
-  try {
-    const response = await context.github.repos.getContents(
-      context.repo({
-        branch: 'master',
-        path: REPO_CONFIG_FILE,
-      })
-    );
-
-    const content = Buffer.from(response.data.content, 'base64').toString();
-    return JSON.parse(content);
-  } catch (err) {
-    const message = 'Unable to process config file.';
-    logger.error(`${message}, error = ${err.message}`);
-    throw new Error(message);
-  }
-};
+import { COMMANDS, TEXT_FILES } from '../constants';
+import { loadTemplate, RepoMountieConfig } from '../libs/utils';
 
 /**
  * Check to see if a pull request (PR) contains the command for ignore.
@@ -103,10 +70,8 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
  * Validate the PR against codified cultural policies
  * @param {Context} context The event context context
  */
-export const validatePullRequestIfRequired = async (context: Context) => {
+export const validatePullRequestIfRequired = async (context: Context, config: RepoMountieConfig) => {
   try {
-    const config = await fetchRepoMountieConfig(context);
-
     if (!isValidPullRequestLength(context, config)) {
       const rawMessageBody: string = await loadTemplate(TEXT_FILES.HOWTO_PR);
       const messageBody = rawMessageBody

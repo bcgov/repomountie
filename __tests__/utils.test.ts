@@ -18,11 +18,41 @@
 // Created by Jason Leach on 2018-10-04.
 //
 
-import { extractMessage, loadTemplate } from '../src/libs/utils';
+import fs from 'fs';
+import path from 'path';
+import { Application, Context } from 'probot';
+import robot from '../src';
+import { extractMessage, labelExists, loadTemplate } from '../src/libs/utils';
 
 jest.mock('fs');
 
+const p0 = path.join(__dirname, 'fixtures/schedule-lic.json');
+const repoScheduledEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
+
 describe('Utility functions', () => {
+  let app;
+  let github;
+  let context;
+
+  beforeEach(() => {
+    app = new Application();
+    app.app = () => 'Token';
+    app.load(robot);
+
+    // allRepoLables = labels;
+
+    github = {
+      issues: {
+        listLabelsForRepo: jest.fn(),
+      },
+    };
+
+    // Passes the mocked out GitHub API into out app instance
+    app.auth = () => Promise.resolve(github);
+
+    context = new Context(repoScheduledEvent, github as any, {} as any);
+  });
+
   test('A template can be loaded', async () => {
     const data = await loadTemplate('some-file');
     expect(data).not.toBeUndefined();
@@ -42,8 +72,8 @@ describe('Utility functions', () => {
     expect(message).toEqual('Hello World');
   });
 
-  test('Non existent error message throws', async () => {
-    const err = new Error();
-    await expect(extractMessage(err)).rejects.toThrow(Error);
+  test('Labels should be fetched for lookup', async () => {
+    await labelExists(context, 'blarb');
+    expect(github.issues.listLabelsForRepo).toHaveBeenCalled();
   });
 });

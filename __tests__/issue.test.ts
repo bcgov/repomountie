@@ -23,7 +23,7 @@ import path from 'path';
 import { Application } from 'probot';
 import robot from '../src';
 
-jest.mock('fs');
+jest.mock('../src/libs/utils')
 
 const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
 const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -33,6 +33,15 @@ const assignedIssueCommentCreated = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
 const p2 = path.join(__dirname, 'fixtures/issue-comment-created-notme.json');
 const unassignedIssueNotMineCommentCreated = JSON.parse(fs.readFileSync(p2, 'utf8'));
+
+const p3 = path.join(__dirname, 'fixtures/repo-created-lic.json');
+const payloadWithLic = JSON.parse(fs.readFileSync(p3, 'utf8'));
+
+const p4 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
+const issuesAndPulls = JSON.parse(fs.readFileSync(p4, 'utf8'));
+
+const p5 = path.join(__dirname, 'fixtures/issues-and-pulls-empty.json');
+const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p5, 'utf8'));
 
 describe('Repository integration tests', () => {
   let app;
@@ -50,6 +59,12 @@ describe('Repository integration tests', () => {
       },
       issues: {
         addAssignees: jest.fn(),
+        createComment: jest.fn(),
+        addLabels: jest.fn(),
+        update: jest.fn(),
+      },
+      search: {
+        issuesAndPullRequests: jest.fn(),
       },
       pullRequests: {
         create: jest.fn(),
@@ -105,6 +120,48 @@ describe('Repository integration tests', () => {
     expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
+  });
+
+  test('Old issues are closed out', async () => {
+    github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
+
+      await app.receive({
+        name: 'schedule.repository',
+        payload: payloadWithLic,
+      });
+
+    expect(github.search.issuesAndPullRequests).toBeCalled();
+    expect(github.issues.createComment).toBeCalled();
+    expect(github.issues.addLabels).toBeCalled();
+    expect(github.issues.update).toBeCalled();
+  });
+
+  test('No stale issues are handled properly', async () => {
+    github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty)),
+
+      await app.receive({
+        name: 'schedule.repository',
+        payload: payloadWithLic,
+      });
+
+    expect(github.search.issuesAndPullRequests).toBeCalled();
+    expect(github.issues.createComment).not.toBeCalled();
+    expect(github.issues.addLabels).not.toBeCalled();
+    expect(github.issues.update).not.toBeCalled();
+  });
+
+  test.skip('Applying labels is skipped if non-existent', async () => {
+    // github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty)),
+
+    //   await app.receive({
+    //     name: 'schedule.repository',
+    //     payload: payloadWithLic,
+    //   });
+
+    // expect(github.search.issuesAndPullRequests).toBeCalled();
+    // expect(github.issues.createComment).not.toBeCalled();
+    // expect(github.issues.addLabels).not.toBeCalled();
+    // expect(github.issues.update).not.toBeCalled();
   });
 });
 

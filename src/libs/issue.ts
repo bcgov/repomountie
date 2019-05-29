@@ -19,8 +19,10 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import { flatten } from 'lodash';
 import { Context } from 'probot';
-import { COMMENT_TRIGGER_WORD, GITHUB_ID, HELP_DESK } from '../constants';
+import { COMMENT_TRIGGER_WORD, GITHUB_ID, HELP_DESK, TEXT_FILES } from '../constants';
+import { labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
 
 /**
  * Determine if help desk support is required
@@ -78,3 +80,57 @@ export const created = async (context: Context) => {
     return;
   }
 };
+
+export const checkForStaleIssues = async (context: Context, config: RepoMountieConfig) => {
+  if (!config.staleIssue) {
+    return;
+  }
+
+  const aDate = new Date(Date.now() - (config.staleIssue.maxDaysOld * 24 * 60 * 60 * 1000));
+  const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
+  const owner = context.payload.repository.owner.login;
+  const repo = context.payload.repository.name;
+  const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`
+
+  try {
+    const response = await context.github.search.issuesAndPullRequests({
+      q: query,
+      sort: 'updated',
+      order: 'desc',
+      per_page: 100
+    });
+    const totalCount = response.data.total_count;
+    const items = response.data.items;
+
+
+    if (totalCount === 0) {
+      return;
+    }
+
+    const regex = /\[MAX_DAYS_OLD\]/gi;
+    const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_COMMENT);
+    const body = rawMessageBody
+      .replace(regex, `${config.staleIssue.maxDaysOld}`);
+
+    let labels: Array<string> = [];
+    if (config.staleIssue && config.staleIssue.applyLabel && (await labelExists(context, config.staleIssue.applyLabel))) {
+      labels.push(config.staleIssue.applyLabel)
+    }
+
+    const promises = items.map(item => {
+      // TODO:(jl) I think the probot framework includes the `number` parameter that is causing a
+      // deprecation warning. I'm leaving it for now to see if they fix it in a near-term release.
+      labels.concat(item.labels.map(l => l.name));
+      return [
+        context.github.issues.createComment(context.issue({ body, issue_number: item.number })),
+        context.github.issues.addLabels(context.issue({ issue_number: item.number, labels })),
+        context.github.issues.update(context.issue({ state: 'closed', issue_number: item.number }))
+      ]
+    });
+
+    await Promise.all(flatten(promises));
+  } catch (err) {
+    const message = 'Unable to process stale issue';
+    logger.error(`${message}, error = ${err.message}`);
+  }
+}
