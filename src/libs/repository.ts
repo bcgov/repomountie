@@ -40,7 +40,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
       // If the repo does *not* have a master branch then we don't want to add one.
       // The dev team may be doing this off-line and when they go to push master it
       // will cause a conflict because there will be no common root commit.
-      await context.github.gitdata.getRef(
+      await context.github.git.getRef(
         context.repo({
           ref: 'heads/master',
         })
@@ -52,7 +52,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
 
     if (!context.payload.repository.license) {
       try {
-        const allPullRequests = await context.github.pullRequests.list(
+        const allPullRequests = await context.github.pulls.list(
           context.repo({
             state: 'all',
           })

@@ -25,7 +25,6 @@
 let rpn = jest.genMockFromModule('request-promise-native');
 
 function request(options) {
-  console.log('**********************************');
   return new Promise((resolve, reject) => {
     resolve('OK');
   });
