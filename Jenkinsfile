@@ -38,12 +38,12 @@ pipeline {
                 echo "Building ..."
                 script { 
                   def BUILD_CONFIG = "${BUILD_CONFIG_BASE_NAME}-${GIT_BRANCH_NAME}-build"
-                  // openshiftBuild bldCfg: BUILD_CONFIG, showBuildLogs: 'true', verbose: 'true'
-                  tar -cf artifact.tar .
-                  oc start-build secure-image-api-build --from-archive=artifact.tar --follow --wait
+                  sh "tar -cf artifact.tar ."
+                  sh "oc start-build secure-image-api-build --from-archive=artifact.tar --follow --wait"
                 }
             }
         }
+
         // stage('Deploy (DEV)') {
         //     agent { label 'deploy' }
         //     steps {
