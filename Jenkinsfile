@@ -18,8 +18,7 @@
 // Created by Jason Leach on 2018-02-01.
 //
 
-def BUILD_CONFIG_BASE_NAME = 'repo-mountie'
-def GIT_BRANCH_NAME = 'master'
+def BUILD_CONFIG = 'repo-mountie-master-build'
 
 pipeline {
     agent none
@@ -37,9 +36,8 @@ pipeline {
 
                 echo "Building ..."
                 script { 
-                  def BUILD_CONFIG = "${BUILD_CONFIG_BASE_NAME}-${GIT_BRANCH_NAME}-build"
                   sh "tar -cf artifact.tar ."
-                  sh "oc start-build secure-image-api-build --from-archive=artifact.tar --follow --wait"
+                  sh "oc start-build ${BUILD_CONFIG} --from-archive=artifact.tar --follow --wait"
                 }
             }
         }
