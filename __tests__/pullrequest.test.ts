@@ -41,7 +41,7 @@ describe('Repository integration tests', () => {
 
   beforeEach(() => {
     app = new Application();
-    app.app = () => 'Token';
+    app.app = { getSignedJsonWebToken: () => 'xxx' };
     app.load(robot);
 
     issueOpenedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));

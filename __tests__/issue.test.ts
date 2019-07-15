@@ -60,7 +60,7 @@ describe('Repository integration tests', () => {
 
   beforeEach(() => {
     app = new Application();
-    app.app = () => 'Token';
+    app.app = { getSignedJsonWebToken: () => 'xxx' };
     app.load(robot);
 
     github = {

@@ -49,7 +49,7 @@ describe('Repository integration tests', () => {
 
   beforeEach(() => {
     app = new Application();
-    app.app = () => 'Token';
+    app.app = { getSignedJsonWebToken: () => 'xxx' };
     app.load(robot);
     const getRef = jest.fn();
     getRef.mockReturnValueOnce(master);

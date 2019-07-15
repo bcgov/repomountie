@@ -36,7 +36,8 @@ describe('Utility functions', () => {
 
   beforeEach(() => {
     app = new Application();
-    app.app = () => 'Token';
+    app.app = { getSignedJsonWebToken: () => 'xxx' };
+    // app.getSignedJsonWebToken = () => 'token';
     app.load(robot);
 
     // allRepoLables = labels;
