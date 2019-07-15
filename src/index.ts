@@ -32,7 +32,8 @@ process.env.TZ = 'UTC';
 
 if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
-    logger.warn(`Unhandled Rejection at promise = ${p}, reason = ${reason}`);
+    // @ts-ignore: `stack` does not exist on type
+    logger.warn(`Unhandled Rejection at promise = ${JSON.stringify(p)}, reason = ${reason.stack}`);
   });
 }
 
