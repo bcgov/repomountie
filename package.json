@@ -33,7 +33,7 @@
     "transform-runtime": "0.0.0"
   },
   "devDependencies": {
-    "@types/dotenv": "^6.1.1",
+    "@types/dotenv": "^8.2.0",
     "@types/jest": "^24.0.15",
     "@types/nconf": "0.10.0",
     "@types/node": "^12.6.3",
@@ -44,11 +44,11 @@
     "gulp-babel": "^8.0.0",
     "gulp-clean": "^0.4.0",
     "gulp-sourcemaps": "^2.6.5",
-    "gulp-typescript": "^5.0.1",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "jest": "^24.8.0",
     "nodemon": "^1.19.1",
     "smee-client": "^1.1.0",
-    "standard": "^13.0.2",
+    "standard": "^14.3.1",
     "supertest": "^4.0.2",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",

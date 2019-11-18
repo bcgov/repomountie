@@ -24,6 +24,7 @@ import { Context } from 'probot';
 import util from 'util';
 import { REPO_CONFIG_FILE } from '../constants';
 
+// type Optional<T> = T | undefined
 interface RepoMountiePullRequestConfig {
   maxLinesChanged: number;
 }
@@ -62,8 +63,18 @@ export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMoun
       })
     );
 
-    const content = Buffer.from(response.data.content, 'base64').toString();
-    return JSON.parse(content);
+    // if (!Array.isArray(response.data) && response.data.type === 'file') {
+    //   const content = Buffer.from(response.data.content, 'base64').toString();
+    //   return JSON.parse(content);
+    // }
+    const data: any = response.data;
+
+    if (data.content && data.type === 'file') {
+      const content = Buffer.from(data.content, 'base64').toString();
+      return JSON.parse(content);
+    }
+
+    return Promise.reject();
   } catch (err) {
     const message = 'Unable to process config file.';
     logger.error(`${message}, error = ${err.message}`);
