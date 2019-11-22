@@ -51,6 +51,7 @@ export = (app: Application) => {
   app.on('issue_comment.created', issueCommentCreated);
   app.on('schedule.repository', repositoryScheduled);
   app.on('repository.deleted', repositoryDelete);
+  // app.on('repository_vulnerability_alert.create', blarb);
 
   async function pullRequestOpened(context: Context) {
     try {
