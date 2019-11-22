@@ -8,7 +8,6 @@ build/
 dist/
 *.pem
 .env
-coverage
 
 *~
 *.seed
