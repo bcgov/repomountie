@@ -24,6 +24,10 @@ import { PR_TITLES, VALID_LICENSES } from '../constants';
 import { addLicenseFileToRepo } from './content';
 import { extractMessage } from './utils';
 
+export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
+  return;
+};
+
 export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
   try {
     // Currently we only have one cultural rule, a repo must have a licence. If this
