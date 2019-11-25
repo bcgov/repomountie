@@ -36,7 +36,7 @@
     "@types/dotenv": "^8.2.0",
     "@types/jest": "^24.0.15",
     "@types/nconf": "0.10.0",
-    "@types/node": "^12.12.11",
+    "@types/node": "^12.12.12",
     "babel": "^6.23.0",
     "babel-jest": "^24.8.0",
     "eslint-plugin-typescript": "^0.14.0",
