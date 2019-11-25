@@ -98,7 +98,7 @@ describe('Repository integration tests', () => {
     labelExists.mockReturnValue(true)
   });
 
-  test('An unassigned PR (issue) assigned', async () => {
+  it('An unassigned PR (issue) assigned', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: unassignedIssueCommentCreated,
@@ -112,7 +112,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.addAssignees).toHaveBeenCalled();
   });
 
-  test('An assigned PR (issue) is skipped', async () => {
+  it('An assigned PR (issue) is skipped', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: assignedIssueCommentCreated,
@@ -126,7 +126,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
-  test('An issue not created by me is ignored', async () => {
+  it('An issue not created by me is ignored', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: unassignedIssueNotMineCommentCreated,
@@ -140,7 +140,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
-  test('Old issues are closed out', async () => {
+  it('Old issues are closed out', async () => {
     github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
       await app.receive({
         name: 'schedule.repository',
@@ -154,7 +154,7 @@ describe('Repository integration tests', () => {
   });
 
 
-  test('Stale config stanza missing skips', async () => {
+  it('Stale config stanza missing skips', async () => {
     const myConfig = Object.assign({}, config);
     delete myConfig.staleIssue;
 
@@ -177,7 +177,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).not.toBeCalled();
   });
 
-  test('No stale issues are handled properly', async () => {
+  it('No stale issues are handled properly', async () => {
     github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty)),
       await app.receive({
         name: 'schedule.repository',
@@ -190,7 +190,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).not.toBeCalled();
   });
 
-  test('Applying labels is skipped if non-existent', async () => {
+  it('Applying labels is skipped if non-existent', async () => {
     // @ts-ignore
     labelExists.mockReturnValue(false)
     const addLabelsArgs = { "issue_number": 2, "labels": [], "number": undefined, "owner": "bcgov", "repo": "blarb" };

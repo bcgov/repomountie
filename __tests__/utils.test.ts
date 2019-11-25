@@ -54,26 +54,26 @@ describe('Utility functions', () => {
     context = new Context(repoScheduledEvent, github as any, {} as any);
   });
 
-  test('A template can be loaded', async () => {
+  it('A template can be loaded', async () => {
     const data = await loadTemplate('some-file');
     expect(data).not.toBeUndefined();
   });
 
-  test('A file with no read access throws', async () => {
+  it('A file with no read access throws', async () => {
     await expect(loadTemplate('no-file-access')).rejects.toThrow(Error);
   });
 
-  test('A non-existent template throws', async () => {
+  it('A non-existent template throws', async () => {
     await expect(loadTemplate('no-file')).rejects.toThrow(Error);
   });
 
-  test('API error message extracted from Error message', async () => {
+  it('API error message extracted from Error message', async () => {
     const err = new Error('{"message": "Hello World"}');
     const message = await extractMessage(err);
     expect(message).toEqual('Hello World');
   });
 
-  test('Labels should be fetched for lookup', async () => {
+  it('Labels should be fetched for lookup', async () => {
     await labelExists(context, 'blarb');
     expect(github.issues.listLabelsForRepo).toHaveBeenCalled();
   });
