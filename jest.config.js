@@ -20,7 +20,7 @@
 
 module.exports = {
   // collectCoverage: true,
-  collectCoverageFrom: ['src/**/*.{ts}'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!**/node_modules/**', '!**/vendor/**'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleDirectories: ['node_modules'],
   modulePathIgnorePatterns: ['<rootDir>/build/'],
