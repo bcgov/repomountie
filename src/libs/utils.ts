@@ -63,18 +63,14 @@ export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMoun
       })
     );
 
-    // if (!Array.isArray(response.data) && response.data.type === 'file') {
-    //   const content = Buffer.from(response.data.content, 'base64').toString();
-    //   return JSON.parse(content);
-    // }
     const data: any = response.data;
 
-    if (data.content && data.type === 'file') {
-      const content = Buffer.from(data.content, 'base64').toString();
-      return JSON.parse(content);
+    if (data.content && data.type !== 'file') {
+      throw new Error('Unable to fetch config file.')
     }
 
-    return Promise.reject();
+    const content = Buffer.from(data.content, 'base64').toString();
+    return JSON.parse(content);
   } catch (err) {
     const message = 'Unable to process config file.';
     logger.error(`${message}, error = ${err.message}`);
