@@ -9,7 +9,7 @@
     "git_url": "https://api.github.com/repos/bcgov/glarb/git/blobs/fc5f44d45e03b298219083b201db858f7a06aa1d",
     "download_url": "https://raw.githubusercontent.com/bcgov/glarb/master/compliance.yaml",
     "type": "file",
-    "content": "LS0tCmRlc2NyaXB0aW9uOiB8CiAgdGhpcyBpcyBhIGNvbXBsaWFuY2UgZmlsZQpuYW1lOiBoZWxsbwo=\n",
+    "content": "LS0tCm5hbWU6IGNvbXBsaWFuY2UKZGVzY3JpcHRpb246IHwKICBUaGlzIGRvY3VtZW50IGlzIHVzZWQgdG8gdHJhY2sgYSBwcm9qZWN0cyBQSUEgYW5kIFNUUkEKICBjb21wbGlhbmNlLgpzcGVjOgogIC0gbmFtZTogUElBCiAgICBzdGF0dXM6IGNvbXBsZXRlZAogICAgbGFzdC11cGRhdGVkOiAiMjAxOS0xMS0yMlQwMDowMzo1Mi4xMzhaIgogIC0gbmFtZTogU1RSQQogICAgc3RhdHVzOiBpbi1wcm9ncmVzcwogICAgbGFzdC11cGRhdGVkOiAiMjAxOS0xMS0yMlQwMDowMzo1Mi4xMzhaIgo=\n",
     "encoding": "base64",
     "_links": {
       "self": "https://api.github.com/repos/bcgov/glarb/contents/compliance.yaml?ref=master",

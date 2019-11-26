@@ -2,9 +2,22 @@
 
 exports[`Utility functions The compliance file should be retrieved. 1`] = `
 Object {
-  "description": "this is a compliance file
+  "description": "This document is used to track a projects PIA and STRA
+compliance.
 ",
-  "name": "hello",
+  "name": "compliance",
+  "spec": Array [
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "PIA",
+      "status": "completed",
+    },
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "STRA",
+      "status": "in-progress",
+    },
+  ],
 }
 `;
 
