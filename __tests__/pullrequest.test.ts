@@ -23,12 +23,12 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { extractCommands, isValidPullRequestLength, shouldIgnoredLengthCheck } from '../src/libs/pullrequest';
-import { fetchRepoMountieConfig } from '../src/libs/utils';
+import { fetchConfigFile } from '../src/libs/utils';
 
 jest.mock('fs');
 
 const p0 = path.join(__dirname, 'fixtures/pull_request-opened-event.json');
-const p1 = path.join(__dirname, 'fixtures/repo-get-content.json');
+const p1 = path.join(__dirname, 'fixtures/repo-get-content-config.json');
 const p2 = path.join(__dirname, 'fixtures/rmconfig.json');
 
 describe('Repository integration tests', () => {
@@ -65,7 +65,7 @@ describe('Repository integration tests', () => {
   });
 
   it('A config file should be fetched from the repo', async () => {
-    const response = await fetchRepoMountieConfig(context);
+    const response = await fetchConfigFile(context);
 
     expect(response).not.toBe(repoMountieConfig);
     expect(github.repos.getContents).toHaveBeenCalled();
@@ -76,7 +76,7 @@ describe('Repository integration tests', () => {
     const getContents = jest.fn().mockReturnValueOnce(Promise.reject(err));
     github.repos.getContents = getContents;
 
-    await expect(fetchRepoMountieConfig(context)).rejects.toThrow(err);
+    await expect(fetchConfigFile(context)).rejects.toThrow(err);
     expect(github.repos.getContents).toHaveBeenCalled();
   });
 

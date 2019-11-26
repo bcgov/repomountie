@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Utility functions The compliance file should be retrieved. 1`] = `
+Object {
+  "description": "this is a compliance file
+",
+  "name": "hello",
+}
+`;
+
+exports[`Utility functions The config file should be retrieved. 1`] = `
+Object {
+  "pullRequest": Object {
+    "maxLinesChanged": 300,
+  },
+}
+`;

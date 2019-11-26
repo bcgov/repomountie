@@ -26,6 +26,8 @@ export const GITHUB_ID = 'repo-mountie';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 
+export const REPO_COMPLIANCE_FILE = 'compliance.yaml';
+
 export const HELP_DESK = {
   LICENSE_SUPPORT_USERS: ['jleach', 'kelpisland'],
 };

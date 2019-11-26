@@ -20,9 +20,10 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import fs from 'fs';
+import yaml from 'js-yaml';
 import { Context } from 'probot';
 import util from 'util';
-import { REPO_CONFIG_FILE } from '../constants';
+import { REPO_COMPLIANCE_FILE, REPO_CONFIG_FILE } from '../constants';
 
 // type Optional<T> = T | undefined
 interface RepoMountiePullRequestConfig {
@@ -32,6 +33,10 @@ interface RepoMountiePullRequestConfig {
 interface RepoMountieStaleIssueConfig {
   maxDaysOld: number;
   applyLabel: string;
+}
+
+interface Blarb {
+  name?: string;
 }
 
 export interface RepoMountieConfig {
@@ -47,6 +52,31 @@ export const isJSON = (aString: string): boolean => {
     return false;
   }
 }
+
+export const fetchComplianceFile = async (context: Context): Promise<Blarb> => {
+  try {
+    const response = await context.github.repos.getContents(
+      context.repo({
+        branch: 'master',
+        path: REPO_COMPLIANCE_FILE,
+      })
+    );
+
+    const data: any = response.data;
+
+    if (data.content && data.type !== 'file') {
+      throw new Error('Unable to fetch compliance file.')
+    }
+
+    const content = Buffer.from(data.content, 'base64').toString();
+    return yaml.safeLoad(content);
+  } catch (err) {
+    const message = 'Unable to process config file.';
+    logger.error(`${message}, error = ${err.message}`);
+    throw new Error(message);
+  }
+};
+
 /**
  * Fetch the repo configuration file
  * The configuration file determines what, if any, cultural policies should
@@ -54,7 +84,7 @@ export const isJSON = (aString: string): boolean => {
  * @param {Context} context The event context context
  * @returns A `RepoMountieConfig` object if one exists
  */
-export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConfig> => {
+export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
   try {
     const response = await context.github.repos.getContents(
       context.repo({
@@ -77,7 +107,6 @@ export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMoun
     throw new Error(message);
   }
 };
-
 
 /**
  * Load a template file file and return the contents.

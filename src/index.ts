@@ -26,7 +26,7 @@ import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
-import { fetchRepoMountieConfig } from './libs/utils';
+import { fetchConfigFile } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
@@ -87,7 +87,7 @@ export = (app: Application) => {
       }`
     );
 
-    const config = await fetchRepoMountieConfig(context);
+    const config = await fetchConfigFile(context);
 
     await validatePullRequestIfRequired(context, config);
   }
@@ -154,7 +154,7 @@ export = (app: Application) => {
       // Functionality below here requires a `config` file exist in the repo.
 
       try {
-        const config = await fetchRepoMountieConfig(context);
+        const config = await fetchConfigFile(context);
         await checkForStaleIssues(context, config);
       } catch (err) {
         logger.info('No config file. Skipping.');

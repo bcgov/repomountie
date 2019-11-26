@@ -22,7 +22,7 @@ import fs from 'fs';
 import path from 'path';
 import { Application } from 'probot';
 import robot from '../src';
-import { fetchRepoMountieConfig, labelExists, loadTemplate } from '../src/libs/utils';
+import { fetchConfigFile, labelExists, loadTemplate } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
 const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -49,7 +49,7 @@ const p7 = path.join(__dirname, '../templates/stale_issue_comment.md');
 const template = fs.readFileSync(p7, 'utf8');
 
 jest.mock('../src/libs/utils', () => ({
-  fetchRepoMountieConfig: jest.fn(),
+  fetchConfigFile: jest.fn(),
   loadTemplate: jest.fn(),
   labelExists: jest.fn(),
 }));
@@ -91,7 +91,7 @@ describe('Repository integration tests', () => {
     app.auth = () => Promise.resolve(github);
 
     // @ts-ignore
-    fetchRepoMountieConfig.mockReturnValue(config)
+    fetchConfigFile.mockReturnValue(config)
     // @ts-ignore
     loadTemplate.mockReturnValue(template)
     // @ts-ignore
@@ -159,7 +159,7 @@ describe('Repository integration tests', () => {
     delete myConfig.staleIssue;
 
     // @ts-ignore
-    fetchRepoMountieConfig.mockReturnValue(myConfig)
+    fetchConfigFile.mockReturnValue(myConfig)
     // @ts-ignore
     loadTemplate.mockReturnValue(template)
     // @ts-ignore

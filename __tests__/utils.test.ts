@@ -22,12 +22,18 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
-import { extractMessage, labelExists, loadTemplate } from '../src/libs/utils';
+import { extractMessage, fetchComplianceFile, fetchConfigFile, labelExists, loadTemplate } from '../src/libs/utils';
 
 jest.mock('fs');
 
 const p0 = path.join(__dirname, 'fixtures/schedule-lic.json');
 const repoScheduledEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
+
+const p1 = path.join(__dirname, 'fixtures/repo-get-content-compliance.json');
+const complianceResponse = JSON.parse(fs.readFileSync(p1, 'utf8'));
+
+const p2 = path.join(__dirname, 'fixtures/repo-get-content-config.json');
+const configResponse = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
 describe('Utility functions', () => {
   let app;
@@ -45,6 +51,9 @@ describe('Utility functions', () => {
     github = {
       issues: {
         listLabelsForRepo: jest.fn(),
+      },
+      repos: {
+        getContents: jest.fn(),
       },
     };
 
@@ -76,5 +85,21 @@ describe('Utility functions', () => {
   it('Labels should be fetched for lookup', async () => {
     await labelExists(context, 'blarb');
     expect(github.issues.listLabelsForRepo).toHaveBeenCalled();
+  });
+
+  it('The compliance file should be retrieved.', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
+    const data = await fetchComplianceFile(context);
+
+    expect(github.repos.getContents).toHaveBeenCalled();
+    expect(data).toMatchSnapshot();
+  });
+
+  it('The config file should be retrieved.', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(configResponse));
+    const data = await fetchConfigFile(context);
+
+    expect(github.repos.getContents).toHaveBeenCalled();
+    expect(data).toMatchSnapshot();
   });
 });
