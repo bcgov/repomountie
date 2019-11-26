@@ -35,7 +35,7 @@ interface RepoMountieStaleIssueConfig {
   applyLabel: string;
 }
 
-interface Blarb {
+interface RepoCompliance {
   name?: string;
 }
 
@@ -53,22 +53,40 @@ export const isJSON = (aString: string): boolean => {
   }
 }
 
-export const fetchComplianceFile = async (context: Context): Promise<Blarb> => {
+export const fetchFile = async (context, fileName, ref = 'master'): Promise<string> => {
   try {
     const response = await context.github.repos.getContents(
       context.repo({
-        branch: 'master',
-        path: REPO_COMPLIANCE_FILE,
+        branch: ref,
+        path: fileName,
       })
     );
 
     const data: any = response.data;
 
     if (data.content && data.type !== 'file') {
-      throw new Error('Unable to fetch compliance file.')
+      throw new Error('No content returned or wrong file type.')
     }
 
-    const content = Buffer.from(data.content, 'base64').toString();
+    return Buffer.from(data.content, 'base64').toString();
+  } catch (err) {
+    const message = `Unable to fetch ${fileName}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw new Error(message);
+  }
+};
+
+/**
+ * Fetch the repo compliance file
+ * The compliance file determines what state any policy compliance
+ * is currently in.
+ * @param {Context} context The event context context
+ * @returns A `RepoCompliance` object if one exists
+ */
+export const fetchComplianceFile = async (context: Context): Promise<RepoCompliance> => {
+  try {
+    const content = await fetchFile(context, REPO_COMPLIANCE_FILE);
     return yaml.safeLoad(content);
   } catch (err) {
     const message = 'Unable to process config file.';
@@ -86,24 +104,12 @@ export const fetchComplianceFile = async (context: Context): Promise<Blarb> => {
  */
 export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
   try {
-    const response = await context.github.repos.getContents(
-      context.repo({
-        branch: 'master',
-        path: REPO_CONFIG_FILE,
-      })
-    );
-
-    const data: any = response.data;
-
-    if (data.content && data.type !== 'file') {
-      throw new Error('Unable to fetch config file.')
-    }
-
-    const content = Buffer.from(data.content, 'base64').toString();
+    const content = await fetchFile(context, REPO_CONFIG_FILE);
     return JSON.parse(content);
   } catch (err) {
     const message = 'Unable to process config file.';
     logger.error(`${message}, error = ${err.message}`);
+
     throw new Error(message);
   }
 };
