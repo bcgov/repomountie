@@ -25,12 +25,19 @@ jobs:
             ${{ runner.OS }}-build-${{ env.cache-name }}-
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v2.3.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.TestReporterID }}
+          CI: "true"
+        with:
+          coverageCommand: npm run test:coverage
+          debug: "true"
       - name: npm install, build, and test
         run: |
           npm ci
           echo "attempting to build"
           npm run build --if-present
-          npm run test
         env:
           CI: "true"
           # GITHUB_TOKEN: ${{secrets.GITHUB_API_TOKEN}}
