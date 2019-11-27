@@ -32,6 +32,14 @@ export const HELP_DESK = {
   LICENSE_SUPPORT_USERS: ['jleach', 'kelpisland'],
 };
 
+export const COMMIT_FILE_NAMES = {
+  LICENSE: 'LICENSE',
+}
+
+export const COMMIT_MESSAGES = {
+  ADD_LICENSE: 'Add Apache License 2.0',
+}
+
 export const PR_TITLES = {
   ADD_LICENSE: 'Add missing license',
 };

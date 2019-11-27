@@ -197,3 +197,52 @@ export const labelExists = async (context: Context, labelName: string): Promise<
     return false
   }
 }
+
+export const addFileViaPullRequest = async (
+  context: Context, commitMessage: string, prTitle: string,
+  prBody: string, srcBranchName: string, fileName: string,
+  fileData: string
+) => {
+  try {
+    // If we don't have a master we won't have anywhere to merge the PR
+    const master = await context.github.git.getRef(
+      context.repo({
+        ref: 'heads/master',
+      })
+    );
+
+    // Create a branch to commit to commit the license file
+    await context.github.git.createRef(
+      context.repo({
+        ref: `refs/heads/${srcBranchName}`,
+        sha: master.data.object.sha,
+      })
+    );
+
+    // Add the file to the new branch
+    await context.github.repos.createFile(
+      context.repo({
+        branch: srcBranchName,
+        content: Buffer.from(fileData).toString('base64'),
+        message: commitMessage,
+        path: fileName,
+      })
+    );
+
+    // Create a PR to merge the licence ref into master
+    await context.github.pulls.create(
+      context.repo({
+        base: 'master',
+        body: prBody,
+        head: srcBranchName,
+        maintainer_can_modify: true, // maintainers cat edit your this PR
+        title: prTitle,
+      })
+    );
+  } catch (err) {
+    const message = `Unable to add ${fileName} file to ${context.payload.repository.name}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
