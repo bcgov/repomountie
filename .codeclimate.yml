@@ -4,3 +4,7 @@ exclude_patterns:
   - "__mocks__/"
   - "openshift/"
   - "doc/"
+  - "**/node_modules/"
+  - "script/"
+  - "**/vendor/"
+  - "**/*.d.ts"
