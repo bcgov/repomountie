@@ -53,6 +53,24 @@ export const isJSON = (aString: string): boolean => {
   }
 }
 
+export const checkIfRefExists = async (context: Context, ref = 'master'): Promise<boolean> => {
+  try {
+    // If the repo does *not* have a master branch then we don't want to add one.
+    // The dev team may be doing this off-line and when they go to push master it
+    // will cause a conflict because there will be no common root commit.
+    await context.github.git.getRef(
+      context.repo({
+        ref: `heads/${ref}`,
+      })
+    );
+
+    return true;
+  } catch (err) {
+    logger.info(`No ref ${ref} exists in ${context.payload.repository.name}`);
+    return false;
+  }
+};
+
 export const fetchFile = async (context, fileName, ref = 'master'): Promise<string> => {
   try {
     const response = await context.github.repos.getContents(

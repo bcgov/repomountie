@@ -22,26 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import { PR_TITLES, VALID_LICENSES } from '../constants';
 import { addLicenseFileToRepo } from './content';
-import { extractMessage } from './utils';
-
-const masterRefExists = async (context: Context) => {
-  try {
-    // If the repo does *not* have a master branch then we don't want to add one.
-    // The dev team may be doing this off-line and when they go to push master it
-    // will cause a conflict because there will be no common root commit.
-    await context.github.git.getRef(
-      context.repo({
-        ref: 'heads/master',
-      })
-    );
-
-    return true;
-  } catch (err) {
-    logger.info(`No master branch exists in ${context.payload.repository.name}`);
-    // throw err; // hard stop if we don't have a master branch
-    return false;
-  }
-};
+import { checkIfRefExists, extractMessage } from './utils';
 
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
   return;
@@ -59,7 +40,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
       return;
     }
 
-    if ((await masterRefExists(context)) && !context.payload.repository.license) {
+    if ((await checkIfRefExists(context, 'master')) && !context.payload.repository.license) {
       try {
         const allPullRequests = await context.github.pulls.list(
           context.repo({
