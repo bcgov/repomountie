@@ -1,0 +1,6 @@
+## other configuration excluded from example...
+exclude_patterns:
+  - "__tests__/"
+  - "__mocks__/"
+  - "openshift/"
+  - "doc/"
