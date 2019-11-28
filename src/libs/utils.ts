@@ -275,3 +275,33 @@ export const addFileViaPullRequest = async (
     throw err;
   }
 };
+
+/**
+ * Check if a pull request exists
+ * Check if pull requests exists with a given title
+ * @param {Context} context The event context context
+ * @param {string} title The title to look for
+ * @param {string} state The state the PR must be in.
+ * @returns `true` if if a PR exists, false otherwise.
+ */
+export const hasPullRequestWithTitle = async (context, title, state = 'all'): Promise<boolean> => {
+  try {
+    const pulls = await context.github.pulls.list(
+      context.repo({
+        state: state,
+      })
+    );
+
+    console.log('****************', pulls.data);
+    if (pulls && pulls.data) {
+      return pulls.data.filter(pr => pr.title === title).length > 0;
+    }
+
+    return false;
+  } catch (err) {
+    const message = `Unable to lookup PRs in repo ${context.payload.repository.name}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};

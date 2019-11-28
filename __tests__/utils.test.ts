@@ -22,8 +22,8 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
-import { REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addFileViaPullRequest, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchFile, labelExists, loadTemplate } from '../src/libs/utils';
+import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
+import { addFileViaPullRequest, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchFile, hasPullRequestWithTitle, labelExists, loadTemplate } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -41,6 +41,10 @@ const master = JSON.parse(fs.readFileSync(p3, 'utf8'));
 
 const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
 const prNoAddLicense = JSON.parse(fs.readFileSync(p4, 'utf8'));
+
+const p5 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
+const prWithLicense = JSON.parse(fs.readFileSync(p5, 'utf8'));
+
 
 describe('Utility functions', () => {
   let app;
@@ -156,5 +160,19 @@ describe('Utility functions', () => {
     expect(github.pulls.create).toHaveBeenCalled();
     expect(github.git.createRef).toHaveBeenCalled();
     expect(github.repos.createFile).toHaveBeenCalled();
+  });
+
+  it('A pull request should not exists', async () => {
+    const result = await hasPullRequestWithTitle(context, 'Hello');
+
+    expect(result).toBeFalsy();
+  });
+
+  it.skip('A pull request should exists', async () => {
+    github.pulls.list.mockReturnValueOnce(Promise.resolve(prWithLicense));
+
+    const result = await hasPullRequestWithTitle(context, PR_TITLES.ADD_LICENSE);
+
+    expect(result).toBeTruthy();
   });
 });
