@@ -24,11 +24,6 @@ import { Application } from 'probot';
 import robot from '../src';
 import { fetchConfigFile, labelExists, loadTemplate } from '../src/libs/utils';
 
-jest.mock('../src/libs/repository', () => ({
-  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
-  addLicenseIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
-}));
-
 const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
 const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
@@ -52,6 +47,11 @@ const config = JSON.parse(fs.readFileSync(p6, 'utf8'));
 
 const p7 = path.join(__dirname, '../templates/stale_issue_comment.md');
 const template = fs.readFileSync(p7, 'utf8');
+
+jest.mock('../src/libs/repository', () => ({
+  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+  addLicenseIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+}));
 
 jest.mock('../src/libs/utils', () => ({
   fetchConfigFile: jest.fn(),
