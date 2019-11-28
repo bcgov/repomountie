@@ -20,9 +20,10 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import fs from 'fs';
+import yaml from 'js-yaml';
 import { Context } from 'probot';
 import util from 'util';
-import { REPO_CONFIG_FILE } from '../constants';
+import { REPO_COMPLIANCE_FILE, REPO_CONFIG_FILE } from '../constants';
 
 // type Optional<T> = T | undefined
 interface RepoMountiePullRequestConfig {
@@ -32,6 +33,10 @@ interface RepoMountiePullRequestConfig {
 interface RepoMountieStaleIssueConfig {
   maxDaysOld: number;
   applyLabel: string;
+}
+
+interface RepoCompliance {
+  name?: string;
 }
 
 export interface RepoMountieConfig {
@@ -47,34 +52,77 @@ export const isJSON = (aString: string): boolean => {
     return false;
   }
 }
+
 /**
- * Fetch the repo configuration file
- * The configuration file determines what, if any, cultural policies should
- * be enforced.
+ * Check if a git ref exists
+ * Check if a git reference exists; the call to GitHub will fail
+ * if the reference does not exists.
  * @param {Context} context The event context context
- * @returns A `RepoMountieConfig` object if one exists
+ * @param {string} ref The ref to be looked up
+ * @returns A boolean of true if the ref exists, false otherwise
  */
-export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMountieConfig> => {
+export const checkIfRefExists = async (context: Context, ref = 'master'): Promise<boolean> => {
   try {
-    const response = await context.github.repos.getContents(
+    // If the repo does *not* have a master branch then we don't want to add one.
+    // The dev team may be doing this off-line and when they go to push master it
+    // will cause a conflict because there will be no common root commit.
+    await context.github.git.getRef(
       context.repo({
-        branch: 'master',
-        path: REPO_CONFIG_FILE,
+        ref: `heads/${ref}`,
       })
     );
 
-    // if (!Array.isArray(response.data) && response.data.type === 'file') {
-    //   const content = Buffer.from(response.data.content, 'base64').toString();
-    //   return JSON.parse(content);
-    // }
+    return true;
+  } catch (err) {
+    logger.info(`No ref ${ref} exists in ${context.payload.repository.name}`);
+    return false;
+  }
+};
+
+/**
+ * Fetch the repo compliance file
+ * The compliance file determines what state any policy compliance
+ * is currently in.
+ * @param {Context} context The event context context
+ * @param {string} fileName The name of the file to fetch
+ * @param {string} ref The ref where the file exists
+ * @returns A string containing the file data
+ */
+export const fetchFile = async (context, fileName, ref = 'master'): Promise<string> => {
+  try {
+    const response = await context.github.repos.getContents(
+      context.repo({
+        branch: ref,
+        path: fileName,
+      })
+    );
+
     const data: any = response.data;
 
-    if (data.content && data.type === 'file') {
-      const content = Buffer.from(data.content, 'base64').toString();
-      return JSON.parse(content);
+    if (data.content && data.type !== 'file') {
+      throw new Error('No content returned or wrong file type.')
     }
 
-    return Promise.reject();
+    return Buffer.from(data.content, 'base64').toString();
+  } catch (err) {
+    const message = `Unable to fetch ${fileName}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw new Error(message);
+  }
+};
+
+/**
+ * Fetch the repo compliance file
+ * The compliance file determines what state any policy compliance
+ * is currently in.
+ * @param {Context} context The event context context
+ * @returns A `RepoCompliance` object if one exists
+ */
+export const fetchComplianceFile = async (context: Context): Promise<RepoCompliance> => {
+  try {
+    const content = await fetchFile(context, REPO_COMPLIANCE_FILE);
+    return yaml.safeLoad(content);
   } catch (err) {
     const message = 'Unable to process config file.';
     logger.error(`${message}, error = ${err.message}`);
@@ -82,6 +130,24 @@ export const fetchRepoMountieConfig = async (context: Context): Promise<RepoMoun
   }
 };
 
+/**
+ * Fetch the repo configuration file
+ * The configuration file determines what, if any, cultural policies should
+ * be enforced.
+ * @param {Context} context The event context context
+ * @returns A `RepoMountieConfig` object if one exists
+ */
+export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
+  try {
+    const content = await fetchFile(context, REPO_CONFIG_FILE);
+    return JSON.parse(content);
+  } catch (err) {
+    const message = 'Unable to process config file.';
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw new Error(message);
+  }
+};
 
 /**
  * Load a template file file and return the contents.
@@ -148,3 +214,64 @@ export const labelExists = async (context: Context, labelName: string): Promise<
     return false
   }
 }
+
+/**
+ * Add a file to a repo via a pull request
+ * Adds a file to a repo via a PR based of the
+ * master branch.
+ * @param {Context} context The event context context
+ * @param {string} commitMessage The commit message for the file
+ * @param {string} prTitle The title of the pull request
+ * @param {string} prBody The message body of the pull request
+ * @param {string} srcBranchName The source branch for the pull request
+ * @param {string} fileName The name of the file to be added
+ * @param {string} fileData The data of the file to be added
+ */
+export const addFileViaPullRequest = async (
+  context: Context, commitMessage: string, prTitle: string,
+  prBody: string, srcBranchName: string, fileName: string,
+  fileData: string
+) => {
+  try {
+    // If we don't have a master we won't have anywhere to merge the PR
+    const master = await context.github.git.getRef(
+      context.repo({
+        ref: 'heads/master',
+      })
+    );
+
+    // Create a branch to commit to commit the license file
+    await context.github.git.createRef(
+      context.repo({
+        ref: `refs/heads/${srcBranchName}`,
+        sha: master.data.object.sha,
+      })
+    );
+
+    // Add the file to the new branch
+    await context.github.repos.createFile(
+      context.repo({
+        branch: srcBranchName,
+        content: Buffer.from(fileData).toString('base64'),
+        message: commitMessage,
+        path: fileName,
+      })
+    );
+
+    // Create a PR to merge the licence ref into master
+    await context.github.pulls.create(
+      context.repo({
+        base: 'master',
+        body: prBody,
+        head: srcBranchName,
+        maintainer_can_modify: true, // maintainers cat edit your this PR
+        title: prTitle,
+      })
+    );
+  } catch (err) {
+    const message = `Unable to add ${fileName} file to ${context.payload.repository.name}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};

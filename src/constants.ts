@@ -26,9 +26,19 @@ export const GITHUB_ID = 'repo-mountie';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 
+export const REPO_COMPLIANCE_FILE = 'compliance.yaml';
+
 export const HELP_DESK = {
   LICENSE_SUPPORT_USERS: ['jleach', 'kelpisland'],
 };
+
+export const COMMIT_FILE_NAMES = {
+  LICENSE: 'LICENSE',
+}
+
+export const COMMIT_MESSAGES = {
+  ADD_LICENSE: 'Add Apache License 2.0',
+}
 
 export const PR_TITLES = {
   ADD_LICENSE: 'Add missing license',

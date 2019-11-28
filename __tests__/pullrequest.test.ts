@@ -23,12 +23,12 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { extractCommands, isValidPullRequestLength, shouldIgnoredLengthCheck } from '../src/libs/pullrequest';
-import { fetchRepoMountieConfig } from '../src/libs/utils';
+import { fetchConfigFile } from '../src/libs/utils';
 
 jest.mock('fs');
 
 const p0 = path.join(__dirname, 'fixtures/pull_request-opened-event.json');
-const p1 = path.join(__dirname, 'fixtures/repo-get-content.json');
+const p1 = path.join(__dirname, 'fixtures/repo-get-content-config.json');
 const p2 = path.join(__dirname, 'fixtures/rmconfig.json');
 
 describe('Repository integration tests', () => {
@@ -64,23 +64,27 @@ describe('Repository integration tests', () => {
     context = new Context(issueOpenedEvent, github as any, {} as any);
   });
 
-  test('A config file should be fetched from the repo', async () => {
-    const response = await fetchRepoMountieConfig(context);
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('A config file should be fetched from the repo', async () => {
+    const response = await fetchConfigFile(context);
 
     expect(response).not.toBe(repoMountieConfig);
     expect(github.repos.getContents).toHaveBeenCalled();
   });
 
-  test('A repo with no config should be handled gracefully', async () => {
+  it('A repo with no config should be handled gracefully', async () => {
     const err = new Error('Unable to process config file.');
     const getContents = jest.fn().mockReturnValueOnce(Promise.reject(err));
     github.repos.getContents = getContents;
 
-    await expect(fetchRepoMountieConfig(context)).rejects.toThrow(err);
+    await expect(fetchConfigFile(context)).rejects.toThrow(err);
     expect(github.repos.getContents).toHaveBeenCalled();
   });
 
-  test('A PR with less changes is accepted', () => {
+  it('A PR with less changes is accepted', () => {
     context.payload.pull_request.additions = 5;
     const myConfig = { ...repoMountieConfig };
     myConfig.pullRequest.maxLinesChanged = 10;
@@ -88,7 +92,7 @@ describe('Repository integration tests', () => {
     expect(isValidPullRequestLength(context, myConfig)).toBeTruthy();
   });
 
-  test('A PR with more changes is rejected', () => {
+  it('A PR with more changes is rejected', () => {
     context.payload.pull_request.additions = 10;
     const myConfig = { ...repoMountieConfig };
     myConfig.pullRequest.maxLinesChanged = 5;
@@ -96,7 +100,7 @@ describe('Repository integration tests', () => {
     expect(isValidPullRequestLength(context, myConfig)).toBeFalsy();
   });
 
-  test('A PR with the same number of changes is rejected', () => {
+  it('A PR with the same number of changes is rejected', () => {
     context.payload.pull_request.additions = 10;
     const myConfig = { ...repoMountieConfig };
     myConfig.pullRequest.maxLinesChanged = 10;
@@ -104,7 +108,7 @@ describe('Repository integration tests', () => {
     expect(isValidPullRequestLength(context, myConfig)).toBeTruthy();
   });
 
-  test('A long PR should trigger a help comment to be added', async () => {
+  it('A long PR should trigger a help comment to be added', async () => {
     context.payload.pull_request.additions = 1000;
     await app.receive({
       name: 'pull_request.opened',
@@ -115,33 +119,33 @@ describe('Repository integration tests', () => {
     expect(github.issues.createComment).toHaveBeenCalled();
   });
 
-  test('No commands are processed correctly', () => {
+  it('No commands are processed correctly', () => {
     expect(extractCommands(context.payload.pull_request.body).length).toBe(0);
   });
 
-  test('A valid command is extracted', () => {
+  it('A valid command is extracted', () => {
     context.payload.pull_request.body += '\n /bot-ignore-length';
     expect(extractCommands(context.payload.pull_request.body).length).toBe(1);
   });
 
-  test('Invalid commands are ignored', () => {
+  it('Invalid commands are ignored', () => {
     context.payload.pull_request.body += '\n /bot-ignore-length';
     context.payload.pull_request.body += '\n /rm-blarb';
 
     expect(extractCommands(context.payload.pull_request.body).length).toBe(1);
   });
 
-  test('Empty commands should not be ignored', () => {
+  it('Empty commands should not be ignored', () => {
     const commands = [];
     expect(shouldIgnoredLengthCheck(commands)).toBeFalsy();
   });
 
-  test('The ignore command should be recognized', () => {
+  it('The ignore command should be recognized', () => {
     const commands = ['/bot-ignore-length'];
     expect(shouldIgnoredLengthCheck(commands)).toBeTruthy();
   });
 
-  test('A PR with the ignore command should be ignored', async () => {
+  it('A PR with the ignore command should be ignored', async () => {
     issueOpenedEvent.payload.pull_request.body += '\n /bot-ignore-length';
     await app.receive({
       name: 'pull_request.opened',

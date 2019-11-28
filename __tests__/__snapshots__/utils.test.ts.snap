@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Utility functions A file should be retrieved. 1`] = `
+"---
+name: compliance
+description: |
+  This document is used to track a projects PIA and STRA
+  compliance.
+spec:
+  - name: PIA
+    status: completed
+    last-updated: \\"2019-11-22T00:03:52.138Z\\"
+  - name: STRA
+    status: in-progress
+    last-updated: \\"2019-11-22T00:03:52.138Z\\"
+"
+`;
+
+exports[`Utility functions The compliance file should be retrieved. 1`] = `
+Object {
+  "description": "This document is used to track a projects PIA and STRA
+compliance.
+",
+  "name": "compliance",
+  "spec": Array [
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "PIA",
+      "status": "completed",
+    },
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "STRA",
+      "status": "in-progress",
+    },
+  ],
+}
+`;
+
+exports[`Utility functions The config file should be retrieved. 1`] = `
+Object {
+  "pullRequest": Object {
+    "maxLinesChanged": 300,
+  },
+}
+`;

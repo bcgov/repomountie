@@ -32,11 +32,11 @@ const path3 = path.join(__dirname, 'fixtures/jwt-decoded-sa-badid-20181107.json'
 const saBadId = JSON.parse(fs.readFileSync(path3, 'utf8'));
 
 describe('Authentication tests', () => {
-  test('A service account JWT with valid ID is accepted', () => {
+  it('A service account JWT with valid ID is accepted', () => {
     expect(isAuthorized(saOk)).toBeTruthy();
   });
 
-  test('A service account JWT with an invalid ID is rejected', () => {
+  it('A service account JWT with an invalid ID is rejected', () => {
     expect(isAuthorized(saBadId)).toBeFalsy();
   });
 });

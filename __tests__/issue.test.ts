@@ -22,7 +22,12 @@ import fs from 'fs';
 import path from 'path';
 import { Application } from 'probot';
 import robot from '../src';
-import { fetchRepoMountieConfig, labelExists, loadTemplate } from '../src/libs/utils';
+import { fetchConfigFile, labelExists, loadTemplate } from '../src/libs/utils';
+
+jest.mock('../src/libs/repository', () => ({
+  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+  addLicenseIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+}));
 
 const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
 const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -49,7 +54,7 @@ const p7 = path.join(__dirname, '../templates/stale_issue_comment.md');
 const template = fs.readFileSync(p7, 'utf8');
 
 jest.mock('../src/libs/utils', () => ({
-  fetchRepoMountieConfig: jest.fn(),
+  fetchConfigFile: jest.fn(),
   loadTemplate: jest.fn(),
   labelExists: jest.fn(),
 }));
@@ -91,14 +96,18 @@ describe('Repository integration tests', () => {
     app.auth = () => Promise.resolve(github);
 
     // @ts-ignore
-    fetchRepoMountieConfig.mockReturnValue(config)
+    fetchConfigFile.mockReturnValue(config)
     // @ts-ignore
     loadTemplate.mockReturnValue(template)
     // @ts-ignore
     labelExists.mockReturnValue(true)
   });
 
-  test('An unassigned PR (issue) assigned', async () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('An unassigned PR (issue) assigned', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: unassignedIssueCommentCreated,
@@ -112,7 +121,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.addAssignees).toHaveBeenCalled();
   });
 
-  test('An assigned PR (issue) is skipped', async () => {
+  it('An assigned PR (issue) is skipped', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: assignedIssueCommentCreated,
@@ -126,7 +135,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
-  test('An issue not created by me is ignored', async () => {
+  it('An issue not created by me is ignored', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: unassignedIssueNotMineCommentCreated,
@@ -140,7 +149,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
-  test('Old issues are closed out', async () => {
+  it('Old issues are closed out', async () => {
     github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
       await app.receive({
         name: 'schedule.repository',
@@ -154,12 +163,12 @@ describe('Repository integration tests', () => {
   });
 
 
-  test('Stale config stanza missing skips', async () => {
+  it('Stale config stanza missing skips', async () => {
     const myConfig = Object.assign({}, config);
     delete myConfig.staleIssue;
 
     // @ts-ignore
-    fetchRepoMountieConfig.mockReturnValue(myConfig)
+    fetchConfigFile.mockReturnValue(myConfig)
     // @ts-ignore
     loadTemplate.mockReturnValue(template)
     // @ts-ignore
@@ -177,7 +186,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).not.toBeCalled();
   });
 
-  test('No stale issues are handled properly', async () => {
+  it('No stale issues are handled properly', async () => {
     github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty)),
       await app.receive({
         name: 'schedule.repository',
@@ -190,7 +199,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).not.toBeCalled();
   });
 
-  test('Applying labels is skipped if non-existent', async () => {
+  it('Applying labels is skipped if non-existent', async () => {
     // @ts-ignore
     labelExists.mockReturnValue(false)
     const addLabelsArgs = { "issue_number": 2, "labels": [], "number": undefined, "owner": "bcgov", "repo": "blarb" };

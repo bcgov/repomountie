@@ -26,14 +26,14 @@ import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
-import { fetchRepoMountieConfig } from './libs/utils';
+import { fetchConfigFile } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
 if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
     // @ts-ignore: `stack` does not exist on type
-    logger.warn(`Unhandled Rejection at promise = ${JSON.stringify(p)}, reason = ${reason.stack}`);
+    logger.warn(`Unhandled rejection at promise = ${JSON.stringify(p)}, reason = ${reason.stack}`);
   });
 }
 
@@ -87,7 +87,7 @@ export = (app: Application) => {
       }`
     );
 
-    const config = await fetchRepoMountieConfig(context);
+    const config = await fetchConfigFile(context);
 
     await validatePullRequestIfRequired(context, config);
   }
@@ -149,11 +149,12 @@ export = (app: Application) => {
       }
 
       await addLicenseIfRequired(context, scheduler);
+      // await addSecurityComplianceInfoIfRequired(context, scheduler);
 
       // Functionality below here requires a `config` file exist in the repo.
 
       try {
-        const config = await fetchRepoMountieConfig(context);
+        const config = await fetchConfigFile(context);
         await checkForStaleIssues(context, config);
       } catch (err) {
         logger.info('No config file. Skipping.');

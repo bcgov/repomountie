@@ -20,9 +20,28 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
-import { PR_TITLES, VALID_LICENSES } from '../constants';
-import { addLicenseFileToRepo } from './content';
-import { extractMessage } from './utils';
+import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES, VALID_LICENSES } from '../constants';
+import { addFileViaPullRequest, checkIfRefExists, extractMessage, loadTemplate } from './utils';
+
+// export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
+
+//   try {
+//     if (!(await checkIfRefExists(context, 'master'))) {
+//       logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
+//       return;
+//     }
+
+//   } catch (err) {
+//     const message = extractMessage(err);
+//     if (message) {
+//       logger.error(`Error validating compliance for ${context.payload.repository.name}`);
+//     } else {
+//       logger.error(err.message);
+//     }
+
+//     throw err;
+//   }
+// };
 
 export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
   try {
@@ -36,21 +55,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
       return;
     }
 
-    try {
-      // If the repo does *not* have a master branch then we don't want to add one.
-      // The dev team may be doing this off-line and when they go to push master it
-      // will cause a conflict because there will be no common root commit.
-      await context.github.git.getRef(
-        context.repo({
-          ref: 'heads/master',
-        })
-      );
-    } catch (err) {
-      logger.info(`No master branch exists in ${context.payload.repository.name}`);
-      throw err; // hard stop if we don't have a master branch
-    }
-
-    if (!context.payload.repository.license) {
+    if ((await checkIfRefExists(context, 'master')) && !context.payload.repository.license) {
       try {
         const allPullRequests = await context.github.pulls.list(
           context.repo({
@@ -66,7 +71,12 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
           logger.info(`Licencing PR exists in ${context.payload.repository.name}`);
         } else {
           // Add a license via a PR
-          await addLicenseFileToRepo(context);
+          const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_LICENSE);
+          const licenseData: string = await loadTemplate(TEMPLATES.LICENSE);
+
+          await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_LICENSE,
+            PR_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
+            COMMIT_FILE_NAMES.LICENSE, licenseData)
         }
       } catch (err) {
         const message = `Unable to add license to ${context.payload.repository.name}`;
@@ -82,6 +92,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
     } else {
       logger.error(err.message);
     }
+
     throw err;
   }
 };

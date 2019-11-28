@@ -22,7 +22,7 @@ import { default as request } from 'supertest'; // eslint-disable-line
 import app from '../src';
 
 describe('Test monitoring routes', () => {
-  test.skip('The readiness probe should respond with 200 ', async () => {
+  it.skip('The readiness probe should respond with 200 ', async () => {
     await request(app)
       .get('/ehlo')
       .expect(200);

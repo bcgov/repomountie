@@ -20,7 +20,7 @@
 
 module.exports = {
   // collectCoverage: true,
-  collectCoverageFrom: ['src/**/*.{ts}'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!**/node_modules/**', '!**/vendor/**'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleDirectories: ['node_modules'],
   modulePathIgnorePatterns: ['<rootDir>/build/'],
@@ -30,5 +30,5 @@ module.exports = {
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|\\.(test|spec))\\.[ts]sx?$',
   testPathIgnorePatterns: ['/node_modules/', '/.cache/', '/build/', '/dist/'],
-  verbose: false,
+  verbose: true,
 };

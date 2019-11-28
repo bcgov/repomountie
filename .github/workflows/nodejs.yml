@@ -3,17 +3,30 @@ name: Node Build & CI
 on: [push]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - run: npm ci
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v2.3.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.TestReporterID }}
+          CI: "true"
+        with:
+          coverageCommand: npm run test:coverage
+          debug: "true"
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [10.x, 12.x]
-
     steps:
       - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
       - name: Cache node modules
@@ -28,9 +41,6 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm ci
-          echo "attempting to build"
           npm run build --if-present
-          npm run test
         env:
           CI: "true"
-          # GITHUB_TOKEN: ${{secrets.GITHUB_API_TOKEN}}
