@@ -23,25 +23,25 @@ import { Context } from 'probot';
 import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES, VALID_LICENSES } from '../constants';
 import { addFileViaPullRequest, checkIfRefExists, extractMessage, loadTemplate } from './utils';
 
-export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
+// export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
 
-  try {
-    if (!(await checkIfRefExists(context, 'master'))) {
-      logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
-      return;
-    }
+//   try {
+//     if (!(await checkIfRefExists(context, 'master'))) {
+//       logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
+//       return;
+//     }
 
-  } catch (err) {
-    const message = extractMessage(err);
-    if (message) {
-      logger.error(`Error validating compliance for ${context.payload.repository.name}`);
-    } else {
-      logger.error(err.message);
-    }
+//   } catch (err) {
+//     const message = extractMessage(err);
+//     if (message) {
+//       logger.error(`Error validating compliance for ${context.payload.repository.name}`);
+//     } else {
+//       logger.error(err.message);
+//     }
 
-    throw err;
-  }
-};
+//     throw err;
+//   }
+// };
 
 export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
   try {
