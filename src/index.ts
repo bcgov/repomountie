@@ -24,7 +24,7 @@ import createScheduler from 'probot-scheduler';
 import { ALLOWED_INSTALLATIONS, SCHEDULER_DELAY } from './constants';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
-import { addLicenseIfRequired } from './libs/repository';
+import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
 import { fetchConfigFile } from './libs/utils';
 
@@ -149,7 +149,7 @@ export = (app: Application) => {
       }
 
       await addLicenseIfRequired(context, scheduler);
-      // await addSecurityComplianceInfoIfRequired(context, scheduler);
+      await addSecurityComplianceInfoIfRequired(context, scheduler);
 
       // Functionality below here requires a `config` file exist in the repo.
 

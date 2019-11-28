@@ -20,75 +20,78 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
-import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES, VALID_LICENSES } from '../constants';
-import { addFileViaPullRequest, checkIfRefExists, extractMessage, loadTemplate } from './utils';
+import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
+import { addFileViaPullRequest, checkIfRefExists, extractMessage, hasPullRequestWithTitle, loadTemplate } from './utils';
 
-// export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
-
-//   try {
-//     if (!(await checkIfRefExists(context, 'master'))) {
-//       logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
-//       return;
-//     }
-
-//   } catch (err) {
-//     const message = extractMessage(err);
-//     if (message) {
-//       logger.error(`Error validating compliance for ${context.payload.repository.name}`);
-//     } else {
-//       logger.error(err.message);
-//     }
-
-//     throw err;
-//   }
-// };
-
-export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
+export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
   try {
-    // Currently we only have one cultural rule, a repo must have a licence. If this
-    // is true then we can safely disable the bot for the particular repo.
-    if (
-      context.payload.repository.license &&
-      Object.values(VALID_LICENSES).includes(context.payload.repository.license.key)
-    ) {
-      scheduler.stop(context.payload.repository);
+    if (!(await checkIfRefExists(context, 'master'))) {
+      logger.info(`This repo has no master branch ${context.payload.repository.name}`);
       return;
     }
 
-    if ((await checkIfRefExists(context, 'master')) && !context.payload.repository.license) {
-      try {
-        const allPullRequests = await context.github.pulls.list(
-          context.repo({
-            state: 'all',
-          })
-        );
-
-        const hasLicensePR =
-          allPullRequests.data.filter(pr => pr.title === PR_TITLES.ADD_LICENSE).length > 0;
-
-        if (hasLicensePR) {
-          // Do nothing
-          logger.info(`Licencing PR exists in ${context.payload.repository.name}`);
-        } else {
-          // Add a license via a PR
-          const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_LICENSE);
-          const licenseData: string = await loadTemplate(TEMPLATES.LICENSE);
-
-          await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_LICENSE,
-            PR_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
-            COMMIT_FILE_NAMES.LICENSE, licenseData)
-        }
-      } catch (err) {
-        const message = `Unable to add license to ${context.payload.repository.name}`;
-        logger.error(`${message}, error = ${err.message}`);
-
-        throw err;
-      }
+    if ((await hasPullRequestWithTitle(context, PR_TITLES.ADD_COMPLIANCE, 'open'))) {
+      logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
+      return;
     }
+
+    // Add a license via a PR
+    const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_COMPLY);
+    const data: string = (await loadTemplate(TEMPLATES.COMPLIANCE))
+      .split('[TODAY]').join(new Date().toISOString());
+
+    await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_COMPLIANCE,
+      PR_TITLES.ADD_COMPLIANCE, prMessageBody, BRANCHES.ADD_COMPLIANCE,
+      COMMIT_FILE_NAMES.COMPLIANCE, data)
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
-      logger.error(`Error validating license for ${context.payload.repository.name}`);
+      logger.error(`Error adding compliance to ${context.payload.repository.name}`);
+    } else {
+      logger.error(err.message);
+    }
+
+    throw err;
+  }
+};
+
+export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
+  // // Currently we only have one cultural rule, a repo must have a licence. If this
+  // // is true then we can safely disable the bot for the particular repo.
+  // if (
+  //   context.payload.repository.license &&
+  //   Object.values(VALID_LICENSES).includes(context.payload.repository.license.key)
+  // ) {
+  //   scheduler.stop(context.payload.repository);
+  //   return;
+  // }
+  if (context.payload.repository.license) {
+    // we have a license already
+    return;
+  }
+
+  try {
+    if (!(await checkIfRefExists(context, 'master'))) {
+      logger.info(`This repo has no master branch ${context.payload.repository.name}`);
+      return;
+    }
+
+    if ((await hasPullRequestWithTitle(context, PR_TITLES.ADD_LICENSE))) {
+      logger.info(`Licencing PR exists in ${context.payload.repository.name}`);
+      return;
+    }
+
+    // Add a license via a PR
+    const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_LICENSE);
+    const licenseData: string = await loadTemplate(TEMPLATES.LICENSE);
+
+    await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_LICENSE,
+      PR_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
+      COMMIT_FILE_NAMES.LICENSE, licenseData)
+  } catch (err) {
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(`Unable to add license to ${context.payload.repository.name}`);
     } else {
       logger.error(err.message);
     }
