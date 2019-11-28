@@ -56,6 +56,10 @@ describe('Repository integration tests', () => {
         app.auth = () => Promise.resolve(github);
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     it.skip('A repository without compliance config should have one added', async () => {
 
     });

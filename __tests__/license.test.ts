@@ -23,6 +23,11 @@ import path from 'path';
 import { Application } from 'probot';
 import robot from '../src';
 
+jest.mock('../src/libs/repository', () => ({
+  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+  addLicenseIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+}));
+
 jest.mock('fs');
 
 const p0 = path.join(__dirname, 'fixtures/repo-created-lic.json');
@@ -76,17 +81,18 @@ describe('Repository integration tests', () => {
     app.auth = () => Promise.resolve(github);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('A repository without a license should have one added', async () => {
     await app.receive({
       name: 'schedule.repository',
       payload: payloadNoLic,
     });
 
-    expect(github.git.getRef.mock.calls.length).toBe(2);
-    expect(github.pulls.list).toHaveBeenCalled();
-    expect(github.pulls.create).toHaveBeenCalled();
-    expect(github.git.createRef).toHaveBeenCalled();
-    expect(github.repos.createFile).toHaveBeenCalled();
+    // other calls tested via utils and now mocked.
+    expect(github.pulls.list).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
@@ -101,11 +107,8 @@ describe('Repository integration tests', () => {
       payload: payloadNoLic,
     });
 
-    expect(github.git.getRef).toBeCalled();
+    // other calls tested via utils and now mocked.
     expect(github.pulls.list).not.toHaveBeenCalled();
-    expect(github.pulls.create).not.toHaveBeenCalled();
-    expect(github.git.createRef).not.toHaveBeenCalled();
-    expect(github.repos.createFile).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
@@ -123,11 +126,8 @@ describe('Repository integration tests', () => {
       payload: payloadNoLic,
     });
 
-    expect(github.git.getRef.mock.calls.length).toBe(2);
-    expect(github.pulls.list).toHaveBeenCalled();
-    expect(github.pulls.create).not.toHaveBeenCalled();
-    expect(github.git.createRef).not.toHaveBeenCalled();
-    expect(github.repos.createFile).not.toHaveBeenCalled();
+    // other calls tested via utils and now mocked.
+    expect(github.pulls.list).not.toHaveBeenCalled();
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 

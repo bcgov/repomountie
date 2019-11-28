@@ -33,7 +33,7 @@ process.env.TZ = 'UTC';
 if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
     // @ts-ignore: `stack` does not exist on type
-    logger.warn(`Unhandled Rejection at promise = ${JSON.stringify(p)}, reason = ${reason.stack}`);
+    logger.warn(`Unhandled rejection at promise = ${JSON.stringify(p)}, reason = ${reason.stack}`);
   });
 }
 
@@ -148,11 +148,16 @@ export = (app: Application) => {
         return;
       }
 
+      console.log('0 **************************************************');
+
       await addLicenseIfRequired(context, scheduler);
+      console.log('1 **************************************************');
+
       await addSecurityComplianceInfoIfRequired(context, scheduler);
 
       // Functionality below here requires a `config` file exist in the repo.
 
+      console.log('2 **************************************************');
       try {
         const config = await fetchConfigFile(context);
         await checkForStaleIssues(context, config);

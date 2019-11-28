@@ -53,6 +53,14 @@ export const isJSON = (aString: string): boolean => {
   }
 }
 
+/**
+ * Check if a git ref exists
+ * Check if a git reference exists; the call to GitHub will fail
+ * if the reference does not exists.
+ * @param {Context} context The event context context
+ * @param {string} ref The ref to be looked up
+ * @returns A boolean of true if the ref exists, false otherwise
+ */
 export const checkIfRefExists = async (context: Context, ref = 'master'): Promise<boolean> => {
   try {
     // If the repo does *not* have a master branch then we don't want to add one.
@@ -71,6 +79,15 @@ export const checkIfRefExists = async (context: Context, ref = 'master'): Promis
   }
 };
 
+/**
+ * Fetch the repo compliance file
+ * The compliance file determines what state any policy compliance
+ * is currently in.
+ * @param {Context} context The event context context
+ * @param {string} fileName The name of the file to fetch
+ * @param {string} ref The ref where the file exists
+ * @returns A string containing the file data
+ */
 export const fetchFile = async (context, fileName, ref = 'master'): Promise<string> => {
   try {
     const response = await context.github.repos.getContents(
@@ -198,6 +215,18 @@ export const labelExists = async (context: Context, labelName: string): Promise<
   }
 }
 
+/**
+ * Add a file to a repo via a pull request
+ * Adds a file to a repo via a PR based of the
+ * master branch.
+ * @param {Context} context The event context context
+ * @param {string} commitMessage The commit message for the file
+ * @param {string} prTitle The title of the pull request
+ * @param {string} prBody The message body of the pull request
+ * @param {string} srcBranchName The source branch for the pull request
+ * @param {string} fileName The name of the file to be added
+ * @param {string} fileData The data of the file to be added
+ */
 export const addFileViaPullRequest = async (
   context: Context, commitMessage: string, prTitle: string,
   prBody: string, srcBranchName: string, fileName: string,

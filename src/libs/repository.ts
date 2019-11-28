@@ -24,7 +24,23 @@ import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEX
 import { addFileViaPullRequest, checkIfRefExists, extractMessage, loadTemplate } from './utils';
 
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
-  return;
+
+  try {
+    if (!(await checkIfRefExists(context, 'master'))) {
+      logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
+      return;
+    }
+
+  } catch (err) {
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(`Error validating compliance for ${context.payload.repository.name}`);
+    } else {
+      logger.error(err.message);
+    }
+
+    throw err;
+  }
 };
 
 export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {

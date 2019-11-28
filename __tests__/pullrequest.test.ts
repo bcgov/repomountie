@@ -64,6 +64,10 @@ describe('Repository integration tests', () => {
     context = new Context(issueOpenedEvent, github as any, {} as any);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('A config file should be fetched from the repo', async () => {
     const response = await fetchConfigFile(context);
 

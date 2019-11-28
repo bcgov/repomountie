@@ -24,6 +24,11 @@ import { Application } from 'probot';
 import robot from '../src';
 import { fetchConfigFile, labelExists, loadTemplate } from '../src/libs/utils';
 
+jest.mock('../src/libs/repository', () => ({
+  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+  addLicenseIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+}));
+
 const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
 const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
@@ -96,6 +101,10 @@ describe('Repository integration tests', () => {
     loadTemplate.mockReturnValue(template)
     // @ts-ignore
     labelExists.mockReturnValue(true)
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('An unassigned PR (issue) assigned', async () => {
