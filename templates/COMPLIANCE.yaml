@@ -4,8 +4,8 @@ description: |
   compliance.
 spec:
   - name: PIA
-    status: in-progress || completed || TBD
+    status: in-progress || completed || TBD || exempt
     last-updated: "[TODAY]"
   - name: STRA
-    status: in-progress || completed || TBD
+    status: in-progress || completed || TBD || exempt
     last-updated: "[TODAY]"
