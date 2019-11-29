@@ -1,6 +1,6 @@
-Projects in the Government of British Columbia (BCGov) all need to complete a Privacy Assessment (PIA) and Security Threat & Risk Assessment (STRA). Every ministry has their own way to complete both the STRA and PIA so we don't enforce that projects do them, only that they report on the current status.
+Projects in our organization (bcgov) need to complete a Privacy Assessment (PIA) and Security Threat & Risk Assessment (STRA) before they go live in production. Since every ministry has their own way of doing both the STRA and PIA we don't enforce that projects do them, only that they report on the current status.
 
-To help with reporting, I've added a compliance audit file as part of this pull request. You just need to updated it to indicate the status of both assessments. Here is a table of possible states:
+To help with reporting, I've added a compliance audit file as part of this pull request. Please checkout this branch and edit update `state` as needed. Here is a table of possible states:
 
 | State       | Description                                                                                            |
 | ----------- | :----------------------------------------------------------------------------------------------------- |

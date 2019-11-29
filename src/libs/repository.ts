@@ -56,15 +56,6 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
 };
 
 export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
-  // // Currently we only have one cultural rule, a repo must have a licence. If this
-  // // is true then we can safely disable the bot for the particular repo.
-  // if (
-  //   context.payload.repository.license &&
-  //   Object.values(VALID_LICENSES).includes(context.payload.repository.license.key)
-  // ) {
-  //   scheduler.stop(context.payload.repository);
-  //   return;
-  // }
   if (context.payload.repository.license) {
     // we have a license already
     return;

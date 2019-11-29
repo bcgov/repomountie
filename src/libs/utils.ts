@@ -292,7 +292,6 @@ export const hasPullRequestWithTitle = async (context, title, state = 'all'): Pr
       })
     );
 
-    console.log('****************', pulls.data);
     if (pulls && pulls.data) {
       return pulls.data.filter(pr => pr.title === title).length > 0;
     }
