@@ -42,7 +42,7 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
 
     await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_COMPLIANCE,
       PR_TITLES.ADD_COMPLIANCE, prMessageBody, BRANCHES.ADD_COMPLIANCE,
-      COMMIT_FILE_NAMES.COMPLIANCE, data)
+      COMMIT_FILE_NAMES.COMPLIANCE, data);
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
@@ -78,7 +78,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
 
     await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_LICENSE,
       PR_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
-      COMMIT_FILE_NAMES.LICENSE, licenseData)
+      COMMIT_FILE_NAMES.LICENSE, licenseData);
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
