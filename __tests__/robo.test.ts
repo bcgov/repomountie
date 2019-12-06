@@ -53,6 +53,6 @@ describe('Bot command processing', () => {
     });
 
     it('Blarb', async () => {
-        handleComplianceCommands('body');
+        handleComplianceCommands(context);
     });
 });
