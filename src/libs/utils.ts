@@ -304,3 +304,80 @@ export const hasPullRequestWithTitle = async (context, title, state = 'all'): Pr
     throw err;
   }
 };
+
+/**
+ * Assign GitHub users to an issue
+ * @param context The `Context` containing the GH issue.
+ * @param assignees An `Array` of users to assign to the issue
+ */
+export const assignUsersToIssue = async (context: Context, assignees: Array<string>) => {
+  try {
+    await context.github.issues.addAssignees(
+      context.issue({
+        assignees,
+      })
+    );
+  } catch (err) {
+    const message = 'Unable to assign user to issue.';
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
+
+
+export const updateFile = async (
+  context: Context, commitMessage: string, srcBranchName: string,
+  fileName: string, fileData: string
+) => {
+  try {
+    // I'm unable to pass a branch ref to `getContents` and
+    // have it return a file but it seems happy with a
+    // commit ref.
+
+    const commits = await context.github.repos.listCommits(
+      context.repo({
+        sha: srcBranchName,
+        path: fileName,
+      })
+    );
+
+    // Not sure if GH returns the results in sorted order.
+    // Descending; newest commits are first.
+    const lastCommit = commits.data.sort((a, b) => {
+      return (new Date(b.commit.committer.date)).getTime() - (new Date(a.commit.committer.date)).getTime();
+    }).shift();
+
+    if (!lastCommit) {
+      throw new Error('Unable to find last commit.');
+    }
+
+    const response = await context.github.repos.getContents(
+      context.repo({
+        ref: lastCommit.sha,
+        path: fileName,
+      })
+    );
+
+    const data: any = response.data;
+
+    if (data.content && data.type !== 'file') {
+      throw new Error('Unusable content type retrieved.');
+    };
+
+    await context.github.repos.createOrUpdateFile(
+      context.repo({
+        message: commitMessage,
+        content: Buffer.from(fileData).toString('base64'),
+        sha: data.sha,
+        branch: srcBranchName,
+        path: data.name,
+      })
+    );
+  } catch (err) {
+    const message = 'Unable to update file.';
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};

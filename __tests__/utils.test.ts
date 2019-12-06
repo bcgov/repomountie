@@ -23,7 +23,7 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addFileViaPullRequest, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchFile, hasPullRequestWithTitle, labelExists, loadTemplate } from '../src/libs/utils';
+import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchFile, hasPullRequestWithTitle, labelExists, loadTemplate } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -59,6 +59,7 @@ describe('Utility functions', () => {
     github = {
       issues: {
         listLabelsForRepo: jest.fn(),
+        addAssignees: jest.fn(),
       },
       repos: {
         getContents: jest.fn(),
@@ -175,4 +176,10 @@ describe('Utility functions', () => {
 
     expect(result).toBeTruthy();
   });
+
+  it('An issue should be assigned', async () => {
+    await assignUsersToIssue(context, ['blarb']);
+
+    expect(github.issues.addAssignees).toHaveBeenCalled();
+  })
 });

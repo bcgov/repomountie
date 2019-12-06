@@ -29,7 +29,7 @@ export const REPO_CONFIG_FILE = 'rmconfig.json';
 export const REPO_COMPLIANCE_FILE = 'compliance.yaml';
 
 export const HELP_DESK = {
-  LICENSE_SUPPORT_USERS: ['jleach', 'kelpisland'],
+  SUPPORT_USERS: ['jleach'],
 };
 
 export const COMMIT_FILE_NAMES = {
@@ -40,6 +40,7 @@ export const COMMIT_FILE_NAMES = {
 export const COMMIT_MESSAGES = {
   ADD_LICENSE: 'Add Apache License 2.0',
   ADD_COMPLIANCE: 'Add compliance audit file',
+  UPDATE_COMPLIANCE: 'Updating compliance audit file'
 }
 
 export const PR_TITLES = {
@@ -75,6 +76,6 @@ export const COMMANDS = {
   IGNORE: '/bot-ignore-length',
 };
 
-export const ALLOWED_INSTALLATIONS = ['bcgov'];
+export const ALLOWED_INSTALLATIONS = ['bcgov', 'fullboar'];
 
 export const ALLOWED_SSO_CLIENTS = ['reggie-api'];

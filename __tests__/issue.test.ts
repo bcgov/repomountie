@@ -118,7 +118,6 @@ describe('Repository integration tests', () => {
     expect(github.pullRequests.create).not.toHaveBeenCalled();
     expect(github.gitdata.createRef).not.toHaveBeenCalled();
     expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssignees).toHaveBeenCalled();
   });
 
   it('An assigned PR (issue) is skipped', async () => {

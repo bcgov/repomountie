@@ -21,48 +21,9 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import { flatten } from 'lodash';
 import { Context } from 'probot';
-import { COMMENT_TRIGGER_WORD, GITHUB_ID, HELP_DESK, TEXT_FILES } from '../constants';
+import { TEXT_FILES } from '../constants';
 import { labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
-
-/**
- * Determine if help desk support is required
- * @param {Context} context The event context context
- * @returns True if support is required, false otherwise.
- */
-export const helpDeskSupportRequired = (issue: any) => {
-  const triggerWord = COMMENT_TRIGGER_WORD;
-  const notMyIssue = issue.issue.user.login !== `${GITHUB_ID}[bot]`;
-  const noHelpRequired = issue.comment.body.search(triggerWord) === -1;
-  const isAssigned = issue.issue.assignees.some(e =>
-    HELP_DESK.LICENSE_SUPPORT_USERS.includes(e.login)
-  );
-
-  // early return
-  if (isAssigned || noHelpRequired || notMyIssue) {
-    return false;
-  }
-
-  return true;
-};
-
-/**
- * Assign members to a given issue
- * @param {Context} context The event context context
- * @returns No return value
- */
-export const assignHelpDeskMembers = async (context: Context) => {
-  try {
-    // Assign our help desk license specialists ;)
-    await context.github.issues.addAssignees(
-      context.issue({
-        assignees: HELP_DESK.LICENSE_SUPPORT_USERS,
-      })
-    );
-  } catch (err) {
-    const message = 'Unable to assign user to issue.';
-    logger.error(`${message}, error = ${err.message}`);
-  }
-};
+import { handleBotCommand } from './robo';
 
 /**
  * Process an issue comment.
@@ -72,13 +33,9 @@ export const assignHelpDeskMembers = async (context: Context) => {
  * @returns No return value
  */
 export const created = async (context: Context) => {
-  // For we just assign help desk willynilly, going forward we should
-  // better identify the issue and assign users with surgical precision.
 
-  if (helpDeskSupportRequired(context.payload)) {
-    await assignHelpDeskMembers(context);
-    return;
-  }
+  // check for and handle bot commands
+  await handleBotCommand(context);
 };
 
 export const checkForStaleIssues = async (context: Context, config: RepoMountieConfig) => {
