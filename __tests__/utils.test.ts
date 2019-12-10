@@ -192,7 +192,6 @@ describe('Utility functions', () => {
 
     expect(github.repos.listCommits).toHaveBeenCalled();
     expect(github.repos.getContents).toHaveBeenCalled();
-
     expect(results).toMatchSnapshot();
   });
 });
