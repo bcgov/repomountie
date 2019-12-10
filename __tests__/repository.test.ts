@@ -28,21 +28,6 @@ import { addFileViaPullRequest, checkIfRefExists, hasPullRequestWithTitle } from
 const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
-// const p1 = path.join(__dirname, 'fixtures/repo-created-no-lic.json');
-// const payloadNoLic = JSON.parse(fs.readFileSync(p1, 'utf8'));
-
-// const p2 = path.join(__dirname, 'fixtures/master.json');
-// const master = JSON.parse(fs.readFileSync(p2, 'utf8'));
-
-// const p3 = path.join(__dirname, 'fixtures/repo-archived-no-lic.json');
-// const archivedNoLic = JSON.parse(fs.readFileSync(p3, 'utf8'));
-
-// const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
-// const prNoAddLicense = JSON.parse(fs.readFileSync(p4, 'utf8'));
-
-// const p5 = path.join(__dirname, 'fixtures/repo-archived-lic.json');
-// const archivedLic = JSON.parse(fs.readFileSync(p5, 'utf8'));
-
 jest.mock('fs');
 
 jest.mock('../src/libs/utils', () => ({

@@ -22,9 +22,18 @@ import fs from 'fs';
 import path from 'path';
 import { GITHUB_ID } from '../src/constants';
 import { handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
+import { fetchContentsForFile, updateFile } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
+
+const p1 = path.join(__dirname, 'fixtures/repo-get-content-compliance.json');
+const content = JSON.parse(fs.readFileSync(p1, 'utf8'));
+
+jest.mock('../src/libs/utils', () => ({
+    fetchContentsForFile: jest.fn(),
+    updateFile: jest.fn(),
+}));
 
 describe('Bot command processing', () => {
 
@@ -52,7 +61,37 @@ describe('Bot command processing', () => {
         expect(result).toBeFalsy();
     });
 
-    it('Blarb', async () => {
-        handleComplianceCommands(context);
+    it('Missing file causes update to be skipped', async () => {
+        context.payload.comment.body = '/update-pia completed';
+        // @ts-ignore
+        fetchContentsForFile.mockReturnValueOnce(undefined);
+
+        await handleComplianceCommands(context);
+
+        expect(fetchContentsForFile).toBeCalled();
+        expect(updateFile).not.toBeCalled();
+    });
+
+
+    it('Invalid command causes update to be skipped', async () => {
+        context.payload.comment.body = '/update-blarb completed';
+        // @ts-ignore
+        fetchContentsForFile.mockReturnValueOnce(content.data);
+
+        await handleComplianceCommands(context);
+
+        expect(fetchContentsForFile).toBeCalled();
+        expect(updateFile).not.toBeCalled();
+    });
+
+    it('Compliance commands are processed appropriately', async () => {
+        context.payload.comment.body = '/update-pia completed';
+        // @ts-ignore
+        fetchContentsForFile.mockReturnValueOnce(content.data);
+
+        await handleComplianceCommands(context);
+
+        expect(fetchContentsForFile).toBeCalled();
+        expect(updateFile).toBeCalled();
     });
 });

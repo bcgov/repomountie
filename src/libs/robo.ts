@@ -56,16 +56,17 @@ export const handleComplianceCommands = async (context: Context) => {
 
         // Fetch the file from the repo in case any updates have
         // been made to it.
-        const contents = await fetchContentsForFile(context,
+        const data = await fetchContentsForFile(context,
             COMMIT_FILE_NAMES.COMPLIANCE, BRANCHES.ADD_COMPLIANCE);
-        if (!contents) {
+
+        if (!data) {
             logger.info(`Unable to fetch ${COMMIT_FILE_NAMES.COMPLIANCE} in ref ${BRANCHES.ADD_COMPLIANCE}`);
             return;
         }
 
         let result: RegExpExecArray | null;
         let updateRequired = false;
-        let doc = yaml.safeLoad(Buffer.from(contents.content, 'base64').toString());
+        let doc = yaml.safeLoad(Buffer.from(data.content, 'base64').toString());
 
         while ((result = re.exec(body)) !== null) {
             // sample result 
@@ -89,7 +90,7 @@ export const handleComplianceCommands = async (context: Context) => {
         if (updateRequired) {
             await updateFile(context, COMMIT_MESSAGES.UPDATE_COMPLIANCE,
                 BRANCHES.ADD_COMPLIANCE, COMMIT_FILE_NAMES.COMPLIANCE,
-                yaml.safeDump(doc), contents.sha);
+                yaml.safeDump(doc), data.sha);
         }
     } catch (err) {
         const message = 'Unable to process compliance commands';
