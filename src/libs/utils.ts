@@ -79,6 +79,42 @@ export const checkIfRefExists = async (context: Context, ref = 'master'): Promis
   }
 };
 
+export const fetchContentsForFile = async (context, fileName, ref = 'master'): Promise<any> => {
+  const commits = await context.github.repos.listCommits(
+    context.repo({
+      sha: ref,
+      path: fileName,
+    })
+  );
+
+  // Not sure if GH returns the results in sorted order.
+  // Descending; newest commits are first.
+  const lastCommit = commits.data.sort((a, b) => {
+    return (new Date(b.commit.committer.date)).getTime() - (new Date(a.commit.committer.date)).getTime();
+  }).shift();
+
+  if (!lastCommit) {
+    logger.info('Unable to find last commit.')
+    return;
+  }
+
+  const response = await context.github.repos.getContents(
+    context.repo({
+      ref: lastCommit.sha,
+      path: fileName,
+    })
+  );
+
+  const data: any = response.data;
+
+  if (data.content && data.type !== 'file') {
+    logger.info('Unusable content type retrieved.')
+    return;
+  };
+
+  return data;
+}
+
 /**
  * Fetch the repo compliance file
  * The compliance file determines what state any policy compliance
@@ -328,50 +364,16 @@ export const assignUsersToIssue = async (context: Context, assignees: Array<stri
 
 export const updateFile = async (
   context: Context, commitMessage: string, srcBranchName: string,
-  fileName: string, fileData: string
+  fileName: string, fileData: string, fileSHA
 ) => {
   try {
-    // I'm unable to pass a branch ref to `getContents` and
-    // have it return a file but it seems happy with a
-    // commit ref.
-
-    const commits = await context.github.repos.listCommits(
-      context.repo({
-        sha: srcBranchName,
-        path: fileName,
-      })
-    );
-
-    // Not sure if GH returns the results in sorted order.
-    // Descending; newest commits are first.
-    const lastCommit = commits.data.sort((a, b) => {
-      return (new Date(b.commit.committer.date)).getTime() - (new Date(a.commit.committer.date)).getTime();
-    }).shift();
-
-    if (!lastCommit) {
-      throw new Error('Unable to find last commit.');
-    }
-
-    const response = await context.github.repos.getContents(
-      context.repo({
-        ref: lastCommit.sha,
-        path: fileName,
-      })
-    );
-
-    const data: any = response.data;
-
-    if (data.content && data.type !== 'file') {
-      throw new Error('Unusable content type retrieved.');
-    };
-
     await context.github.repos.createOrUpdateFile(
       context.repo({
         message: commitMessage,
         content: Buffer.from(fileData).toString('base64'),
-        sha: data.sha,
+        sha: fileSHA,
         branch: srcBranchName,
-        path: data.name,
+        path: fileName,
       })
     );
   } catch (err) {

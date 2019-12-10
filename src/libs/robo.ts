@@ -19,9 +19,10 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, GITHUB_ID, HELP_DESK, PR_TITLES, TEMPLATES } from '../constants';
-import { assignUsersToIssue, loadTemplate, updateFile } from './utils';
+import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, GITHUB_ID, HELP_DESK, PR_TITLES } from '../constants';
+import { assignUsersToIssue, fetchContentsForFile, updateFile } from './utils';
 
 /**
  * Determine if help desk support is required
@@ -52,22 +53,43 @@ export const handleComplianceCommands = async (context: Context) => {
     try {
         const body = context.payload.comment.body;
         const re = /\/update-(pia|stra)\s(in-progress|completed|TBD|exempt)/gi;
-        let data: string = (await loadTemplate(TEMPLATES.COMPLIANCE))
-            .split('[TODAY]').join(new Date().toISOString());
 
-        let result: RegExpExecArray | null;
-        let updateRequested = false;
-        while ((result = re.exec(body)) !== null) {
-            updateRequested = true;
-            const token = `[${result[1].toUpperCase()}_STATUS]`;
-            const value = result[2];
-            data = data.split(token).join(value);
+        // Fetch the file from the repo in case any updates have
+        // been made to it.
+        const contents = await fetchContentsForFile(context,
+            COMMIT_FILE_NAMES.COMPLIANCE, BRANCHES.ADD_COMPLIANCE);
+        if (!contents) {
+            logger.info(`Unable to fetch ${COMMIT_FILE_NAMES.COMPLIANCE} in ref ${BRANCHES.ADD_COMPLIANCE}`);
+            return;
         }
 
-        if (updateRequested) {
+        let result: RegExpExecArray | null;
+        let updateRequired = false;
+        let doc = yaml.safeLoad(Buffer.from(contents.content, 'base64').toString());
+
+        while ((result = re.exec(body)) !== null) {
+            // sample result 
+            // [ '/update-pia completed',
+            //   'pia',
+            //   'completed',
+            //   index: 0,
+            //   input: '/update-pia completed',
+            //   groups: undefined ] 
+            const items = doc.spec.filter(s => s.name === result![1].toUpperCase());
+            if (items.length === 0) {
+                continue;
+            }
+
+            const item = items.pop();
+            item['status'] = result![2];
+            item['last-updated'] = new Date().toISOString();
+            updateRequired = true;
+        }
+
+        if (updateRequired) {
             await updateFile(context, COMMIT_MESSAGES.UPDATE_COMPLIANCE,
                 BRANCHES.ADD_COMPLIANCE, COMMIT_FILE_NAMES.COMPLIANCE,
-                data);
+                yaml.safeDump(doc), contents.sha);
         }
     } catch (err) {
         const message = 'Unable to process compliance commands';
