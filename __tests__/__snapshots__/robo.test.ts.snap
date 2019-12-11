@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Bot command processing Invalid compliance commands are ignored 1`] = `
+Object {
+  "description": "This document is used to track a projects PIA and STRA
+compliance.
+",
+  "name": "compliance",
+  "spec": Array [
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "PIA",
+      "status": "TBD",
+    },
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "STRA",
+      "status": "TBD",
+    },
+  ],
+}
+`;
+
+exports[`Bot command processing Missing compliance commands are ignored 1`] = `
+Object {
+  "description": "This document is used to track a projects PIA and STRA
+compliance.
+",
+  "name": "compliance",
+  "spec": Array [
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "PIA",
+      "status": "TBD",
+    },
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "STRA",
+      "status": "TBD",
+    },
+  ],
+}
+`;
+
+exports[`Bot command processing Valid compliance commands are processed 1`] = `
+Object {
+  "description": "This document is used to track a projects PIA and STRA
+compliance.
+",
+  "name": "compliance",
+  "spec": Array [
+    Object {
+      "last-updated": "2019-12-11T18:58:32.480Z",
+      "name": "PIA",
+      "status": "completed",
+    },
+    Object {
+      "last-updated": "2019-12-11T18:58:32.480Z",
+      "name": "STRA",
+      "status": "completed",
+    },
+  ],
+}
+`;

@@ -19,9 +19,10 @@
 //
 
 import fs from 'fs';
+import yaml from 'js-yaml';
 import path from 'path';
 import { GITHUB_ID } from '../src/constants';
-import { handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
+import { applyComplianceCommands, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
 import { fetchContentsForFile, updateFile } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
@@ -30,10 +31,15 @@ const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
 const p1 = path.join(__dirname, 'fixtures/repo-get-content-compliance.json');
 const content = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
+const p2 = path.join(__dirname, 'fixtures/compliance.yaml');
+const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
+
 jest.mock('../src/libs/utils', () => ({
     fetchContentsForFile: jest.fn(),
     updateFile: jest.fn(),
 }));
+
+Date.now = jest.fn(() => 1576090712480);
 
 describe('Bot command processing', () => {
 
@@ -46,7 +52,23 @@ describe('Bot command processing', () => {
         jest.clearAllMocks();
     });
 
-    // TODO:(jl) test handleBotCommand
+    it('Missing compliance commands are ignored', async () => {
+        const comment = 'hello, I am a teapot';
+        const result = applyComplianceCommands(comment, doc);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('Invalid compliance commands are ignored', async () => {
+        const comment = '/change-pia completed';
+        const result = applyComplianceCommands(comment, doc);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('Valid compliance commands are processed', async () => {
+        const comment = '/update-pia completed\n/update-stra completed';
+        const result = applyComplianceCommands(comment, doc);
+        expect(result).toMatchSnapshot();
+    });
 
     it('Help requests issues are processed', async () => {
         context.payload.comment.body = 'help';
@@ -80,7 +102,7 @@ describe('Bot command processing', () => {
 
         await handleComplianceCommands(context);
 
-        expect(fetchContentsForFile).toBeCalled();
+        expect(fetchContentsForFile).not.toBeCalled();
         expect(updateFile).not.toBeCalled();
     });
 

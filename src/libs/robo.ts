@@ -24,6 +24,8 @@ import { Context } from 'probot';
 import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, GITHUB_ID, HELP_DESK, PR_TITLES } from '../constants';
 import { assignUsersToIssue, fetchContentsForFile, updateFile } from './utils';
 
+const re = /\/update-(pia|stra)\s(in-progress|completed|TBD|exempt)/gi;
+
 /**
  * Determine if help desk support is required
  * @param {Context} context The event context context
@@ -44,16 +46,45 @@ export const helpDeskSupportRequired = (payload: any) => {
     return true;
 };
 
+
+export const applyComplianceCommands = (comment: string, doc: any): any => {
+    let result: RegExpExecArray | null;
+
+    while ((result = re.exec(comment)) !== null) {
+        // sample result 
+        // [ '/update-pia completed',
+        //   'pia',
+        //   'completed',
+        //   index: 0,
+        //   input: '/update-pia completed',
+        //   groups: undefined ] 
+        const items = doc.spec.filter(s => s.name === result![1].toUpperCase());
+        if (items.length === 0) {
+            continue;
+        }
+
+        const item = items.pop();
+        item['status'] = result![2];
+        // Date.now() used to simplify mock in unit tests.
+        item['last-updated'] = new Date(Date.now()).toISOString();
+    }
+
+    return doc;
+};
+
 export const handleComplianceCommands = async (context: Context) => {
     // These are the accepted commands. They are case insensitive,
     // and require a leading `/` to be accepted.
     // /update-pia ${STATUS}
     // /update-stra ${STATUS}
 
-    try {
-        const body = context.payload.comment.body;
-        const re = /\/update-(pia|stra)\s(in-progress|completed|TBD|exempt)/gi;
+    const comment = context.payload.comment.body;
 
+    if (!re.test(comment)) {
+        return; // no commands in comment
+    }
+
+    try {
         // Fetch the file from the repo in case any updates have
         // been made to it.
         const data = await fetchContentsForFile(context,
@@ -64,34 +95,13 @@ export const handleComplianceCommands = async (context: Context) => {
             return;
         }
 
-        let result: RegExpExecArray | null;
-        let updateRequired = false;
         let doc = yaml.safeLoad(Buffer.from(data.content, 'base64').toString());
+        doc = applyComplianceCommands(comment, doc);
 
-        while ((result = re.exec(body)) !== null) {
-            // sample result 
-            // [ '/update-pia completed',
-            //   'pia',
-            //   'completed',
-            //   index: 0,
-            //   input: '/update-pia completed',
-            //   groups: undefined ] 
-            const items = doc.spec.filter(s => s.name === result![1].toUpperCase());
-            if (items.length === 0) {
-                continue;
-            }
+        await updateFile(context, COMMIT_MESSAGES.UPDATE_COMPLIANCE,
+            BRANCHES.ADD_COMPLIANCE, COMMIT_FILE_NAMES.COMPLIANCE,
+            yaml.safeDump(doc), data.sha);
 
-            const item = items.pop();
-            item['status'] = result![2];
-            item['last-updated'] = new Date().toISOString();
-            updateRequired = true;
-        }
-
-        if (updateRequired) {
-            await updateFile(context, COMMIT_MESSAGES.UPDATE_COMPLIANCE,
-                BRANCHES.ADD_COMPLIANCE, COMMIT_FILE_NAMES.COMPLIANCE,
-                yaml.safeDump(doc), data.sha);
-        }
     } catch (err) {
         const message = 'Unable to process compliance commands';
         logger.error(`${message}, error = ${err.message}`);
