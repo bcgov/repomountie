@@ -24,7 +24,7 @@ import createScheduler from 'probot-scheduler';
 import { ALLOWED_INSTALLATIONS, SCHEDULER_DELAY } from './constants';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
-import { addLicenseIfRequired } from './libs/repository';
+import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
 import { fetchConfigFile } from './libs/utils';
 
@@ -33,7 +33,8 @@ process.env.TZ = 'UTC';
 if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
     // @ts-ignore: `stack` does not exist on type
-    logger.warn(`Unhandled rejection at promise = ${JSON.stringify(p)}, reason = ${reason.stack}`);
+    const stack = typeof (reason) !== 'undefined' ? reason.stack : 'unknown'
+    logger.warn(`Unhandled rejection at promise = ${JSON.stringify(p)}, reason = ${stack}`);
   });
 }
 
@@ -149,7 +150,7 @@ export = (app: Application) => {
       }
 
       await addLicenseIfRequired(context, scheduler);
-      // await addSecurityComplianceInfoIfRequired(context, scheduler);
+      await addSecurityComplianceInfoIfRequired(context, scheduler);
 
       // Functionality below here requires a `config` file exist in the repo.
 

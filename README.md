@@ -1,3 +1,5 @@
+<a href="https://codeclimate.com/github/bcgov/repo-mountie/maintainability"><img src="https://api.codeclimate.com/v1/badges/19232a88875658e96155/maintainability" /></a><a href="https://codeclimate.com/github/bcgov/repo-mountie/test_coverage"><img src="https://api.codeclimate.com/v1/badges/19232a88875658e96155/test_coverage" /></a>
+
 ## About
 
 The _repo mountie_ is a GitHup application (bot) help ensure cultural niceties are respected.

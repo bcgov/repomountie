@@ -79,6 +79,42 @@ export const checkIfRefExists = async (context: Context, ref = 'master'): Promis
   }
 };
 
+export const fetchContentsForFile = async (context, fileName, ref = 'master'): Promise<any> => {
+  const commits = await context.github.repos.listCommits(
+    context.repo({
+      sha: ref,
+      path: fileName,
+    })
+  );
+
+  // Not sure if GH returns the results in sorted order.
+  // Descending; newest commits are first.
+  const lastCommit = commits.data.sort((a, b) => {
+    return (new Date(b.commit.committer.date)).getTime() - (new Date(a.commit.committer.date)).getTime();
+  }).shift();
+
+  if (!lastCommit) {
+    logger.info('Unable to find last commit.')
+    return;
+  }
+
+  const response = await context.github.repos.getContents(
+    context.repo({
+      ref: lastCommit.sha,
+      path: fileName,
+    })
+  );
+
+  const data: any = response.data;
+
+  if (data.content && data.type !== 'file') {
+    logger.info('Unusable content type retrieved.')
+    return;
+  };
+
+  return data;
+}
+
 /**
  * Fetch the repo compliance file
  * The compliance file determines what state any policy compliance
@@ -270,6 +306,78 @@ export const addFileViaPullRequest = async (
     );
   } catch (err) {
     const message = `Unable to add ${fileName} file to ${context.payload.repository.name}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
+
+/**
+ * Check if a pull request exists
+ * Check if pull requests exists with a given title
+ * @param {Context} context The event context context
+ * @param {string} title The title to look for
+ * @param {string} state The state the PR must be in.
+ * @returns `true` if if a PR exists, false otherwise.
+ */
+export const hasPullRequestWithTitle = async (context, title, state = 'all'): Promise<boolean> => {
+  try {
+    const pulls = await context.github.pulls.list(
+      context.repo({
+        state: state,
+      })
+    );
+
+    if (pulls && pulls.data) {
+      return pulls.data.filter(pr => pr.title === title).length > 0;
+    }
+
+    return false;
+  } catch (err) {
+    const message = `Unable to lookup PRs in repo ${context.payload.repository.name}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
+
+/**
+ * Assign GitHub users to an issue
+ * @param context The `Context` containing the GH issue.
+ * @param assignees An `Array` of users to assign to the issue
+ */
+export const assignUsersToIssue = async (context: Context, assignees: Array<string>) => {
+  try {
+    await context.github.issues.addAssignees(
+      context.issue({
+        assignees,
+      })
+    );
+  } catch (err) {
+    const message = 'Unable to assign user to issue.';
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
+
+
+export const updateFile = async (
+  context: Context, commitMessage: string, srcBranchName: string,
+  fileName: string, fileData: string, fileSHA
+) => {
+  try {
+    await context.github.repos.createOrUpdateFile(
+      context.repo({
+        message: commitMessage,
+        content: Buffer.from(fileData).toString('base64'),
+        sha: fileSHA,
+        branch: srcBranchName,
+        path: fileName,
+      })
+    );
+  } catch (err) {
+    const message = 'Unable to update file.';
     logger.error(`${message}, error = ${err.message}`);
 
     throw err;

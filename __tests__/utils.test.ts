@@ -22,8 +22,8 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
-import { REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addFileViaPullRequest, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchFile, labelExists, loadTemplate } from '../src/libs/utils';
+import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
+import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, labelExists, loadTemplate } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -42,6 +42,12 @@ const master = JSON.parse(fs.readFileSync(p3, 'utf8'));
 const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
 const prNoAddLicense = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
+const p5 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
+const prWithLicense = JSON.parse(fs.readFileSync(p5, 'utf8'));
+
+const p6 = path.join(__dirname, 'fixtures/repo-list-commits.json');
+const listCommits = JSON.parse(fs.readFileSync(p6, 'utf8'));
+
 describe('Utility functions', () => {
   let app;
   let github;
@@ -55,8 +61,10 @@ describe('Utility functions', () => {
     github = {
       issues: {
         listLabelsForRepo: jest.fn(),
+        addAssignees: jest.fn(),
       },
       repos: {
+        listCommits: jest.fn().mockReturnValue(Promise.resolve(listCommits)),
         getContents: jest.fn(),
         createFile: jest.fn(),
       },
@@ -156,5 +164,34 @@ describe('Utility functions', () => {
     expect(github.pulls.create).toHaveBeenCalled();
     expect(github.git.createRef).toHaveBeenCalled();
     expect(github.repos.createFile).toHaveBeenCalled();
+  });
+
+  it('A pull request should not exists', async () => {
+    const result = await hasPullRequestWithTitle(context, 'Hello');
+
+    expect(result).toBeFalsy();
+  });
+
+  it.skip('A pull request should exists', async () => {
+    github.pulls.list.mockReturnValueOnce(Promise.resolve(prWithLicense));
+
+    const result = await hasPullRequestWithTitle(context, PR_TITLES.ADD_LICENSE);
+
+    expect(result).toBeTruthy();
+  });
+
+  it('An issue should be assigned', async () => {
+    await assignUsersToIssue(context, ['blarb']);
+
+    expect(github.issues.addAssignees).toHaveBeenCalled();
+  });
+
+  it('File contents should be retrieved', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
+    const results = await fetchContentsForFile(context, 'helo.yaml');
+
+    expect(github.repos.listCommits).toHaveBeenCalled();
+    expect(github.repos.getContents).toHaveBeenCalled();
+    expect(results).toMatchSnapshot();
   });
 });

@@ -18,11 +18,8 @@
 // Created by Jason Leach on 2018-10-15.
 //
 
-import { logger } from '@bcgov/common-nodejs-utils';
 import express from 'express'; // tslint:disable-line
-import passport from 'passport';
 import { Application } from 'probot';
-import config from '../config';
 import { authmware } from './authmware';
 
 export const routes = (app: Application) => {
@@ -55,58 +52,58 @@ export const routes = (app: Application) => {
   // Add a new route for health and liveliness probes.
   router.get('/ehlo', (req: any, res: any) => res.status(200).end());
 
-  router.get(
-    '/github/membership',
-    passport.authenticate('jwt', { session: false }),
-    async (req: any, res: any) => {
-      const myAppId = config.get('githubAppID');
-      const myApp = req.app;
-      const { userId } = req.query;
+  // router.get(
+  //   '/github/membership',
+  //   passport.authenticate('jwt', { session: false }),
+  //   async (req: any, res: any) => {
+  //     const myAppId = config.get('githubAppID');
+  //     const myApp = req.app;
+  //     const { userId } = req.query;
 
-      if (!userId) {
-        // throw errorWithCode('You are not able to download this artifact', 400);
-        res.status(400).json({ message: 'You must supply a valid github user ID' });
-        return;
-      }
+  //     if (!userId) {
+  //       // throw errorWithCode('You are not able to download this artifact', 400);
+  //       res.status(400).json({ message: 'You must supply a valid github user ID' });
+  //       return;
+  //     }
 
-      try {
-        // Authenticate with no installation ID grants access to the `apps` API only. This is enough
-        // to lookup the correct installation ID. If you know it already you can skip this part.
-        const installations = (await (await myApp.auth()).apps.listInstallations()).data;
-        const myInstallation = installations.filter(i => i.app_id === myAppId);
-        const checks = myInstallation.map(async i => {
-          // Create a new GitHub client authentication as the installation.
-          const github = await myApp.auth(i.id);
-          try {
-            // 204 No Content - The user is a member;
-            // 404 Not Found  - The user is not a member of the org.
-            // 302 Found      - TBD
+  //     try {
+  //       // Authenticate with no installation ID grants access to the `apps` API only. This is enough
+  //       // to lookup the correct installation ID. If you know it already you can skip this part.
+  //       const installations = (await (await myApp.auth()).apps.listInstallations()).data;
+  //       const myInstallation = installations.filter(i => i.app_id === myAppId);
+  //       const checks = myInstallation.map(async i => {
+  //         // Create a new GitHub client authentication as the installation.
+  //         const github = await myApp.auth(i.id);
+  //         try {
+  //           // 204 No Content - The user is a member;
+  //           // 404 Not Found  - The user is not a member of the org.
+  //           // 302 Found      - TBD
 
-            const response = await github.orgs.checkMembership({
-              org: i.account.login,
-              username: userId,
-            });
+  //           const response = await github.orgs.checkMembership({
+  //             org: i.account.login,
+  //             username: userId,
+  //           });
 
-            if (response.status === 204) {
-              return true;
-            }
+  //           if (response.status === 204) {
+  //             return true;
+  //           }
 
-            return false;
-          } catch (checkMembershipApiCallError) {
-            return false;
-          }
-        });
+  //           return false;
+  //         } catch (checkMembershipApiCallError) {
+  //           return false;
+  //         }
+  //       });
 
-        const status = await Promise.all(checks);
-        const results = myInstallation.map((item, index) => {
-          return { org: item.account.login, membership: status[index] };
-        });
+  //       const status = await Promise.all(checks);
+  //       const results = myInstallation.map((item, index) => {
+  //         return { org: item.account.login, membership: status[index] };
+  //       });
 
-        res.status(200).json(results);
-      } catch (err) {
-        logger.error(err.message);
-        res.status(500).end();
-      }
-    }
-  );
+  //       res.status(200).json(results);
+  //     } catch (err) {
+  //       logger.error(err.message);
+  //       res.status(500).end();
+  //     }
+  //   }
+  // );
 };

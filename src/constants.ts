@@ -29,23 +29,28 @@ export const REPO_CONFIG_FILE = 'rmconfig.json';
 export const REPO_COMPLIANCE_FILE = 'compliance.yaml';
 
 export const HELP_DESK = {
-  LICENSE_SUPPORT_USERS: ['jleach', 'kelpisland'],
+  SUPPORT_USERS: ['jleach'],
 };
 
 export const COMMIT_FILE_NAMES = {
   LICENSE: 'LICENSE',
+  COMPLIANCE: 'COMPLIANCE.yaml',
 }
 
 export const COMMIT_MESSAGES = {
   ADD_LICENSE: 'Add Apache License 2.0',
+  ADD_COMPLIANCE: 'Add compliance audit file',
+  UPDATE_COMPLIANCE: 'Updating compliance audit file'
 }
 
 export const PR_TITLES = {
   ADD_LICENSE: 'Add missing license',
+  ADD_COMPLIANCE: 'Add missing compliance audit file',
 };
 
 export const BRANCHES = {
   ADD_LICENSE: 'fix/add-license',
+  ADD_COMPLIANCE: 'fix/add-compliance',
 };
 
 export const TEMPLATES = {
@@ -53,6 +58,7 @@ export const TEMPLATES = {
   CONTRIBUTE: 'templates/CONTRIBUTING.md',
   LICENSE: 'templates/LICENSE',
   README: 'templates/README.md',
+  COMPLIANCE: 'templates/COMPLIANCE.yaml',
 };
 
 export const VALID_LICENSES = {
@@ -62,13 +68,14 @@ export const VALID_LICENSES = {
 export const TEXT_FILES = {
   HOWTO_PR: 'templates/howto_pull_request.md',
   WHY_LICENSE: 'templates/why-license.md',
-  STALE_COMMENT: 'templates/stale_issue_comment.md'
+  STALE_COMMENT: 'templates/stale_issue_comment.md',
+  WHY_COMPLY: 'templates/why-comply.md'
 };
 
 export const COMMANDS = {
   IGNORE: '/bot-ignore-length',
 };
 
-export const ALLOWED_INSTALLATIONS = ['bcgov'];
+export const ALLOWED_INSTALLATIONS = ['bcgov', 'fullboar'];
 
 export const ALLOWED_SSO_CLIENTS = ['reggie-api'];
