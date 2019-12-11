@@ -31,9 +31,6 @@ describe('Repository integration tests', () => {
         app = new Application();
         app.app = { getSignedJsonWebToken: () => 'xxx' };
         app.load(robot);
-        // const getRef = jest.fn();
-        // getRef.mockReturnValueOnce(master);
-        // getRef.mockReturnValueOnce(master);
 
         github = {
             git: {
@@ -43,10 +40,6 @@ describe('Repository integration tests', () => {
             issues: {
                 addAssignees: jest.fn(),
             },
-            // pulls: {
-            //     create: jest.fn().mockReturnValueOnce(Promise.resolve()),
-            //     list: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
-            // },
             repos: {
                 createFile: jest.fn(),
             },
