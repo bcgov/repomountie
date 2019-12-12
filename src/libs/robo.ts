@@ -111,7 +111,7 @@ export const handleComplianceCommands = async (context: Context) => {
 };
 
 export const handleBotCommand = async (context: Context) => {
-    if (context.payload.issue.user.login === `${GITHUB_ID} [bot]`) {
+    if (context.payload.issue.user.login === `${GITHUB_ID}[bot]`) {
         return; // not interested
     }
 

@@ -20,10 +20,18 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
-import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
+import config from '../config';
+import { ACCESS_CONTROL, BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
 import { addFileViaPullRequest, checkIfRefExists, extractMessage, hasPullRequestWithTitle, loadTemplate } from './utils';
 
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
+
+  // This feature is guarded by a feature-flag.
+  if ((config.get('environment') !== 'test') && (!ACCESS_CONTROL.complianceBetaGroup.includes(context.payload.repository.name))) {
+    logger.info(`The repo ${context.payload.repository.name} is not part of the beta group`);
+    return;
+  }
+
   try {
     if (!(await checkIfRefExists(context, 'master'))) {
       logger.info(`This repo has no master branch ${context.payload.repository.name}`);

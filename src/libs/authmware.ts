@@ -26,7 +26,7 @@ import { getJwtCertificate, logger } from '@bcgov/common-nodejs-utils';
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import config from '../config';
-import { ALLOWED_SSO_CLIENTS } from '../constants';
+import { ACCESS_CONTROL } from '../constants';
 
 interface JwtStrategyConfig {
   jwtFromRequest: any;
@@ -39,7 +39,7 @@ interface JwtStrategyConfig {
 export const isAuthorized = jwtPayload => {
   // jwtPayload.azp - The client ID
   // jwtPayload.preferred_username - The preferred user name
-  if (jwtPayload && jwtPayload.azp && ALLOWED_SSO_CLIENTS.includes(jwtPayload.azp)) {
+  if (jwtPayload && jwtPayload.azp && ACCESS_CONTROL.allowedSsoClients.includes(jwtPayload.azp)) {
     return true;
   }
 
@@ -71,18 +71,6 @@ export const verify = (req: any, jwtPayload: any, done: (err: any, user: any) =>
 export const authmware = async app => {
   app.use(passport.initialize());
   app.use(passport.session());
-
-  // We don't store any user information.
-  passport.serializeUser((user, done) => {
-    logger.info('serialize');
-    done(null, {});
-  });
-
-  // We don't load any additional user information.
-  passport.deserializeUser((id, done) => {
-    logger.info('deserialize');
-    done(null, {});
-  });
 
   const { certificate, algorithm } = await getJwtCertificate(config.get('sso:certsUrl'));
   const opts: JwtStrategyConfig = {

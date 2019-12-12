@@ -76,6 +76,9 @@ export const COMMANDS = {
   IGNORE: '/bot-ignore-length',
 };
 
-export const ALLOWED_INSTALLATIONS = ['bcgov', 'fullboar'];
+export const ACCESS_CONTROL = {
+  allowedInstallations: ['bcgov', 'fullboar'],
+  allowedSsoClients: ['reggie-api'],
+  complianceBetaGroup: ['hello3', 'hello4'],
 
-export const ALLOWED_SSO_CLIENTS = ['reggie-api'];
+};
