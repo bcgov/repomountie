@@ -361,7 +361,6 @@ export const assignUsersToIssue = async (context: Context, assignees: Array<stri
   }
 };
 
-
 export const updateFile = async (
   context: Context, commitMessage: string, srcBranchName: string,
   fileName: string, fileData: string, fileSHA
