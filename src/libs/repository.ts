@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import config from '../config';
 import { ACCESS_CONTROL, BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
-import { addFileViaPullRequest, checkIfRefExists, extractMessage, hasPullRequestWithTitle, loadTemplate } from './utils';
+import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, extractMessage, hasPullRequestWithTitle, loadTemplate } from './utils';
 
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
 
@@ -40,6 +40,11 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
 
     if ((await hasPullRequestWithTitle(context, PR_TITLES.ADD_COMPLIANCE, 'open'))) {
       logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
+      return;
+    }
+
+    if ((await checkIfFileExists(context, COMMIT_FILE_NAMES.COMPLIANCE))) {
+      logger.info(`Compliance file exists in ${context.payload.repository.name}`);
       return;
     }
 

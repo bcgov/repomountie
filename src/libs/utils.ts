@@ -79,6 +79,15 @@ export const checkIfRefExists = async (context: Context, ref = 'master'): Promis
   }
 };
 
+export const checkIfFileExists = async (context, fileName, ref = 'master'): Promise<boolean> => {
+  try {
+    await fetchFile(context, fileName, ref);
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
 export const fetchContentsForFile = async (context, fileName, ref = 'master'): Promise<any> => {
   const commits = await context.github.repos.listCommits(
     context.repo({
