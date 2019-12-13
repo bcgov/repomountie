@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
-import { ALLOWED_INSTALLATIONS, SCHEDULER_DELAY } from './constants';
+import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
@@ -59,7 +59,7 @@ export = (app: Application) => {
       const owner = context.payload.installation.account.login;
       const isFromBot = context.isBot;
 
-      if (!ALLOWED_INSTALLATIONS.includes(owner)) {
+      if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
         logger.info(
           `Skipping PR ${context.payload.pull_request.number} for repo ${
           context.payload.repository.name
@@ -98,7 +98,7 @@ export = (app: Application) => {
       const owner = context.payload.installation.account.login;
       const isFromBot = context.isBot;
 
-      if (!ALLOWED_INSTALLATIONS.includes(owner)) {
+      if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
         logger.info(
           `Skipping issue ${context.payload.pull_request.number} for repo ${
           context.payload.repository.name
@@ -135,7 +135,7 @@ export = (app: Application) => {
 
     try {
       const owner = context.payload.installation.account.login;
-      if (!ALLOWED_INSTALLATIONS.includes(owner)) {
+      if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
         logger.info(
           `Skipping scheduled repository ${
           context.payload.repository.name
