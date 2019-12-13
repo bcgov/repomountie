@@ -84,6 +84,15 @@ export const checkIfRefExists = async (context: Context, ref = context.payload.r
   }
 };
 
+export const checkIfFileExists = async (context, fileName, ref = 'master'): Promise<boolean> => {
+  try {
+    await fetchFile(context, fileName, ref);
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
 /**
  * Fetch the contents of a file from GitHub
  * This function will fetch the contents of a file from the latest
