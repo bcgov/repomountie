@@ -3,5 +3,23 @@
     "authUrl": "https://sso.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/auth",
     "tokenUrl": "https://sso.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/token",
     "certsUrl": "https://sso.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/certs"
+  },
+  "accessControl": {
+    "allowedInstallations": ["bcgov", "fullboar"],
+    "allowedSsoClients": ["reggie-api"],
+    "complianceBetaGroup": [
+      "range-web",
+      "range-api",
+      "range-ios",
+      "devhub-signing-api",
+      "devhub-signing-web",
+      "secure-image-ios",
+      "secure-image-android",
+      "secure-image-api",
+      "devhub-app-web",
+      "Family-Protection-Order",
+      "healthgateway",
+      "cas-ciip-portal"
+    ]
   }
 }

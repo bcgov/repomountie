@@ -3,5 +3,21 @@
     "authUrl": "https://sso-test.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/auth",
     "tokenUrl": "https://sso-test.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/token",
     "certsUrl": "https://sso-test.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/certs"
+  },
+  "accessControl": {
+    "allowedInstallations": ["bcgov", "fullboar"],
+    "allowedSsoClients": ["reggie-api"],
+    "complianceBetaGroup": [
+      "hello0",
+      "hello1",
+      "hello2",
+      "hello3",
+      "hello4",
+      "hello5",
+      "hello6",
+      "hello7",
+      "hello8",
+      "hello9"
+    ]
   }
 }

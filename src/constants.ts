@@ -75,22 +75,3 @@ export const TEXT_FILES = {
 export const COMMANDS = {
   IGNORE: '/bot-ignore-length',
 };
-
-export const ACCESS_CONTROL = {
-  allowedInstallations: ['bcgov', 'fullboar'],
-  allowedSsoClients: ['reggie-api'],
-  complianceBetaGroup: [
-    'range-web',
-    'range-api',
-    'range-ios',
-    'devhub-signing-api',
-    'devhub-signing-web',
-    'secure-image-ios',
-    'secure-image-android',
-    'secure-image-api',
-    'devhub-app-web',
-    'Family-Protection-Order',
-    'healthgateway',
-    'cas-ciip-portal',
-  ],
-};
