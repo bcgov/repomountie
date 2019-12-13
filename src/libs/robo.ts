@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
 import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, GITHUB_ID, HELP_DESK, PR_TITLES } from '../constants';
-import { assignUsersToIssue, fetchContentsForFile, updateFile } from './utils';
+import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './utils';
 
 const re = /\/update-(pia|stra)\s(in-progress|completed|TBD|exempt)/gi;
 
@@ -98,7 +98,7 @@ export const handleComplianceCommands = async (context: Context) => {
         let doc = yaml.safeLoad(Buffer.from(data.content, 'base64').toString());
         doc = applyComplianceCommands(comment, doc);
 
-        await updateFile(context, COMMIT_MESSAGES.UPDATE_COMPLIANCE,
+        await updateFileContent(context, COMMIT_MESSAGES.UPDATE_COMPLIANCE,
             BRANCHES.ADD_COMPLIANCE, COMMIT_FILE_NAMES.COMPLIANCE,
             yaml.safeDump(doc), data.sha);
 

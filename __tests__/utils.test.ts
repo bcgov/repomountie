@@ -23,7 +23,7 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, labelExists, loadTemplate, updateFile } from '../src/libs/utils';
+import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -205,12 +205,12 @@ describe('Utility functions', () => {
   it('Updating a file on GitHub succeeds', async () => {
     github.repos.createOrUpdateFile = jest.fn().mockReturnValueOnce(Promise.resolve());
 
-    await expect(updateFile(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).resolves.toBeUndefined();
+    await expect(updateFileContent(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).resolves.toBeUndefined();
   });
 
   it('Updating a file on GitHub fails', async () => {
     github.repos.createOrUpdateFile = jest.fn().mockReturnValueOnce(Promise.reject());
 
-    await expect(updateFile(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).rejects.toThrow();
+    await expect(updateFileContent(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).rejects.toThrow();
   });
 });

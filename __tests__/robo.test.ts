@@ -23,7 +23,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { GITHUB_ID } from '../src/constants';
 import { applyComplianceCommands, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
-import { fetchContentsForFile, updateFile } from '../src/libs/utils';
+import { fetchContentsForFile, updateFileContent } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -36,7 +36,7 @@ const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
 
 jest.mock('../src/libs/utils', () => ({
     fetchContentsForFile: jest.fn(),
-    updateFile: jest.fn(),
+    updateFileContent: jest.fn(),
 }));
 
 Date.now = jest.fn(() => 1576090712480);
@@ -91,7 +91,7 @@ describe('Bot command processing', () => {
         await handleComplianceCommands(context);
 
         expect(fetchContentsForFile).toBeCalled();
-        expect(updateFile).not.toBeCalled();
+        expect(updateFileContent).not.toBeCalled();
     });
 
 
@@ -103,7 +103,7 @@ describe('Bot command processing', () => {
         await handleComplianceCommands(context);
 
         expect(fetchContentsForFile).not.toBeCalled();
-        expect(updateFile).not.toBeCalled();
+        expect(updateFileContent).not.toBeCalled();
     });
 
     it('Compliance commands are processed appropriately', async () => {
@@ -114,6 +114,6 @@ describe('Bot command processing', () => {
         await handleComplianceCommands(context);
 
         expect(fetchContentsForFile).toBeCalled();
-        expect(updateFile).toBeCalled();
+        expect(updateFileContent).toBeCalled();
     });
 });

@@ -1,7 +1,7 @@
 //
 // Repo Mountie
 //
-// Copyright © 2018 Province of British Columbia
+// Copyright © 2019 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import yaml from 'js-yaml';
 import { Context } from 'probot';
 import util from 'util';
 import { REPO_COMPLIANCE_FILE, REPO_CONFIG_FILE } from '../constants';
-
-// type Optional<T> = T | undefined
 interface RepoMountiePullRequestConfig {
   maxLinesChanged: number;
 }
@@ -44,6 +42,13 @@ export interface RepoMountieConfig {
   staleIssue?: RepoMountieStaleIssueConfig;
 }
 
+/**
+ * Check if a string is valid JSON
+ * This function will check if a string can be parsed into JSON
+ * or not.
+ * @param {string} aString The string to be evaluated
+ * @returns A boolean of true if the string can be parsed, false otherwise.
+ */
 export const isJSON = (aString: string): boolean => {
   try {
     JSON.parse(aString);
@@ -79,40 +84,58 @@ export const checkIfRefExists = async (context: Context, ref = 'master'): Promis
   }
 };
 
-export const fetchContentsForFile = async (context, fileName, ref = 'master'): Promise<any> => {
-  const commits = await context.github.repos.listCommits(
-    context.repo({
-      sha: ref,
-      path: fileName,
-    })
-  );
+/**
+ * Fetch the contents of a file from GitHub
+ * This function will fetch the contents of a file from the latest
+ * commit in a ref. 
+ * @param {Context} context The context of the repo
+ * @param {string} fileName The name of the file to be fetched
+ * @param {string} ref The ref containing the file (default master)
+ * @returns A resolved promise with the `data`, thrown error otherwise.
+ */
+export const fetchContentsForFile = async (
+  context, fileName, ref = 'master'
+): Promise<any> => {
+  try {
+    const commits = await context.github.repos.listCommits(
+      context.repo({
+        sha: ref,
+        path: fileName,
+      })
+    );
 
-  // Not sure if GH returns the results in sorted order.
-  // Descending; newest commits are first.
-  const lastCommit = commits.data.sort((a, b) => {
-    return (new Date(b.commit.committer.date)).getTime() - (new Date(a.commit.committer.date)).getTime();
-  }).shift();
+    // Not sure if GH returns the results in sorted order.
+    // Descending; newest commits are first.
+    const lastCommit = commits.data.sort((a, b) => {
+      return (new Date(b.commit.committer.date)).getTime() - (new Date(a.commit.committer.date)).getTime();
+    }).shift();
 
-  if (!lastCommit) {
-    logger.info('Unable to find last commit.')
-    return;
+    if (!lastCommit) {
+      logger.info('Unable to find last commit.')
+      return;
+    }
+
+    const response = await context.github.repos.getContents(
+      context.repo({
+        ref: lastCommit.sha,
+        path: fileName,
+      })
+    );
+
+    const data: any = response.data;
+
+    if (data.content && data.type !== 'file') {
+      logger.info('Unusable content type retrieved.')
+      return;
+    };
+
+    return data;
+  } catch (err) {
+    const message = `Unable to fetch ${fileName}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw new Error(message);
   }
-
-  const response = await context.github.repos.getContents(
-    context.repo({
-      ref: lastCommit.sha,
-      path: fileName,
-    })
-  );
-
-  const data: any = response.data;
-
-  if (data.content && data.type !== 'file') {
-    logger.info('Unusable content type retrieved.')
-    return;
-  };
-
-  return data;
 }
 
 /**
@@ -124,7 +147,9 @@ export const fetchContentsForFile = async (context, fileName, ref = 'master'): P
  * @param {string} ref The ref where the file exists
  * @returns A string containing the file data
  */
-export const fetchFile = async (context, fileName, ref = 'master'): Promise<string> => {
+export const fetchFile = async (
+  context, fileName, ref = 'master'
+): Promise<string> => {
   try {
     const response = await context.github.repos.getContents(
       context.repo({
@@ -234,7 +259,9 @@ export const extractMessage = async (error: Error): Promise<string> => {
  * @param {string} labelName The label name to be checked
  * @returns `true` if the label exists, false otherwise.
  */
-export const labelExists = async (context: Context, labelName: string): Promise<boolean> => {
+export const labelExists = async (
+  context: Context, labelName: string
+): Promise<boolean> => {
   try {
     const result = await context.github.issues.listLabelsForRepo(context.issue());
     if (!result.data) {
@@ -320,7 +347,9 @@ export const addFileViaPullRequest = async (
  * @param {string} state The state the PR must be in.
  * @returns `true` if if a PR exists, false otherwise.
  */
-export const hasPullRequestWithTitle = async (context, title, state = 'all'): Promise<boolean> => {
+export const hasPullRequestWithTitle = async (
+  context, title, state = 'all'
+): Promise<boolean> => {
   try {
     const pulls = await context.github.pulls.list(
       context.repo({
@@ -346,7 +375,9 @@ export const hasPullRequestWithTitle = async (context, title, state = 'all'): Pr
  * @param context The `Context` containing the GH issue.
  * @param assignees An `Array` of users to assign to the issue
  */
-export const assignUsersToIssue = async (context: Context, assignees: Array<string>) => {
+export const assignUsersToIssue = async (
+  context: Context, assignees: Array<string>
+) => {
   try {
     await context.github.issues.addAssignees(
       context.issue({
@@ -361,7 +392,7 @@ export const assignUsersToIssue = async (context: Context, assignees: Array<stri
   }
 };
 
-export const updateFile = async (
+export const updateFileContent = async (
   context: Context, commitMessage: string, srcBranchName: string,
   fileName: string, fileData: string, fileSHA
 ) => {
