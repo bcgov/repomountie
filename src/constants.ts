@@ -76,6 +76,10 @@ export const COMMANDS = {
   IGNORE: '/bot-ignore-length',
 };
 
+export const REGEXP = {
+  compliance: '/update-(pia|stra)\\s(in-progress|completed|TBD|exempt)'
+}
+
 export const ACCESS_CONTROL = {
   allowedInstallations: ['bcgov', 'fullboar'],
   allowedSsoClients: ['reggie-api'],

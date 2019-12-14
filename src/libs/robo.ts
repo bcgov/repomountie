@@ -21,10 +21,8 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES } from '../constants';
+import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES, REGEXP } from '../constants';
 import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './utils';
-
-const re = /\/update-(pia|stra)\s(in-progress|completed|TBD|exempt)/gi;
 
 /**
  * Determine if help desk support is required
@@ -49,7 +47,7 @@ export const helpDeskSupportRequired = (payload: any) => {
 
 export const applyComplianceCommands = (comment: string, doc: any): any => {
     let result: RegExpExecArray | null;
-    re.lastIndex = 0; // reset
+    const re = new RegExp(REGEXP.compliance, 'gi');
 
     while ((result = re.exec(comment)) !== null) {
         // sample result 
@@ -80,8 +78,8 @@ export const handleComplianceCommands = async (context: Context) => {
     // /update-stra ${STATUS}
 
     const comment = context.payload.comment.body;
+    const re = new RegExp(REGEXP.compliance, 'gi');
 
-    re.lastIndex = 0; // reset
     if (!re.test(comment)) {
         return; // no commands in comment
     }
