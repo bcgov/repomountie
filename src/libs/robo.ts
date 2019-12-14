@@ -81,6 +81,7 @@ export const handleComplianceCommands = async (context: Context) => {
 
     const comment = context.payload.comment.body;
 
+    re.lastIndex = 0; // reset
     if (!re.test(comment)) {
         return; // no commands in comment
     }
