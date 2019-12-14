@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, GITHUB_ID, HELP_DESK, PR_TITLES } from '../constants';
+import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES } from '../constants';
 import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './utils';
 
 const re = /\/update-(pia|stra)\s(in-progress|completed|TBD|exempt)/gi;
@@ -49,6 +49,7 @@ export const helpDeskSupportRequired = (payload: any) => {
 
 export const applyComplianceCommands = (comment: string, doc: any): any => {
     let result: RegExpExecArray | null;
+    re.lastIndex = 0; // reset
 
     while ((result = re.exec(comment)) !== null) {
         // sample result 
@@ -111,7 +112,8 @@ export const handleComplianceCommands = async (context: Context) => {
 };
 
 export const handleBotCommand = async (context: Context) => {
-    if (context.payload.issue.user.login === `${GITHUB_ID}[bot]`) {
+
+    if (context.isBot) {
         return; // not interested
     }
 
