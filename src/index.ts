@@ -81,7 +81,7 @@ export = (app: Application) => {
         return;
       }
     } catch (err) {
-      logger.info(`Unable to determine if the sender is a bot, err = ${err.message}`);
+      logger.info(`Unable to handle pull request, err = ${err.message}`);
     }
 
     logger.info(
@@ -116,7 +116,7 @@ export = (app: Application) => {
         return;
       }
     } catch (err) {
-      logger.info(`Unable to determine if the sender is a bot, err = ${err.message}`);
+      logger.info(`Unable to process issue comment, err = ${err.message}`);
     }
 
     logger.info(`Processing issue ${context.payload.issue.id}`);
