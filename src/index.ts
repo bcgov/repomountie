@@ -30,6 +30,8 @@ import { fetchConfigFile } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
+console.log('hello world');
+
 if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
     // @ts-ignore: `stack` does not exist on type
@@ -79,7 +81,7 @@ export = (app: Application) => {
         return;
       }
     } catch (err) {
-      logger.info('Unable to determine if the sender is a bot');
+      logger.info(`Unable to determine if the sender is a bot, err = ${err.message}`);
     }
 
     logger.info(
@@ -114,7 +116,7 @@ export = (app: Application) => {
         return;
       }
     } catch (err) {
-      logger.info('Unable to determine if the sender is a bot');
+      logger.info(`Unable to determine if the sender is a bot, err = ${err.message}`);
     }
 
     logger.info(`Processing issue ${context.payload.issue.id}`);
