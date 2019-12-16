@@ -30,8 +30,6 @@ import { fetchConfigFile } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
-console.log('hello world');
-
 if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
     // @ts-ignore: `stack` does not exist on type
@@ -97,7 +95,7 @@ export = (app: Application) => {
 
   async function issueCommentCreated(context: Context) {
     try {
-      const owner = context.payload.installation.account.login;
+      const owner = context.payload.organization.login;
       const isFromBot = context.isBot;
 
       if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
