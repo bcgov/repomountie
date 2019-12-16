@@ -49,8 +49,8 @@ export const PR_TITLES = {
 };
 
 export const BRANCHES = {
-  ADD_LICENSE: 'fix/add-license',
-  ADD_COMPLIANCE: 'fix/add-compliance',
+  ADD_LICENSE: 'repo-mountie/add-license',
+  ADD_COMPLIANCE: 'repo-mountie/add-compliance',
 };
 
 export const TEMPLATES = {
