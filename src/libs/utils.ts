@@ -66,7 +66,7 @@ export const isJSON = (aString: string): boolean => {
  * @param {string} ref The ref to be looked up
  * @returns A boolean of true if the ref exists, false otherwise
  */
-export const checkIfRefExists = async (context: Context, ref = 'master'): Promise<boolean> => {
+export const checkIfRefExists = async (context: Context, ref = context.payload.repository.default_branch): Promise<boolean> => {
   try {
     // If the repo does *not* have a master branch then we don't want to add one.
     // The dev team may be doing this off-line and when they go to push master it
@@ -94,7 +94,7 @@ export const checkIfRefExists = async (context: Context, ref = 'master'): Promis
  * @returns A resolved promise with the `data`, thrown error otherwise.
  */
 export const fetchContentsForFile = async (
-  context, fileName, ref = 'master'
+  context, fileName, ref = context.payload.repository.default_branch
 ): Promise<any> => {
   try {
     const commits = await context.github.repos.listCommits(
@@ -148,7 +148,7 @@ export const fetchContentsForFile = async (
  * @returns A string containing the file data
  */
 export const fetchFile = async (
-  context, fileName, ref = 'master'
+  context, fileName, ref = context.payload.repository.default_branch
 ): Promise<string> => {
   try {
     const response = await context.github.repos.getContents(
@@ -296,10 +296,11 @@ export const addFileViaPullRequest = async (
   fileData: string
 ) => {
   try {
-    // If we don't have a master we won't have anywhere to merge the PR
-    const master = await context.github.git.getRef(
+    // If we don't have a main branch we won't have anywhere
+    // to merge the PR.
+    const mainbr = await context.github.git.getRef(
       context.repo({
-        ref: 'heads/master',
+        ref: `heads/${context.payload.repository.default_branch}`,
       })
     );
 
@@ -307,7 +308,7 @@ export const addFileViaPullRequest = async (
     await context.github.git.createRef(
       context.repo({
         ref: `refs/heads/${srcBranchName}`,
-        sha: master.data.object.sha,
+        sha: mainbr.data.object.sha, // where we fork from.
       })
     );
 
@@ -324,7 +325,7 @@ export const addFileViaPullRequest = async (
     // Create a PR to merge the licence ref into master
     await context.github.pulls.create(
       context.repo({
-        base: 'master',
+        base: context.payload.repository.default_branch,
         body: prBody,
         head: srcBranchName,
         maintainer_can_modify: true, // maintainers cat edit your this PR

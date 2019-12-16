@@ -142,7 +142,7 @@ describe('Utility functions', () => {
 
   it('The ref should exists.', async () => {
     github.git.getRef.mockReturnValueOnce(master);
-    const result = await checkIfRefExists(context, 'master');
+    const result = await checkIfRefExists(context, context.payload.repository.default_branch);
 
     expect(github.git.getRef).toHaveBeenCalled();
     expect(result).toBeTruthy();
@@ -150,7 +150,7 @@ describe('Utility functions', () => {
 
   it('The ref should not exists.', async () => {
     github.git.getRef.mockReturnValueOnce(Promise.reject());
-    const result = await checkIfRefExists(context, 'master');
+    const result = await checkIfRefExists(context, context.payload.repository.default_branch);
 
     expect(github.git.getRef).toHaveBeenCalled();
     expect(result).toBeFalsy();

@@ -33,8 +33,8 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
   }
 
   try {
-    if (!(await checkIfRefExists(context, 'master'))) {
-      logger.info(`This repo has no master branch ${context.payload.repository.name}`);
+    if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
+      logger.info(`This repo has no main branch ${context.payload.repository.name}`);
       return;
     }
 
@@ -70,8 +70,8 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
   }
 
   try {
-    if (!(await checkIfRefExists(context, 'master'))) {
-      logger.info(`This repo has no master branch ${context.payload.repository.name}`);
+    if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
+      logger.info(`This repo has no main branch ${context.payload.repository.name}`);
       return;
     }
 
