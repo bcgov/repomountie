@@ -1,8 +1,8 @@
 {
   "data": {
-    "ref": "refs/heads/fix/add-license",
+    "ref": "refs/heads/repo-mountie/add-license",
     "node_id": "MDM6UmVmMzAwOTIyOTptYXN0ZXI=",
-    "url": "https://api.github.com/repos/bcgov/pyvotal/git/refs/heads/fix/add-license",
+    "url": "https://api.github.com/repos/bcgov/pyvotal/git/refs/heads/repo-mountie/add-license",
     "object": {
       "sha": "8897d3e6ce20abe587d3ec39e1f553fc8d3b2bce",
       "type": "commit",
