@@ -38,7 +38,7 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
       return;
     }
 
-    if ((await hasPullRequestWithTitle(context, PR_TITLES.ADD_COMPLIANCE, 'open'))) {
+    if ((await hasPullRequestWithTitle(context, PR_TITLES.ADD_COMPLIANCE))) {
       logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
       return;
     }
