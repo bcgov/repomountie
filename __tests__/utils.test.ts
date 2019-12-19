@@ -23,7 +23,7 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
+import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -227,7 +227,7 @@ describe('Utility functions', () => {
   it('A user is a member of the organization', async () => {
     github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.resolve(memberhip));
 
-    const result = await isMember(context, 'helloworld');
+    const result = await isOrgMember(context, 'helloworld');
     expect(result).toBeTruthy();
   });
 
@@ -237,7 +237,7 @@ describe('Utility functions', () => {
 
     github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.reject(err));
 
-    const result = await isMember(context, 'helloworld');
+    const result = await isOrgMember(context, 'helloworld');
     expect(result).toBeFalsy();
   });
 
@@ -246,14 +246,14 @@ describe('Utility functions', () => {
 
     github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.reject(err));
 
-    await expect(isMember(context, 'helloworld')).rejects.toThrow();
+    await expect(isOrgMember(context, 'helloworld')).rejects.toThrow();
   });
 
   it('A user lookup fails due to an unexpected http code', async () => {
     memberhip.status = 512;
     github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.resolve(memberhip));
 
-    const result = await isMember(context, 'helloworld');
+    const result = await isOrgMember(context, 'helloworld');
     expect(result).toBeFalsy();
   });
 });

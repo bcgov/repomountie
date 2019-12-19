@@ -415,7 +415,7 @@ export const updateFileContent = async (
   }
 };
 
-export const isMember = async (context: Context, userID: string): Promise<boolean> => {
+export const isOrgMember = async (context: Context, userID: string): Promise<boolean> => {
   try {
     const response = await context.github.orgs.checkMembership({
       org: context.payload.organization.login,
