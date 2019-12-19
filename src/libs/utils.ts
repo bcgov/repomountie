@@ -414,3 +414,33 @@ export const updateFileContent = async (
     throw err;
   }
 };
+
+export const isMember = async (context: Context, userID: string): Promise<boolean> => {
+  try {
+    const response = await context.github.orgs.checkMembership({
+      org: context.payload.organization.login,
+      username: userID
+    });
+
+    if (response.status === 204 || response.status === 302) {
+      // 204 No Content - The user is a member;
+      // 302 Found      - TBD
+      return true;
+    }
+
+    const message = 'Unexpected return code looking up user';
+    logger.info(`${message}, code = ${response.status}`);
+
+    return false;
+  } catch (err) {
+    // 404 Not Found  - The user is not a member of the org.
+    if (err.code === 404) {
+      return false;
+    }
+
+    const message = 'Unable to lookup user';
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+}

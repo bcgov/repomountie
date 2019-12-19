@@ -23,7 +23,7 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
+import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -47,6 +47,9 @@ const prWithLicense = JSON.parse(fs.readFileSync(p5, 'utf8'));
 
 const p6 = path.join(__dirname, 'fixtures/repo-list-commits.json');
 const listCommits = JSON.parse(fs.readFileSync(p6, 'utf8'));
+
+const p7 = path.join(__dirname, 'fixtures/org-user-ismember.json');
+const memberhip = JSON.parse(fs.readFileSync(p7, 'utf8'));
 
 describe('Utility functions', () => {
   let app;
@@ -77,12 +80,19 @@ describe('Utility functions', () => {
         create: jest.fn().mockReturnValueOnce(Promise.resolve()),
         list: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
       },
+      orgs: {
+        checkMembership: jest.fn(),
+      }
     };
 
     // Passes the mocked out GitHub API into out app instance
     app.auth = () => Promise.resolve(github);
 
     context = new Context(repoScheduledEvent, github as any, {} as any);
+
+    context.payload.organization = {
+      login: 'bcgov',
+    };
   });
 
   afterEach(() => {
@@ -212,5 +222,38 @@ describe('Utility functions', () => {
     github.repos.createOrUpdateFile = jest.fn().mockReturnValueOnce(Promise.reject());
 
     await expect(updateFileContent(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).rejects.toThrow();
+  });
+
+  it('A user is a member of the organization', async () => {
+    github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.resolve(memberhip));
+
+    const result = await isMember(context, 'helloworld');
+    expect(result).toBeTruthy();
+  });
+
+  it('A user is not a member of the organization', async () => {
+    const err: any = new Error('Nope');
+    err.code = 404;
+
+    github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.reject(err));
+
+    const result = await isMember(context, 'helloworld');
+    expect(result).toBeFalsy();
+  });
+
+  it('A user lookup fails unexpectedly', async () => {
+    const err: any = new Error('Nope');
+
+    github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.reject(err));
+
+    await expect(isMember(context, 'helloworld')).rejects.toThrow();
+  });
+
+  it('A user lookup fails due to an unexpected http code', async () => {
+    memberhip.status = 512;
+    github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.resolve(memberhip));
+
+    const result = await isMember(context, 'helloworld');
+    expect(result).toBeFalsy();
   });
 });

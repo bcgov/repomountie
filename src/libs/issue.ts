@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { flatten } from 'lodash';
 import { Context } from 'probot';
 import { TEXT_FILES } from '../constants';
-import { labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
+import { isMember, labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
 import { handleBotCommand } from './robo';
 
 /**
@@ -33,6 +33,10 @@ import { handleBotCommand } from './robo';
  * @returns No return value
  */
 export const created = async (context: Context) => {
+
+  if (!(await isMember(context, context.payload.comment.user.login))) {
+    return;
+  }
 
   // check for and handle bot commands
   await handleBotCommand(context);

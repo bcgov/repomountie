@@ -1,0 +1,23 @@
+{
+  "status": 204,
+  "url": "https://api.github.com/organizations/762183/public_members/jleach",
+  "headers": {
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type",
+    "connection": "close",
+    "content-security-policy": "default-src 'none'",
+    "date": "Wed, 18 Dec 2019 19:54:12 GMT",
+    "referrer-policy": "origin-when-cross-origin, strict-origin-when-cross-origin",
+    "server": "GitHub.com",
+    "status": "204 No Content",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "deny",
+    "x-github-media-type": "github.v3; format=json",
+    "x-github-request-id": "CEA6:27B5:3AA93B:786C1A:5DFA83E4",
+    "x-ratelimit-limit": "5000",
+    "x-ratelimit-remaining": "4666",
+    "x-ratelimit-reset": "1576700113",
+    "x-xss-protection": "1; mode=block"
+  }
+}
