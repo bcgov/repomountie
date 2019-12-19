@@ -117,7 +117,7 @@ export const handleBotCommand = async (context: Context) => {
     }
 
     try {
-        // For we just assign help desk willynilly, going forward we should
+        // For we just assign help desk willy-nilly, going forward we should
         // better identify the issue and assign users with surgical precision.
         if (helpDeskSupportRequired(context.payload)) {
             await assignUsersToIssue(context, HELP_DESK.SUPPORT_USERS)
