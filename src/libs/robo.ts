@@ -63,7 +63,7 @@ export const applyComplianceCommands = (comment: string, doc: any): any => {
         }
 
         const item = items.pop();
-        item['status'] = result![2];
+        item.status = result![2];
         // Date.now() used to simplify mock in unit tests.
         item['last-updated'] = new Date(Date.now()).toISOString();
     }

@@ -354,7 +354,7 @@ export const hasPullRequestWithTitle = async (
   try {
     const pulls = await context.github.pulls.list(
       context.repo({
-        state: state,
+        state,
       })
     );
 
@@ -377,7 +377,7 @@ export const hasPullRequestWithTitle = async (
  * @param assignees An `Array` of users to assign to the issue
  */
 export const assignUsersToIssue = async (
-  context: Context, assignees: Array<string>
+  context: Context, assignees: string[]
 ) => {
   try {
     await context.github.issues.addAssignees(

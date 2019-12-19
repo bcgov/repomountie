@@ -73,7 +73,7 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
     const body = rawMessageBody
       .replace(regex, `${config.staleIssue.maxDaysOld}`);
 
-    let labels: Array<string> = [];
+    const labels: string[] = [];
     if (config.staleIssue && config.staleIssue.applyLabel && (await labelExists(context, config.staleIssue.applyLabel))) {
       labels.push(config.staleIssue.applyLabel)
     }
