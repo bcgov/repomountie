@@ -1,10 +1,10 @@
 ## TL;DR 🏎️
 
-Your repo is missing a compliance audit file so I've created this PR with a **template** that you can update with the correct PIA and STRA status (status options in the table below). If you'd like me to do this for you skip to the _commands_ below.
+Your repo is missing a compliance audit file so I've created this PR with a **template** that you can update with the correct PIA and STRA status (status options in the table below). If you'd like me to do this for you, skip to the _commands_ section below.
 
 ## Compliance
 
-Projects in our organization (bcgov) need to complete a Privacy Assessment (PIA) and Security Threat & Risk Assessment (STRA) before they go live in production. Since every ministry has their own way of doing both the STRA and PIA we don't enforce that projects do them, only that they report on the current status.
+Projects in our organization (bcgov) need to complete a Privacy Impact Assessment (PIA) and Security Threat & Risk Assessment (STRA) before they go live in production. Since every ministry has their own way of doing both the STRA and PIA we don't enforce that projects do them, only that they report on the current status.
 
 To help with reporting, I've added a compliance audit file as part of this pull request. Please checkout this branch and edit update `status` as needed. Here is a table of possible states:
 
@@ -35,11 +35,11 @@ For more information check out the [BC Policy Framework for GitHub][1].
 
 ### Pro Tip 🤓
 
-- If you're not sure what to do **add a comment below** with the word **help** in it; a real-live-person will reply back to help you out.
+- If you're not sure what to do **add a comment below** with the command **/help** in it; a real-live-person will reply back to help you out.
 
 ### Commands 🤖
 
-I can update the status of the PIA and STRA for you; you'll just need to merge the PR when I'm done. You can find the available STATUS values in the table above. Below are some commands I understand:
+I can update the status of the PIA and STRA for you; **you'll** just need to merge the PR when I'm done. You can find the available `status` values in the table above. Below are some commands I understand:
 
 | Command             | Description                                       |
 | :------------------ | :------------------------------------------------ |

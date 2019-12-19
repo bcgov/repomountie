@@ -63,7 +63,7 @@ export const applyComplianceCommands = (comment: string, doc: any): any => {
         }
 
         const item = items.pop();
-        item['status'] = result![2];
+        item.status = result![2];
         // Date.now() used to simplify mock in unit tests.
         item['last-updated'] = new Date(Date.now()).toISOString();
     }
@@ -117,7 +117,7 @@ export const handleBotCommand = async (context: Context) => {
     }
 
     try {
-        // For we just assign help desk willynilly, going forward we should
+        // For we just assign help desk willy-nilly, going forward we should
         // better identify the issue and assign users with surgical precision.
         if (helpDeskSupportRequired(context.payload)) {
             await assignUsersToIssue(context, HELP_DESK.SUPPORT_USERS)

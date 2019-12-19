@@ -21,9 +21,9 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
-import { GITHUB_ID } from '../src/constants';
-import { applyComplianceCommands, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
-import { fetchContentsForFile, updateFileContent } from '../src/libs/utils';
+import { GITHUB_ID, PR_TITLES } from '../src/constants';
+import { applyComplianceCommands, handleBotCommand, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
+import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -37,6 +37,7 @@ const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
 jest.mock('../src/libs/utils', () => ({
     fetchContentsForFile: jest.fn(),
     updateFileContent: jest.fn(),
+    assignUsersToIssue: jest.fn(),
 }));
 
 Date.now = jest.fn(() => 1576090712480);
@@ -115,5 +116,43 @@ describe('Bot command processing', () => {
 
         expect(fetchContentsForFile).toBeCalled();
         expect(updateFileContent).toBeCalled();
+    });
+
+    it('An error is handled correctly', async () => {
+        context.payload.comment.body = '/help';
+        context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
+        // @ts-ignore
+        assignUsersToIssue.mockRejectedValueOnce(new Error());
+
+        await expect(handleBotCommand(context)).rejects.toThrow();
+    });
+
+    it('An unknown PR is disregarded', async () => {
+        context.payload.comment.body = 'I fixed up the code real good.';
+        context.payload.issue.title = 'Fix a bug';
+        // @ts-ignore
+        handleComplianceCommands = jest.fn();
+
+        await handleBotCommand(context);
+
+        expect(handleComplianceCommands).not.toBeCalled();
+    });
+
+    it('A request for help is processed correctly', async () => {
+        context.payload.comment.body = '/help';
+        context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
+        // @ts-ignore
+        assignUsersToIssue.mockReturnValueOnce();
+
+        await expect(handleBotCommand(context)).resolves.toBeUndefined();
+    });
+
+    it('A ', async () => {
+        context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
+        // @ts-ignore
+
+        await handleBotCommand(context);
+
+        expect(handleComplianceCommands).toBeCalled();
     });
 });

@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { flatten } from 'lodash';
 import { Context } from 'probot';
 import { TEXT_FILES } from '../constants';
-import { labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
+import { isOrgMember, labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
 import { handleBotCommand } from './robo';
 
 /**
@@ -33,6 +33,10 @@ import { handleBotCommand } from './robo';
  * @returns No return value
  */
 export const created = async (context: Context) => {
+
+  if (!(await isOrgMember(context, context.payload.comment.user.login))) {
+    return;
+  }
 
   // check for and handle bot commands
   await handleBotCommand(context);
@@ -69,7 +73,7 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
     const body = rawMessageBody
       .replace(regex, `${config.staleIssue.maxDaysOld}`);
 
-    let labels: Array<string> = [];
+    const labels: string[] = [];
     if (config.staleIssue && config.staleIssue.applyLabel && (await labelExists(context, config.staleIssue.applyLabel))) {
       labels.push(config.staleIssue.applyLabel)
     }
