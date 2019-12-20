@@ -73,8 +73,8 @@ export const applyComplianceCommands = (comment: string, doc: any): any => {
 export const handleComplianceCommands = async (context: Context) => {
     // These are the accepted commands. They are case insensitive,
     // and require a leading `@re` to be accepted.
-    // @rm update-pia STATUS
-    // @rm update-stra STATUS
+    // @${WHOAMI} update-pia STATUS
+    // @${WHOAMI} update-stra STATUS
     const re = new RegExp(REGEXP.compliance, 'gi');
     const comment = context.payload.comment.body;
 

@@ -10,7 +10,7 @@ Since most repos are code based I've added the Apache-2.0 license as part of thi
 
 ### Pro Tip 🤓
 
-- If you're not sure what to do **add a comment** with the the command **@rm help** in it; a real-live-person will reply back to help you out.
+- If you're not sure what to do **add a comment** with the the command **@repo-mountie help** in it; a real-live-person will reply back to help you out.
 
 - Only license content BCGov creates. If it was created by someone else **you must** include the original license that work was released under.
 
@@ -18,14 +18,14 @@ Since most repos are code based I've added the Apache-2.0 license as part of thi
 
 I can update the status of the PIA and STRA for you; **you'll** just need to merge the PR when I'm done. You can find the available `status` values in the table above. Below are some commands I understand:
 
-| Command  | Description                                       |
-| :------- | :------------------------------------------------ |
-| @rm help | You're freaking out and want to talk to a person. |
+| Command            | Description                                       |
+| :----------------- | :------------------------------------------------ |
+| @repo-mountie help | You're freaking out and want to talk to a person. |
 
 #### Examples
 
 ```console
-@rm help
+@repo-mountie help
 ```
 
 [1]: https://github.com/bcgov/BC-Policy-Framework-For-GitHub/tree/master/BC-Open-Source-Development-Employee-Guide
