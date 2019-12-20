@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import { flatten } from 'lodash';
 import { Context } from 'probot';
-import { TEXT_FILES } from '../constants';
+import { REGEXP, TEXT_FILES } from '../constants';
 import { isOrgMember, labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
 import { handleBotCommand } from './robo';
 
@@ -33,13 +33,18 @@ import { handleBotCommand } from './robo';
  * @returns No return value
  */
 export const created = async (context: Context) => {
+  const re = new RegExp(REGEXP.command, 'gi');
+
+  // TODO:(jl) Need to wrap in try/catch.
 
   if (!(await isOrgMember(context, context.payload.comment.user.login))) {
     return;
   }
 
   // check for and handle bot commands
-  await handleBotCommand(context);
+  if (re.test(context.payload.comment.body)) {
+    await handleBotCommand(context);
+  }
 };
 
 export const checkForStaleIssues = async (context: Context, config: RepoMountieConfig) => {

@@ -66,7 +66,7 @@ describe('Bot command processing', () => {
     });
 
     it('Valid compliance commands are processed', async () => {
-        const comment = '/update-pia completed\n/update-stra completed';
+        const comment = '@rm update-pia completed\n@rm update-stra completed';
         const result = applyComplianceCommands(comment, doc);
         expect(result).toMatchSnapshot();
     });
@@ -85,7 +85,7 @@ describe('Bot command processing', () => {
     });
 
     it('Missing file causes update to be skipped', async () => {
-        context.payload.comment.body = '/update-pia completed';
+        context.payload.comment.body = '@rm update-pia completed';
         // @ts-ignore
         fetchContentsForFile.mockReturnValueOnce(undefined);
 
@@ -97,7 +97,7 @@ describe('Bot command processing', () => {
 
 
     it('Invalid command causes update to be skipped', async () => {
-        context.payload.comment.body = '/update-blarb completed';
+        context.payload.comment.body = '@rm update-blarb completed';
         // @ts-ignore
         fetchContentsForFile.mockReturnValueOnce(content.data);
 
@@ -108,7 +108,7 @@ describe('Bot command processing', () => {
     });
 
     it('Compliance commands are processed appropriately', async () => {
-        context.payload.comment.body = '/update-pia completed';
+        context.payload.comment.body = '@rm update-pia completed';
         // @ts-ignore
         fetchContentsForFile.mockReturnValueOnce(content.data);
 
@@ -119,7 +119,7 @@ describe('Bot command processing', () => {
     });
 
     it('An error is handled correctly', async () => {
-        context.payload.comment.body = '/help';
+        context.payload.comment.body = '@rm help';
         context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
         // @ts-ignore
         assignUsersToIssue.mockRejectedValueOnce(new Error());

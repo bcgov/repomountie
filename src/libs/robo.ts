@@ -44,7 +44,6 @@ export const helpDeskSupportRequired = (payload: any) => {
     return true;
 };
 
-
 export const applyComplianceCommands = (comment: string, doc: any): any => {
     let result: RegExpExecArray | null;
     const re = new RegExp(REGEXP.compliance, 'gi');
@@ -73,18 +72,18 @@ export const applyComplianceCommands = (comment: string, doc: any): any => {
 
 export const handleComplianceCommands = async (context: Context) => {
     // These are the accepted commands. They are case insensitive,
-    // and require a leading `/` to be accepted.
-    // /update-pia ${STATUS}
-    // /update-stra ${STATUS}
-
-    const comment = context.payload.comment.body;
+    // and require a leading `@re` to be accepted.
+    // @rm update-pia STATUS
+    // @rm update-stra STATUS
     const re = new RegExp(REGEXP.compliance, 'gi');
-
-    if (!re.test(comment)) {
-        return; // no commands in comment
-    }
+    const comment = context.payload.comment.body;
 
     try {
+        // check for appropriate bot commands
+        if (!re.test(comment)) {
+            return;
+        }
+
         // Fetch the file from the repo in case any updates have
         // been made to it.
         const data = await fetchContentsForFile(context,
