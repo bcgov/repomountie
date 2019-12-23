@@ -23,7 +23,7 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
+import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -65,6 +65,7 @@ describe('Utility functions', () => {
       issues: {
         listLabelsForRepo: jest.fn(),
         addAssignees: jest.fn(),
+        createComment: jest.fn(),
       },
       repos: {
         listCommits: jest.fn().mockReturnValue(Promise.resolve(listCommits)),
@@ -255,5 +256,17 @@ describe('Utility functions', () => {
 
     const result = await isOrgMember(context, 'helloworld');
     expect(result).toBeFalsy();
+  });
+
+  it('Adding a comment to an issue should succeed', async () => {
+    const result = await addCommentToIssue(context, 'helloworld');
+
+    expect(result).toBeUndefined();
+  });
+
+  it('Adding a comment to an issue should fail', async () => {
+    github.issues.createComment = jest.fn().mockReturnValueOnce(Promise.reject(new Error()));
+
+    await expect(addCommentToIssue(context, 'helloworld')).rejects.toThrow();
   });
 });

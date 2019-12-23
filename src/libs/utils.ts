@@ -444,3 +444,18 @@ export const isOrgMember = async (context: Context, userID: string): Promise<boo
     throw err;
   }
 }
+
+export const addCommentToIssue = async (context: Context, body: string) => {
+  try {
+    await context.github.issues.createComment(
+      context.issue({
+        body,
+      })
+    );
+  } catch (err) {
+    const message = 'Unable to add comment to issue.';
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
