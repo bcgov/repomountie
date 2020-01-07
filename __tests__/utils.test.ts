@@ -23,7 +23,7 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
+import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -268,5 +268,17 @@ describe('Utility functions', () => {
     github.issues.createComment = jest.fn().mockReturnValueOnce(Promise.reject(new Error()));
 
     await expect(addCommentToIssue(context, 'helloworld')).rejects.toThrow();
+  });
+
+  it('Return true if a file exists', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
+
+    await expect(checkIfFileExists(context, 'hello.yaml')).resolves.toBeTruthy();
+  });
+
+  it('Return false if a file does not exist', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.reject());
+
+    await expect(checkIfFileExists(context, 'hello.yaml')).resolves.toBeFalsy();
   });
 });

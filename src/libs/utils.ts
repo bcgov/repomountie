@@ -85,6 +85,24 @@ export const checkIfRefExists = async (context: Context, ref = context.payload.r
 };
 
 /**
+ * Determine if a file exists on a given branch
+ * The only way to check if a file exists is to attempt to fetch it;
+ * This fn is a wrapper on this capability.
+ * @param {Context} context The event context context
+ * @param {string} fileName The name of the file to lookup
+ * @param {string} ref The name of the branch (Default: master)
+ * @returns A true if the file exists, false otherwise.
+ */
+export const checkIfFileExists = async (context, fileName, ref = 'master'): Promise<boolean> => {
+  try {
+    await fetchFile(context, fileName, ref);
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
+/**
  * Fetch the contents of a file from GitHub
  * This function will fetch the contents of a file from the latest
  * commit in a ref. 
@@ -393,6 +411,14 @@ export const assignUsersToIssue = async (
   }
 };
 
+/**
+ * Update the contents of a file or create it if non-existent.
+ * This fn updates the contents of a file by creating a commit
+ * with the appropriate changes.
+ * @param {Context} context The event context context
+ * @param {string} fileName The name of the file to lookup
+ * @returns undefined if successful, throws otherwise
+ */
 export const updateFileContent = async (
   context: Context, commitMessage: string, srcBranchName: string,
   fileName: string, fileData: string, fileSHA
@@ -415,6 +441,14 @@ export const updateFileContent = async (
   }
 };
 
+/**
+ * Check if a user is member of an organization
+ * This fn will check if the given user ID belongs to the
+ * organization in the given context.
+ * @param {Context} context The query context
+ * @param {string} userID The GitHub ID of the user
+ * @returns True if the user is a member, false otherwise
+ */
 export const isOrgMember = async (context: Context, userID: string): Promise<boolean> => {
   try {
     const response = await context.github.orgs.checkMembership({
@@ -445,6 +479,13 @@ export const isOrgMember = async (context: Context, userID: string): Promise<boo
   }
 }
 
+/**
+ * Add a comment to an issue
+ * This fn will add a comment to a given issue
+ * @param {Context} context The query context
+ * @param {string} body The comment body
+ * @returns Undefined if successful, thrown error otherwise
+ */
 export const addCommentToIssue = async (context: Context, body: string) => {
   try {
     await context.github.issues.createComment(
