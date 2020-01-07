@@ -23,7 +23,7 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { FILE_NAMES, PR_TITLES } from '../src/constants';
-import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
+import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, fileExists, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -268,5 +268,21 @@ describe('Utility functions', () => {
     github.issues.createComment = jest.fn().mockReturnValueOnce(Promise.reject(new Error()));
 
     await expect(addCommentToIssue(context, 'helloworld')).rejects.toThrow();
+  });
+
+  it('A file should be determined to exists', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
+    const results = await fileExists(context, FILE_NAMES.COMPLIANCE);
+
+    expect(github.repos.getContents).toHaveBeenCalled();
+    expect(results).toBeTruthy();
+  });
+
+  it('A file should be determined to not exists', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.reject());
+    const results = await fileExists(context, FILE_NAMES.COMPLIANCE);
+
+    expect(github.repos.getContents).toHaveBeenCalled();
+    expect(results).toBeFalsy();
   });
 });
