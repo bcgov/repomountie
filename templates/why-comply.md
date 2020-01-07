@@ -41,17 +41,17 @@ For more information check out the [BC Policy Framework for GitHub][1].
 
 I can update the status of the PIA and STRA for you; **you'll** just need to merge the PR when I'm done. You can find the available `status` values in the table above. Below are some commands I understand:
 
-| Command             | Description                                       |
-| :------------------ | :------------------------------------------------ |
-| /help               | You're freaking out and want to talk to a person. |
-| /update-pia STATUS  | You want me to update the PIA status.             |
-| /update-stra STATUS | You want me to update the STRA status.            |
+| Command                          | Description                                       |
+| :------------------------------- | :------------------------------------------------ |
+| @repo-mountie help               | You're freaking out and want to talk to a person. |
+| @repo-mountie update-pia STATUS  | You want me to update the PIA status.             |
+| @repo-mountie update-stra STATUS | You want me to update the STRA status.            |
 
 #### Examples
 
 ```console
-/update-pia completed
-/update-stra in-progress
+@repo-mountie update-pia completed
+@repo-mountie update-stra in-progress
 ```
 
 [1]: https://github.com/bcgov/BC-Policy-Framework-For-GitHub/tree/master/BC-Open-Source-Development-Employee-Guide
