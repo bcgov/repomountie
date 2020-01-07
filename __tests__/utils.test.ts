@@ -22,7 +22,7 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
-import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
+import { FILE_NAMES, PR_TITLES } from '../src/constants';
 import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
 
 jest.mock('fs');
@@ -126,7 +126,7 @@ describe('Utility functions', () => {
 
   it('A file should be retrieved.', async () => {
     github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
-    const data = await fetchFile(context, REPO_COMPLIANCE_FILE);
+    const data = await fetchFile(context, FILE_NAMES.COMPLIANCE);
 
     expect(data).toMatchSnapshot();
   });
