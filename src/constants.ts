@@ -24,17 +24,14 @@ export const COMMENT_TRIGGER_WORD = 'help';
 
 export const GITHUB_ID = 'repo-mountie';
 
-export const REPO_CONFIG_FILE = 'rmconfig.json';
-
-export const REPO_COMPLIANCE_FILE = 'compliance.yaml';
-
 export const HELP_DESK = {
   SUPPORT_USERS: ['jleach'],
 };
 
-export const COMMIT_FILE_NAMES = {
+export const FILE_NAMES = {
   LICENSE: 'LICENSE',
   COMPLIANCE: 'COMPLIANCE.yaml',
+  CONFIG: 'rmconfig.json'
 }
 
 export const COMMIT_MESSAGES = {

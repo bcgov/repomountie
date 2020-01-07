@@ -36,6 +36,7 @@ jest.mock('../src/libs/utils', () => ({
     addFileViaPullRequest: jest.fn(),
     extractMessage: jest.fn().mockReturnValue('Hello Message'),
     loadTemplate: jest.fn().mockReturnValue('Hello'),
+    fileExists: jest.fn().mockReturnValue(false),
 }));
 
 describe('Repository integration tests', () => {

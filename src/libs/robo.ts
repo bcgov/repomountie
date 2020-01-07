@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES, REGEXP } from '../constants';
+import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_MESSAGES, FILE_NAMES, HELP_DESK, PR_TITLES, REGEXP } from '../constants';
 import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './utils';
 
 /**
@@ -88,10 +88,10 @@ export const handleComplianceCommands = async (context: Context) => {
         // Fetch the file from the repo in case any updates have
         // been made to it.
         const data = await fetchContentsForFile(context,
-            COMMIT_FILE_NAMES.COMPLIANCE, BRANCHES.ADD_COMPLIANCE);
+            FILE_NAMES.COMPLIANCE, BRANCHES.ADD_COMPLIANCE);
 
         if (!data) {
-            logger.info(`Unable to fetch ${COMMIT_FILE_NAMES.COMPLIANCE} in ref ${BRANCHES.ADD_COMPLIANCE}`);
+            logger.info(`Unable to fetch ${FILE_NAMES.COMPLIANCE} in ref ${BRANCHES.ADD_COMPLIANCE}`);
             return;
         }
 
@@ -99,7 +99,7 @@ export const handleComplianceCommands = async (context: Context) => {
         doc = applyComplianceCommands(comment, doc);
 
         await updateFileContent(context, COMMIT_MESSAGES.UPDATE_COMPLIANCE,
-            BRANCHES.ADD_COMPLIANCE, COMMIT_FILE_NAMES.COMPLIANCE,
+            BRANCHES.ADD_COMPLIANCE, FILE_NAMES.COMPLIANCE,
             yaml.safeDump(doc), data.sha);
 
     } catch (err) {

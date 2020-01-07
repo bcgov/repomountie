@@ -23,7 +23,8 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
 import util from 'util';
-import { REPO_COMPLIANCE_FILE, REPO_CONFIG_FILE } from '../constants';
+import { FILE_NAMES } from '../constants';
+
 interface RepoMountiePullRequestConfig {
   maxLinesChanged: number;
 }
@@ -182,7 +183,7 @@ export const fetchFile = async (
  */
 export const fetchComplianceFile = async (context: Context): Promise<RepoCompliance> => {
   try {
-    const content = await fetchFile(context, REPO_COMPLIANCE_FILE);
+    const content = await fetchFile(context, FILE_NAMES.COMPLIANCE);
     return yaml.safeLoad(content);
   } catch (err) {
     const message = 'Unable to process config file.';
@@ -200,13 +201,22 @@ export const fetchComplianceFile = async (context: Context): Promise<RepoComplia
  */
 export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
   try {
-    const content = await fetchFile(context, REPO_CONFIG_FILE);
+    const content = await fetchFile(context, FILE_NAMES.CONFIG);
     return JSON.parse(content);
   } catch (err) {
     const message = 'Unable to process config file.';
     logger.error(`${message}, error = ${err.message}`);
 
     throw new Error(message);
+  }
+};
+
+export const fileExists = async (context: Context, fileName: string): Promise<boolean> => {
+  try {
+    await fetchFile(context, fileName);
+    return true;
+  } catch (err) {
+    return false;
   }
 };
 

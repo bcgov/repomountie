@@ -21,8 +21,8 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import config from '../config';
-import { ACCESS_CONTROL, BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
-import { addFileViaPullRequest, checkIfRefExists, extractMessage, hasPullRequestWithTitle, loadTemplate } from './utils';
+import { ACCESS_CONTROL, BRANCHES, COMMIT_MESSAGES, FILE_NAMES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
+import { addFileViaPullRequest, checkIfRefExists, extractMessage, fileExists, hasPullRequestWithTitle, loadTemplate } from './utils';
 
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
 
@@ -33,13 +33,18 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
   }
 
   try {
+    if ((await fileExists(context, FILE_NAMES.COMPLIANCE))) {
+      logger.info(`This repo already has a compliance file, ${context.payload.repository.name}`);
+      return;
+    }
+
     if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
-      logger.info(`This repo has no main branch ${context.payload.repository.name}`);
+      logger.info(`This repo has no main branch, ${context.payload.repository.name}`);
       return;
     }
 
     if ((await hasPullRequestWithTitle(context, PR_TITLES.ADD_COMPLIANCE))) {
-      logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
+      logger.info(`Compliance PR exists in, ${context.payload.repository.name}`);
       return;
     }
 
@@ -50,7 +55,7 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
 
     await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_COMPLIANCE,
       PR_TITLES.ADD_COMPLIANCE, prMessageBody, BRANCHES.ADD_COMPLIANCE,
-      COMMIT_FILE_NAMES.COMPLIANCE, data);
+      FILE_NAMES.COMPLIANCE, data);
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
@@ -86,7 +91,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
 
     await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_LICENSE,
       PR_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
-      COMMIT_FILE_NAMES.LICENSE, licenseData);
+      FILE_NAMES.LICENSE, licenseData);
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
