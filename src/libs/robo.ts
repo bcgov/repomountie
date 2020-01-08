@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BRANCHES, COMMENT_TRIGGER_WORD, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES, REGEXP } from '../constants';
+import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES, REGEXP } from '../constants';
 import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './utils';
 
 /**
@@ -30,18 +30,21 @@ import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './u
  * @returns True if support is required, false otherwise.
  */
 export const helpDeskSupportRequired = (payload: any) => {
-    const triggerWord = COMMENT_TRIGGER_WORD;
-    const noHelpRequired = payload.comment.body.search(triggerWord) === -1;
+    // These are the accepted commands. They are case insensitive,
+    // and require a leading `@re` to be accepted.
+    // @${WHOAMI} help
+
+    const re = new RegExp(REGEXP.help, 'gi');
+    const comment = payload.comment.body;
     const isAssigned = payload.issue.assignees.some(e =>
         HELP_DESK.SUPPORT_USERS.includes(e.login)
     );
 
-    // early return
-    if (isAssigned || noHelpRequired) {
-        return false;
+    if (!isAssigned && re.test(comment)) {
+        return true;
     }
 
-    return true;
+    return false;
 };
 
 export const applyComplianceCommands = (comment: string, doc: any): any => {
@@ -70,6 +73,22 @@ export const applyComplianceCommands = (comment: string, doc: any): any => {
     return doc;
 };
 
+export const handleLicenseCommands = async (context: Context) => {
+
+    try {
+        // For we just assign help desk willy-nilly, going forward we should
+        // better identify the issue and assign users with surgical precision.
+        if (helpDeskSupportRequired(context.payload)) {
+            await assignUsersToIssue(context, HELP_DESK.SUPPORT_USERS)
+        }
+    } catch (err) {
+        const message = 'Unable to process license commands';
+        logger.error(`${message}, error = ${err.message}`);
+
+        throw err;
+    }
+};
+
 export const handleComplianceCommands = async (context: Context) => {
     // These are the accepted commands. They are case insensitive,
     // and require a leading `@re` to be accepted.
@@ -79,6 +98,12 @@ export const handleComplianceCommands = async (context: Context) => {
     const comment = context.payload.comment.body;
 
     try {
+        // For we just assign help desk willy-nilly, going forward we should
+        // better identify the issue and assign users with surgical precision.
+        if (helpDeskSupportRequired(context.payload)) {
+            await assignUsersToIssue(context, HELP_DESK.SUPPORT_USERS);
+        }
+
         // check for appropriate bot commands
         if (!re.test(comment)) {
             return;
@@ -116,16 +141,12 @@ export const handleBotCommand = async (context: Context) => {
     }
 
     try {
-        // For we just assign help desk willy-nilly, going forward we should
-        // better identify the issue and assign users with surgical precision.
-        if (helpDeskSupportRequired(context.payload)) {
-            await assignUsersToIssue(context, HELP_DESK.SUPPORT_USERS)
-            return;
-        }
-
         switch (context.payload.issue.title) {
             case PR_TITLES.ADD_COMPLIANCE:
-                handleComplianceCommands(context);
+                await handleComplianceCommands(context);
+                break;
+            case PR_TITLES.ADD_LICENSE:
+                await handleLicenseCommands(context);
                 break;
             default:
                 break;

@@ -35,7 +35,7 @@ For more information check out the [BC Policy Framework for GitHub][1].
 
 ### Pro Tip 🤓
 
-- If you're not sure what to do **add a comment below** with the command **/help** in it; a real-live-person will reply back to help you out.
+- If you're not sure what to do **add a comment below** with the command **@repo-mountie help** in it; a real-live-person will reply back to help you out.
 
 ### Commands 🤖
 
