@@ -72,13 +72,14 @@ describe('Bot command processing', () => {
     });
 
     it('Help requests issues are processed', async () => {
-        context.payload.comment.body = 'help';
+        context.payload.comment.body = '@repo-mountie help\n';
         const result = helpDeskSupportRequired(context.payload);
 
         expect(result).toBeTruthy();
     });
 
     it('Non-help comments are ignored', async () => {
+        context.payload.comment.body = 'I\'m a teapot';
         const result = helpDeskSupportRequired(context.payload);
 
         expect(result).toBeFalsy();
