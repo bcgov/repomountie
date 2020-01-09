@@ -33,32 +33,32 @@ export const HELP_DESK = {
 };
 
 export const COMMIT_FILE_NAMES = {
-  LICENSE: 'LICENSE',
   COMPLIANCE: 'COMPLIANCE.yaml',
-}
+  LICENSE: 'LICENSE',
+};
 
 export const COMMIT_MESSAGES = {
-  ADD_LICENSE: 'Add Apache License 2.0',
   ADD_COMPLIANCE: 'Add compliance audit file',
-  UPDATE_COMPLIANCE: 'Updating compliance audit file'
-}
+  ADD_LICENSE: 'Add Apache License 2.0',
+  UPDATE_COMPLIANCE: 'Updating compliance audit file',
+};
 
 export const PR_TITLES = {
-  ADD_LICENSE: 'Add missing license',
   ADD_COMPLIANCE: 'Add missing compliance audit file',
+  ADD_LICENSE: 'Add missing license',
 };
 
 export const BRANCHES = {
-  ADD_LICENSE: 'repo-mountie/add-license',
   ADD_COMPLIANCE: 'repo-mountie/add-compliance',
+  ADD_LICENSE: 'repo-mountie/add-license',
 };
 
 export const TEMPLATES = {
+  COMPLIANCE: 'templates/COMPLIANCE.yaml',
   CONDUCT: 'templates/CODE_OF_CONDUCT.md',
   CONTRIBUTE: 'templates/CONTRIBUTING.md',
   LICENSE: 'templates/LICENSE',
   README: 'templates/README.md',
-  COMPLIANCE: 'templates/COMPLIANCE.yaml',
 };
 
 export const VALID_LICENSES = {
@@ -67,9 +67,9 @@ export const VALID_LICENSES = {
 
 export const TEXT_FILES = {
   HOWTO_PR: 'templates/howto_pull_request.md',
-  WHY_LICENSE: 'templates/why-license.md',
   STALE_COMMENT: 'templates/stale_issue_comment.md',
-  WHY_COMPLY: 'templates/why-comply.md'
+  WHY_COMPLY: 'templates/why-comply.md',
+  WHY_LICENSE: 'templates/why-license.md',
 };
 
 export const COMMANDS = {
@@ -79,8 +79,8 @@ export const COMMANDS = {
 export const REGEXP = {
   command: '@repo-mountie\\s+',
   compliance: '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|exempt)',
-  help: '@repo-mountie\\s+help'
-}
+  help: '@repo-mountie\\s+help',
+};
 
 export const ACCESS_CONTROL = {
   allowedInstallations: ['bcgov', 'fullboar'],

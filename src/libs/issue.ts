@@ -56,18 +56,17 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
   const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
   const owner = context.payload.repository.owner.login;
   const repo = context.payload.repository.name;
-  const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`
+  const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
 
   try {
     const response = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
       q: query,
       sort: 'updated',
-      order: 'desc',
-      per_page: 100
     });
     const totalCount = response.data.total_count;
     const items = response.data.items;
-
 
     if (totalCount === 0) {
       return;
@@ -79,19 +78,21 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
       .replace(regex, `${config.staleIssue.maxDaysOld}`);
 
     const labels: string[] = [];
-    if (config.staleIssue && config.staleIssue.applyLabel && (await labelExists(context, config.staleIssue.applyLabel))) {
-      labels.push(config.staleIssue.applyLabel)
+    if (config.staleIssue &&
+      config.staleIssue.applyLabel &&
+      (await labelExists(context, config.staleIssue.applyLabel))) {
+      labels.push(config.staleIssue.applyLabel);
     }
 
-    const promises = items.map(item => {
+    const promises = items.map((item) => {
       // TODO:(jl) I think the probot framework includes the `number` parameter that is causing a
       // deprecation warning. I'm leaving it for now to see if they fix it in a near-term release.
-      labels.concat(item.labels.map(l => l.name));
+      labels.concat(item.labels.map((l) => l.name));
       return [
         context.github.issues.createComment(context.issue({ body, issue_number: item.number })),
         context.github.issues.addLabels(context.issue({ issue_number: item.number, labels })),
-        context.github.issues.update(context.issue({ state: 'closed', issue_number: item.number }))
-      ]
+        context.github.issues.update(context.issue({ state: 'closed', issue_number: item.number })),
+      ];
     });
 
     await Promise.all(flatten(promises));
@@ -99,4 +100,4 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
     const message = 'Unable to process stale issue';
     logger.error(`${message}, error = ${err.message}`);
   }
-}
+};

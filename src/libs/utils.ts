@@ -56,7 +56,7 @@ export const isJSON = (aString: string): boolean => {
   } catch (err) {
     return false;
   }
-}
+};
 
 /**
  * Check if a git ref exists
@@ -105,7 +105,7 @@ export const checkIfFileExists = async (context, fileName, ref = 'master'): Prom
 /**
  * Fetch the contents of a file from GitHub
  * This function will fetch the contents of a file from the latest
- * commit in a ref. 
+ * commit in a ref.
  * @param {Context} context The context of the repo
  * @param {string} fileName The name of the file to be fetched
  * @param {string} ref The ref containing the file (default master)
@@ -117,8 +117,8 @@ export const fetchContentsForFile = async (
   try {
     const commits = await context.github.repos.listCommits(
       context.repo({
-        sha: ref,
         path: fileName,
+        sha: ref,
       })
     );
 
@@ -129,23 +129,23 @@ export const fetchContentsForFile = async (
     }).shift();
 
     if (!lastCommit) {
-      logger.info('Unable to find last commit.')
+      logger.info('Unable to find last commit.');
       return;
     }
 
     const response = await context.github.repos.getContents(
       context.repo({
-        ref: lastCommit.sha,
         path: fileName,
+        ref: lastCommit.sha,
       })
     );
 
     const data: any = response.data;
 
     if (data.content && data.type !== 'file') {
-      logger.info('Unusable content type retrieved.')
+      logger.info('Unusable content type retrieved.');
       return;
-    };
+    }
 
     return data;
   } catch (err) {
@@ -154,7 +154,7 @@ export const fetchContentsForFile = async (
 
     throw new Error(message);
   }
-}
+};
 
 /**
  * Fetch the repo compliance file
@@ -179,7 +179,7 @@ export const fetchFile = async (
     const data: any = response.data;
 
     if (data.content && data.type !== 'file') {
-      throw new Error('No content returned or wrong file type.')
+      throw new Error('No content returned or wrong file type.');
     }
 
     return Buffer.from(data.content, 'base64').toString();
@@ -286,15 +286,15 @@ export const labelExists = async (
       return false;
     }
 
-    const myMatches = result.data.filter(item => item.name === labelName);
+    const myMatches = result.data.filter((item) => item.name === labelName);
     return myMatches.length > 0;
   } catch (err) {
     const message = 'Unable to fetch repo labels';
     logger.error(`${message}, error = ${err.message}`);
 
-    return false
+    return false;
   }
-}
+};
 
 /**
  * Add a file to a repo via a pull request
@@ -377,7 +377,7 @@ export const hasPullRequestWithTitle = async (
     );
 
     if (pulls && pulls.data) {
-      return pulls.data.filter(pr => pr.title === title).length > 0;
+      return pulls.data.filter((pr) => pr.title === title).length > 0;
     }
 
     return false;
@@ -426,11 +426,11 @@ export const updateFileContent = async (
   try {
     await context.github.repos.createOrUpdateFile(
       context.repo({
-        message: commitMessage,
-        content: Buffer.from(fileData).toString('base64'),
-        sha: fileSHA,
         branch: srcBranchName,
+        content: Buffer.from(fileData).toString('base64'),
+        message: commitMessage,
         path: fileName,
+        sha: fileSHA,
       })
     );
   } catch (err) {
@@ -453,7 +453,7 @@ export const isOrgMember = async (context: Context, userID: string): Promise<boo
   try {
     const response = await context.github.orgs.checkMembership({
       org: context.payload.organization.login,
-      username: userID
+      username: userID,
     });
 
     if (response.status === 204 || response.status === 302) {
@@ -477,7 +477,7 @@ export const isOrgMember = async (context: Context, userID: string): Promise<boo
 
     throw err;
   }
-}
+};
 
 /**
  * Add a comment to an issue

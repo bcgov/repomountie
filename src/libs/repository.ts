@@ -27,7 +27,8 @@ import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, extractMess
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
 
   // This feature is guarded by a feature-flag.
-  if ((config.get('environment') !== 'test') && (!ACCESS_CONTROL.complianceBetaGroup.includes(context.payload.repository.name))) {
+  if ((config.get('environment') !== 'test') &&
+    (!ACCESS_CONTROL.complianceBetaGroup.includes(context.payload.repository.name))) {
     logger.info(`The repo ${context.payload.repository.name} is not part of the beta group`);
     return;
   }

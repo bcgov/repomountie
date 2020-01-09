@@ -36,7 +36,7 @@ export const helpDeskSupportRequired = (payload: any) => {
 
     const re = new RegExp(REGEXP.help, 'gi');
     const comment = payload.comment.body;
-    const isAssigned = payload.issue.assignees.some(e =>
+    const isAssigned = payload.issue.assignees.some((e) =>
         HELP_DESK.SUPPORT_USERS.includes(e.login)
     );
 
@@ -51,15 +51,16 @@ export const applyComplianceCommands = (comment: string, doc: any): any => {
     let result: RegExpExecArray | null;
     const re = new RegExp(REGEXP.compliance, 'gi');
 
+    // tslint:disable-next-line:no-conditional-assignment
     while ((result = re.exec(comment)) !== null) {
-        // sample result 
+        // sample result
         // [ '/update-pia completed',
         //   'pia',
         //   'completed',
         //   index: 0,
         //   input: '/update-pia completed',
-        //   groups: undefined ] 
-        const items = doc.spec.filter(s => s.name === result![1].toUpperCase());
+        //   groups: undefined ]
+        const items = doc.spec.filter((s) => s.name === result![1].toUpperCase());
         if (items.length === 0) {
             continue;
         }
@@ -79,7 +80,7 @@ export const handleLicenseCommands = async (context: Context) => {
         // For we just assign help desk willy-nilly, going forward we should
         // better identify the issue and assign users with surgical precision.
         if (helpDeskSupportRequired(context.payload)) {
-            await assignUsersToIssue(context, HELP_DESK.SUPPORT_USERS)
+            await assignUsersToIssue(context, HELP_DESK.SUPPORT_USERS);
         }
     } catch (err) {
         const message = 'Unable to process license commands';
