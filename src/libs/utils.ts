@@ -117,8 +117,8 @@ export const fetchContentsForFile = async (
   try {
     const commits = await context.github.repos.listCommits(
       context.repo({
-        sha: ref,
         path: fileName,
+        sha: ref,
       })
     );
 
@@ -135,8 +135,8 @@ export const fetchContentsForFile = async (
 
     const response = await context.github.repos.getContents(
       context.repo({
-        ref: lastCommit.sha,
         path: fileName,
+        ref: lastCommit.sha,
       })
     );
 
@@ -426,11 +426,11 @@ export const updateFileContent = async (
   try {
     await context.github.repos.createOrUpdateFile(
       context.repo({
-        message: commitMessage,
-        content: Buffer.from(fileData).toString('base64'),
-        sha: fileSHA,
         branch: srcBranchName,
+        content: Buffer.from(fileData).toString('base64'),
+        message: commitMessage,
         path: fileName,
+        sha: fileSHA,
       })
     );
   } catch (err) {

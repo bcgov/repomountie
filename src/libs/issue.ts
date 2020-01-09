@@ -60,10 +60,10 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
 
   try {
     const response = await context.github.search.issuesAndPullRequests({
-      q: query,
-      sort: 'updated',
       order: 'desc',
       per_page: 100,
+      q: query,
+      sort: 'updated',
     });
     const totalCount = response.data.total_count;
     const items = response.data.items;
@@ -78,7 +78,9 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
       .replace(regex, `${config.staleIssue.maxDaysOld}`);
 
     const labels: string[] = [];
-    if (config.staleIssue && config.staleIssue.applyLabel && (await labelExists(context, config.staleIssue.applyLabel))) {
+    if (config.staleIssue &&
+      config.staleIssue.applyLabel &&
+      (await labelExists(context, config.staleIssue.applyLabel))) {
       labels.push(config.staleIssue.applyLabel);
     }
 

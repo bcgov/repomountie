@@ -51,6 +51,7 @@ export const applyComplianceCommands = (comment: string, doc: any): any => {
     let result: RegExpExecArray | null;
     const re = new RegExp(REGEXP.compliance, 'gi');
 
+    // tslint:disable-next-line:no-conditional-assignment
     while ((result = re.exec(comment)) !== null) {
         // sample result
         // [ '/update-pia completed',
