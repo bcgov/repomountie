@@ -33,32 +33,32 @@ export const HELP_DESK = {
 };
 
 export const COMMIT_FILE_NAMES = {
-  LICENSE: 'LICENSE',
   COMPLIANCE: 'COMPLIANCE.yaml',
+  LICENSE: 'LICENSE',
 };
 
 export const COMMIT_MESSAGES = {
-  ADD_LICENSE: 'Add Apache License 2.0',
   ADD_COMPLIANCE: 'Add compliance audit file',
+  ADD_LICENSE: 'Add Apache License 2.0',
   UPDATE_COMPLIANCE: 'Updating compliance audit file',
 };
 
 export const PR_TITLES = {
-  ADD_LICENSE: 'Add missing license',
   ADD_COMPLIANCE: 'Add missing compliance audit file',
+  ADD_LICENSE: 'Add missing license',
 };
 
 export const BRANCHES = {
-  ADD_LICENSE: 'repo-mountie/add-license',
   ADD_COMPLIANCE: 'repo-mountie/add-compliance',
+  ADD_LICENSE: 'repo-mountie/add-license',
 };
 
 export const TEMPLATES = {
+  COMPLIANCE: 'templates/COMPLIANCE.yaml',
   CONDUCT: 'templates/CODE_OF_CONDUCT.md',
   CONTRIBUTE: 'templates/CONTRIBUTING.md',
   LICENSE: 'templates/LICENSE',
   README: 'templates/README.md',
-  COMPLIANCE: 'templates/COMPLIANCE.yaml',
 };
 
 export const VALID_LICENSES = {
