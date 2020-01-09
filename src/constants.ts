@@ -35,13 +35,13 @@ export const HELP_DESK = {
 export const COMMIT_FILE_NAMES = {
   LICENSE: 'LICENSE',
   COMPLIANCE: 'COMPLIANCE.yaml',
-}
+};
 
 export const COMMIT_MESSAGES = {
   ADD_LICENSE: 'Add Apache License 2.0',
   ADD_COMPLIANCE: 'Add compliance audit file',
-  UPDATE_COMPLIANCE: 'Updating compliance audit file'
-}
+  UPDATE_COMPLIANCE: 'Updating compliance audit file',
+};
 
 export const PR_TITLES = {
   ADD_LICENSE: 'Add missing license',
@@ -69,7 +69,7 @@ export const TEXT_FILES = {
   HOWTO_PR: 'templates/howto_pull_request.md',
   WHY_LICENSE: 'templates/why-license.md',
   STALE_COMMENT: 'templates/stale_issue_comment.md',
-  WHY_COMPLY: 'templates/why-comply.md'
+  WHY_COMPLY: 'templates/why-comply.md',
 };
 
 export const COMMANDS = {
@@ -79,8 +79,8 @@ export const COMMANDS = {
 export const REGEXP = {
   command: '@repo-mountie\\s+',
   compliance: '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|exempt)',
-  help: '@repo-mountie\\s+help'
-}
+  help: '@repo-mountie\\s+help',
+};
 
 export const ACCESS_CONTROL = {
   allowedInstallations: ['bcgov', 'fullboar'],

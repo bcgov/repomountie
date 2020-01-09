@@ -44,7 +44,7 @@ export const shouldIgnoredLengthCheck = (commands: string[]): boolean => {
  * @returns An `string[]` any commands used
  */
 export const extractCommands = (body: string): any[] => {
-  return Object.values(COMMANDS).filter(cmd => body.includes(cmd));
+  return Object.values(COMMANDS).filter((cmd) => body.includes(cmd));
 };
 
 /**

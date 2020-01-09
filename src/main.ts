@@ -18,8 +18,8 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-const { Probot } = require('probot')
-const app = require('./index.ts')
+const { Probot } = require('probot');
+const app = require('./index.ts');
 
 // pass a probot app as a function
-Probot.run(app)
+Probot.run(app);

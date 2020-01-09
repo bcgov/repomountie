@@ -36,7 +36,7 @@ interface JwtStrategyConfig {
   ignoreExpiration?: boolean;
 }
 
-export const isAuthorized = jwtPayload => {
+export const isAuthorized = (jwtPayload) => {
   // jwtPayload.azp - The client ID
   // jwtPayload.preferred_username - The preferred user name
   if (jwtPayload && jwtPayload.azp && ACCESS_CONTROL.allowedSsoClients.includes(jwtPayload.azp)) {
@@ -68,7 +68,7 @@ export const verify = (req: any, jwtPayload: any, done: (err: any, user: any) =>
 };
 
 // eslint-disable-next-line import/prefer-default-export
-export const authmware = async app => {
+export const authmware = async (app) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
