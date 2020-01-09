@@ -17,7 +17,9 @@
       true,
       {
         "limit": 120,
-        "ignore-pattern": "^import [^,]+ from |^export | implements"
+        "ignore-pattern": "^import .*|^export .*| implements",
+        "check-strings": true,
+        "check-regex": true
       }
     ],
     "quotemark": [
