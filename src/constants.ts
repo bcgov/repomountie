@@ -85,15 +85,4 @@ export const REGEXP = {
 export const ACCESS_CONTROL = {
   allowedInstallations: ['bcgov', 'fullboar'],
   allowedSsoClients: ['reggie-api'],
-  complianceBetaGroup: [
-    'devhub-signing-api',
-    'devhub-signing-web',
-    'secure-image-ios',
-    'secure-image-android',
-    'secure-image-api',
-    'devhub-app-web',
-    'Family-Protection-Order',
-    'cas-ciip-portal',
-    'hello6',
-  ],
 };
