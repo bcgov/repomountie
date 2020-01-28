@@ -22,8 +22,8 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
+import { fetchConfigFile } from '../src/libs/ghutils';
 import { extractCommands, isValidPullRequestLength, shouldIgnoredLengthCheck } from '../src/libs/pullrequest';
-import { fetchConfigFile } from '../src/libs/utils';
 
 jest.mock('fs');
 

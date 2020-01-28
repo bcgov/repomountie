@@ -22,8 +22,8 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
 import { GITHUB_ID, PR_TITLES } from '../src/constants';
+import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from '../src/libs/ghutils';
 import { applyComplianceCommands, handleBotCommand, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
-import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -34,7 +34,7 @@ const content = JSON.parse(fs.readFileSync(p1, 'utf8'));
 const p2 = path.join(__dirname, 'fixtures/compliance.yaml');
 const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
 
-jest.mock('../src/libs/utils', () => ({
+jest.mock('../src/libs/ghutils', () => ({
     fetchContentsForFile: jest.fn(),
     updateFileContent: jest.fn(),
     assignUsersToIssue: jest.fn(),

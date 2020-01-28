@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { flatten } from 'lodash';
 import { Context } from 'probot';
 import { REGEXP, TEXT_FILES } from '../constants';
-import { isOrgMember, labelExists, loadTemplate, RepoMountieConfig } from '../libs/utils';
+import { isOrgMember, labelExists, loadTemplate, RepoMountieConfig } from './ghutils';
 import { handleBotCommand } from './robo';
 
 /**

@@ -23,7 +23,7 @@ import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
 import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
-import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/utils';
+import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, extractMessage, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, loadTemplate, updateFileContent } from '../src/libs/ghutils';
 
 jest.mock('fs');
 

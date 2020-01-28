@@ -22,15 +22,15 @@ import fs from 'fs';
 import path from 'path';
 import { Application } from 'probot';
 import robot from '../src';
+import { addFileViaPullRequest, checkIfRefExists, hasPullRequestWithTitle } from '../src/libs/ghutils';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
-import { addFileViaPullRequest, checkIfRefExists, hasPullRequestWithTitle } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
 jest.mock('fs');
 
-jest.mock('../src/libs/utils', () => ({
+jest.mock('../src/libs/ghutils', () => ({
     checkIfRefExists: jest.fn().mockReturnValueOnce(Promise.resolve(true)),
     hasPullRequestWithTitle: jest.fn().mockReturnValueOnce(Promise.resolve(false)),
     addFileViaPullRequest: jest.fn(),

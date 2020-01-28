@@ -22,11 +22,11 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
+import { fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
-import { fetchConfigFile } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
