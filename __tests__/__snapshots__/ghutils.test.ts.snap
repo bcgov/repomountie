@@ -1,0 +1,135 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GitHub utility functions A file should be retrieved. 1`] = `
+"---
+name: compliance
+description: |
+  This document is used to track a projects PIA and STRA
+  compliance.
+spec:
+  - name: PIA
+    status: completed
+    last-updated: \\"2019-11-22T00:03:52.138Z\\"
+  - name: STRA
+    status: in-progress
+    last-updated: \\"2019-11-22T00:03:52.138Z\\"
+"
+`;
+
+exports[`GitHub utility functions File contents should be retrieved 1`] = `
+Object {
+  "_links": Object {
+    "git": "https://api.github.com/repos/bcgov/glarb/git/blobs/fc5f44d45e03b298219083b201db858f7a06aa1d",
+    "html": "https://github.com/bcgov/glarb/blob/master/compliance.yaml",
+    "self": "https://api.github.com/repos/bcgov/glarb/contents/compliance.yaml?ref=master",
+  },
+  "content": "LS0tCm5hbWU6IGNvbXBsaWFuY2UKZGVzY3JpcHRpb246IHwKICBUaGlzIGRvY3VtZW50IGlzIHVzZWQgdG8gdHJhY2sgYSBwcm9qZWN0cyBQSUEgYW5kIFNUUkEKICBjb21wbGlhbmNlLgpzcGVjOgogIC0gbmFtZTogUElBCiAgICBzdGF0dXM6IGNvbXBsZXRlZAogICAgbGFzdC11cGRhdGVkOiAiMjAxOS0xMS0yMlQwMDowMzo1Mi4xMzhaIgogIC0gbmFtZTogU1RSQQogICAgc3RhdHVzOiBpbi1wcm9ncmVzcwogICAgbGFzdC11cGRhdGVkOiAiMjAxOS0xMS0yMlQwMDowMzo1Mi4xMzhaIgo=
+",
+  "download_url": "https://raw.githubusercontent.com/bcgov/glarb/master/compliance.yaml",
+  "encoding": "base64",
+  "git_url": "https://api.github.com/repos/bcgov/glarb/git/blobs/fc5f44d45e03b298219083b201db858f7a06aa1d",
+  "html_url": "https://github.com/bcgov/glarb/blob/master/compliance.yaml",
+  "name": "compliance.yaml",
+  "path": "compliance.yaml",
+  "sha": "fc5f44d45e03b298219083b201db858f7a06aa1d",
+  "size": 50,
+  "type": "file",
+  "url": "https://api.github.com/repos/bcgov/glarb/contents/compliance.yaml?ref=master",
+}
+`;
+
+exports[`GitHub utility functions The compliance file should be retrieved. 1`] = `
+Object {
+  "description": "This document is used to track a projects PIA and STRA
+compliance.
+",
+  "name": "compliance",
+  "spec": Array [
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "PIA",
+      "status": "completed",
+    },
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "STRA",
+      "status": "in-progress",
+    },
+  ],
+}
+`;
+
+exports[`GitHub utility functions The config file should be retrieved. 1`] = `
+Object {
+  "pullRequest": Object {
+    "maxLinesChanged": 300,
+  },
+}
+`;
+
+exports[`Utility functions A file should be retrieved. 1`] = `
+"---
+name: compliance
+description: |
+  This document is used to track a projects PIA and STRA
+  compliance.
+spec:
+  - name: PIA
+    status: completed
+    last-updated: \\"2019-11-22T00:03:52.138Z\\"
+  - name: STRA
+    status: in-progress
+    last-updated: \\"2019-11-22T00:03:52.138Z\\"
+"
+`;
+
+exports[`Utility functions File contents should be retrieved 1`] = `
+Object {
+  "_links": Object {
+    "git": "https://api.github.com/repos/bcgov/glarb/git/blobs/fc5f44d45e03b298219083b201db858f7a06aa1d",
+    "html": "https://github.com/bcgov/glarb/blob/master/compliance.yaml",
+    "self": "https://api.github.com/repos/bcgov/glarb/contents/compliance.yaml?ref=master",
+  },
+  "content": "LS0tCm5hbWU6IGNvbXBsaWFuY2UKZGVzY3JpcHRpb246IHwKICBUaGlzIGRvY3VtZW50IGlzIHVzZWQgdG8gdHJhY2sgYSBwcm9qZWN0cyBQSUEgYW5kIFNUUkEKICBjb21wbGlhbmNlLgpzcGVjOgogIC0gbmFtZTogUElBCiAgICBzdGF0dXM6IGNvbXBsZXRlZAogICAgbGFzdC11cGRhdGVkOiAiMjAxOS0xMS0yMlQwMDowMzo1Mi4xMzhaIgogIC0gbmFtZTogU1RSQQogICAgc3RhdHVzOiBpbi1wcm9ncmVzcwogICAgbGFzdC11cGRhdGVkOiAiMjAxOS0xMS0yMlQwMDowMzo1Mi4xMzhaIgo=
+",
+  "download_url": "https://raw.githubusercontent.com/bcgov/glarb/master/compliance.yaml",
+  "encoding": "base64",
+  "git_url": "https://api.github.com/repos/bcgov/glarb/git/blobs/fc5f44d45e03b298219083b201db858f7a06aa1d",
+  "html_url": "https://github.com/bcgov/glarb/blob/master/compliance.yaml",
+  "name": "compliance.yaml",
+  "path": "compliance.yaml",
+  "sha": "fc5f44d45e03b298219083b201db858f7a06aa1d",
+  "size": 50,
+  "type": "file",
+  "url": "https://api.github.com/repos/bcgov/glarb/contents/compliance.yaml?ref=master",
+}
+`;
+
+exports[`Utility functions The compliance file should be retrieved. 1`] = `
+Object {
+  "description": "This document is used to track a projects PIA and STRA
+compliance.
+",
+  "name": "compliance",
+  "spec": Array [
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "PIA",
+      "status": "completed",
+    },
+    Object {
+      "last-updated": "2019-11-22T00:03:52.138Z",
+      "name": "STRA",
+      "status": "in-progress",
+    },
+  ],
+}
+`;
+
+exports[`Utility functions The config file should be retrieved. 1`] = `
+Object {
+  "pullRequest": Object {
+    "maxLinesChanged": 300,
+  },
+}
+`;

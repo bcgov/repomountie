@@ -21,7 +21,8 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import { COMMANDS, TEXT_FILES } from '../constants';
-import { loadTemplate, RepoMountieConfig } from './ghutils';
+import { RepoMountieConfig } from './ghutils';
+import { loadTemplate } from "./utils";
 
 /**
  * Check to see if a pull request (PR) contains the command for ignore.

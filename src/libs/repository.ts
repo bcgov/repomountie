@@ -21,7 +21,8 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
-import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, extractMessage, hasPullRequestWithTitle, loadTemplate } from './ghutils';
+import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, hasPullRequestWithTitle } from './ghutils';
+import { extractMessage, loadTemplate } from './utils';
 
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
 
