@@ -1,0 +1,245 @@
+# Copyright 2020 The Province of British Columbia
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+---
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  annotations:
+    description: Repomountie application.
+  name: repomountie
+objects:
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      labels:
+        app: repomountie
+      name: github-creds
+    stringData:
+      webhook-secret: ${WEBHOOK_SECRET}
+      private-key: ${PRIVATE_KEY}
+    type: Opaque
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      labels:
+        app: repomountie
+      name: mongodb-creds
+    stringData:
+      admin-password: ${MONGODB_ADMIN_PASSWORD}
+      username: ${MONGODB_USER}
+      password: ${MONGODB_PASSWORD}
+    type: Opaque
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: github-bot
+      labels:
+        app: repomountie
+    spec:
+      path: ""
+      port:
+        targetPort: https
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: github-bot
+        weight: 100
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: github-bot
+      labels:
+        app: repomountie
+    spec:
+      selector:
+        matchLabels:
+          role: github-bot
+      template:
+        metadata:
+          labels:
+            app: repomountie
+            role: github-bot
+        spec:
+          terminationGracePeriodSeconds: 10
+          containers:
+            - name: bot
+              image: docker-registry.default.svc:5000/devhub-tools/repo-mountie
+              ports:
+                - containerPort: 8080
+              env:
+                - name: APP_ID
+                  value: ${APP_ID}
+                - name: LOG_LEVEL
+                  value: debug
+                - name: PRIVATE_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: private-key
+                      name: github-creds
+                - name: PORT
+                  value: "8080"
+                - name: NODE_ENV
+                  value: production
+                - name: MONGODB_ADDR
+                  value: "mongodb:27017"
+                - name: MONGODB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: username
+                      name: mongodb-creds
+                - name: MONGODB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mongodb-creds
+                - name: MONGODB_DATABASE
+                  value: ${MONGODB_DATABASE}
+              resources:
+                limits:
+                  cpu: 50m
+                  memory: 256Mi
+                requests:
+                  cpu: 30m
+                  memory: 96Mi
+        triggers:
+          - type: ImageChange
+            imageChangeParams:
+              automatic: true
+              containerNames:
+                - bot
+              from:
+                kind: ImageStreamTag
+                name: "repo-mountie:${REPOMOUNTIE_IMAGE_TAG}"
+                namespace: docker-registry.default.svc:5000/devhub-tools/repo-mountie
+          - type: ConfigChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: github-bot
+      labels:
+        app: repomountie
+    spec:
+      selector:
+        role: github-bot
+      ports:
+        - name: https
+          port: 443
+          targetPort: 8080
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: mongodb
+      labels:
+        app: repomountie
+    spec:
+      selector:
+        matchLabels:
+          role: mongodb
+      template:
+        metadata:
+          labels:
+            app: repomountie
+            role: mongodb
+        spec:
+          containers:
+            - name: server
+              image: registry.redhat.io/rhscl/mongodb-36-rhel7:latest
+              ports:
+                - containerPort: 27017
+              env:
+                - name: MONGODB_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: admin-password
+                      name: mongodb-creds
+                - name: MONGODB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: username
+                      name: mongodb-creds
+                - name: MONGODB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: mongodb-creds
+                - name: MONGODB_DATABASE
+                  value: "${MONGODB_DATABASE}"
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 192Mi
+                limits:
+                  cpu: 60m
+                  memory: 256Mi
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: mongodb
+      labels:
+        app: repomountie
+    spec:
+      selector:
+        role: mongodb
+      ports:
+        - name: mongo
+          port: 27017
+          targetPort: 27017
+parameters:
+  - name: APP_ID
+    description: |
+      This application ID is provided by GitHub. Its required by the bot
+      to correctly integrate with GitHub.
+    required: true
+  - name: WEBHOOK_SECRET
+    description: |
+      This is the secret used by GitHub when sending a web-hook payload
+      to the bot.
+    from: "[a-zA-Z0-9]{16}"
+    generate: expression
+    required: true
+  - name: PRIVATE_KEY
+    description: |
+      This is the GitHub App private PGP key generated and provided by
+      GitHub when creating the application.
+    required: true
+  - name: MONGODB_ADMIN_PASSWORD
+    description: |
+      The mongo DB admin account password.
+    from: "[a-zA-Z0-9]{16}"
+    generate: expression
+    required: true
+  - name: MONGODB_USER
+    description: |
+      The mongo client account name used by the bot to access
+      this service.
+    value: "app_bot"
+    required: true
+  - name: MONGODB_PASSWORD
+    description: |
+      The mongo client account password used by the bot to access
+      this service.
+    from: "[a-zA-Z0-9]{16}"
+    generate: expression
+    required: true
+  - name: MONGODB_DATABASE
+    description: |
+      The name of the mongo database.
+    value: "repomountie"
+    required: true
+  - name: REPOMOUNTIE_IMAGE_TAG
+    description: |
+      The tag used to deploy the repomountie component.
+    required: true
