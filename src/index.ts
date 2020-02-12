@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2018 Province of British Columbia
+// Copyright © 2018, 2019, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,11 +20,12 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
-import { fetchConfigFile } from './libs/ghutils';
+import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
+import { addComplianceStatusToPersistentStorage, extractComplianceStatus } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
@@ -34,6 +33,12 @@ if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
     // @ts-ignore: `stack` does not exist on type
     const stack = typeof (reason) !== 'undefined' ? reason.stack : 'unknown';
+    // Token decode errors are OK in test because we use a faux token for
+    // mock objects.
+    if (stack.includes('HttpError: A JSON web token could not be decoded')) {
+      return;
+    }
+
     logger.warn(`Unhandled rejection at promise = ${JSON.stringify(p)}, reason = ${stack}`);
   });
 }
@@ -133,24 +138,39 @@ export = (app: Application) => {
   async function repositoryScheduled(context: Context) {
     logger.info(`Processing ${context.payload.repository.name}`);
 
+    const owner = context.payload.installation.account.login;
+    if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
+      logger.info(
+        `Skipping scheduled repository ${
+        context.payload.repository.name
+        } because its not part of an allowed installation`
+      );
+      return;
+    }
+
+    if (context.payload.repository.archived) {
+      logger.warn(`The repo ${context.payload.repository.name} is archived. Skipping.`);
+      return;
+    }
+
+    let requiresComplianceFile = false;
     try {
-      const owner = context.payload.installation.account.login;
-      if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
-        logger.info(
-          `Skipping scheduled repository ${
-          context.payload.repository.name
-          } because its not part of an allowed installation`
-        );
-        return;
-      }
+      const data = await fetchComplianceFile(context);
+      const message = extractComplianceStatus(context.payload.repository.name,
+        context.payload.organization.login, data);
+      await addComplianceStatusToPersistentStorage(message);
+    } catch (err) {
+      const message = `Unable to check compliance in repository ${context.payload.repository.name}`;
+      logger.error(`${message}, error = ${err.message}`);
 
-      if (context.payload.repository.archived) {
-        logger.warn(`The repo ${context.payload.repository.name} is archived. Skipping.`);
-        return;
-      }
+      requiresComplianceFile = true;
+    }
 
+    try {
+      if (requiresComplianceFile) {
+        await addSecurityComplianceInfoIfRequired(context, scheduler);
+      }
       await addLicenseIfRequired(context, scheduler);
-      await addSecurityComplianceInfoIfRequired(context, scheduler);
 
       // Functionality below here requires a `config` file exist in the repo.
 

@@ -79,11 +79,17 @@ objects:
               image: docker-registry.default.svc:5000/devhub-tools/repo-mountie
               ports:
                 - containerPort: 8080
+              # volumeMounts:
+              #   - name: github-key
+              #     mountPath: /etc/github-creds
+              #     readOnly: true
               env:
                 - name: APP_ID
                   value: ${APP_ID}
                 - name: LOG_LEVEL
                   value: debug
+                # - name: PRIVATE_KEY_PATH
+                #   value: /etc/github-creds/key.pem
                 - name: PRIVATE_KEY
                   valueFrom:
                     secretKeyRef:
@@ -109,11 +115,18 @@ objects:
                   value: ${MONGODB_DATABASE}
               resources:
                 limits:
-                  cpu: 50m
+                  cpu: 500m
                   memory: 256Mi
                 requests:
-                  cpu: 30m
+                  cpu: 500m
                   memory: 96Mi
+          # volumes:
+          #   - name: github-key
+          #     secret:
+          #       secretName: github-creds
+          #       items:
+          #         - key: private-key
+          #           path: key.pem
         triggers:
           - type: ImageChange
             imageChangeParams:
@@ -226,7 +239,7 @@ parameters:
     description: |
       This is the secret used by GitHub when sending a web-hook payload
       to the bot.
-    from: "[a-zA-Z0-9]{16}"
+    from: "[a-zA-Z0-9]{32}"
     generate: expression
     required: true
   - name: PRIVATE_KEY

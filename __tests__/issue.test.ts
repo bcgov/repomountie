@@ -22,7 +22,8 @@ import fs from 'fs';
 import path from 'path';
 import { Application } from 'probot';
 import robot from '../src';
-import { fetchConfigFile, labelExists, loadTemplate } from '../src/libs/ghutils';
+import { fetchConfigFile, labelExists } from '../src/libs/ghutils';
+import { loadTemplate } from '../src/libs/utils';
 
 const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
 const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -54,9 +55,16 @@ jest.mock('../src/libs/repository', () => ({
 }));
 
 jest.mock('../src/libs/ghutils', () => ({
+  fetchComplianceFile: jest.fn(),
   fetchConfigFile: jest.fn(),
-  loadTemplate: jest.fn(),
   labelExists: jest.fn(),
+  loadTemplate: jest.fn(),
+}));
+
+jest.mock('../src/libs/utils', () => ({
+  addComplianceStatusToPersistentStorage: jest.fn(),
+  extractComplianceStatus: jest.fn(),
+  loadTemplate: jest.fn(),
 }));
 
 describe('Repository integration tests', () => {
@@ -75,8 +83,8 @@ describe('Repository integration tests', () => {
       },
       issues: {
         addAssignees: jest.fn(),
-        createComment: jest.fn(),
         addLabels: jest.fn(),
+        createComment: jest.fn(),
         update: jest.fn(),
       },
       search: {

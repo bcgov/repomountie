@@ -22,7 +22,7 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
-import { PR_TITLES, REPO_COMPLIANCE_FILE } from '../src/constants';
+import { COMMIT_FILE_NAMES, PR_TITLES } from '../src/constants';
 import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, updateFileContent } from '../src/libs/ghutils';
 
 jest.mock('fs');
@@ -62,28 +62,28 @@ describe('GitHub utility functions', () => {
         app.load(robot);
 
         github = {
+            git: {
+                createRef: jest.fn(),
+                getRef: jest.fn(),
+            },
             issues: {
-                listLabelsForRepo: jest.fn(),
                 addAssignees: jest.fn(),
                 createComment: jest.fn(),
+                listLabelsForRepo: jest.fn(),
             },
-            repos: {
-                listCommits: jest.fn().mockReturnValue(Promise.resolve(listCommits)),
-                getContents: jest.fn(),
-                createFile: jest.fn(),
-                createOrUpdateFile: jest.fn(),
-            },
-            git: {
-                getRef: jest.fn(),
-                createRef: jest.fn(),
+            orgs: {
+                checkMembership: jest.fn(),
             },
             pulls: {
                 create: jest.fn().mockReturnValueOnce(Promise.resolve()),
                 list: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
             },
-            orgs: {
-                checkMembership: jest.fn(),
-            }
+            repos: {
+                createFile: jest.fn(),
+                createOrUpdateFile: jest.fn(),
+                getContents: jest.fn(),
+                listCommits: jest.fn().mockReturnValue(Promise.resolve(listCommits)),
+            },
         };
 
         // Passes the mocked out GitHub API into out app instance
@@ -107,7 +107,7 @@ describe('GitHub utility functions', () => {
 
     it('A file should be retrieved.', async () => {
         github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
-        const data = await fetchFile(context, REPO_COMPLIANCE_FILE);
+        const data = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
 
         expect(data).toMatchSnapshot();
     });

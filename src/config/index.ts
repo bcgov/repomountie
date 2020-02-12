@@ -41,6 +41,12 @@ if (env === 'development') {
 
 // overrides are always as defined
 nconf.overrides({
+  db: {
+    database: process.env.MONGODB_DATABASE,
+    host: process.env.MONGODB_ADDR,
+    password: process.env.MONGODB_PASSWORD,
+    user: process.env.MONGODB_USER,
+  },
   environment: env,
   githubAppID: process.env.APP_ID,
   host: process.env.HOST || '127.0.0.1',

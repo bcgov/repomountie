@@ -1,7 +1,6 @@
 //
-// Repo Mountie
 //
-// Copyright © 2019 Province of British Columbia
+// Copyright © 2019, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +20,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { REPO_COMPLIANCE_FILE, REPO_CONFIG_FILE } from '../constants';
+import { COMMIT_FILE_NAMES, REPO_CONFIG_FILE } from '../constants';
 
 interface RepoMountiePullRequestConfig {
   maxLinesChanged: number;
@@ -179,15 +178,16 @@ export const fetchFile = async (
  * The compliance file determines what state any policy compliance
  * is currently in.
  * @param {Context} context The event context context
- * @returns A `RepoCompliance` object if one exists
+ * @returns A `Promise` containing a `RepoCompliance` object
  */
 export const fetchComplianceFile = async (context: Context): Promise<RepoCompliance> => {
   try {
-    const content = await fetchFile(context, REPO_COMPLIANCE_FILE);
+    const content = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
     return yaml.safeLoad(content);
   } catch (err) {
-    const message = 'Unable to process config file.';
+    const message = 'Unable to fetch compliance file.';
     logger.error(`${message}, error = ${err.message}`);
+
     throw new Error(message);
   }
 };
@@ -197,14 +197,14 @@ export const fetchComplianceFile = async (context: Context): Promise<RepoComplia
  * The configuration file determines what, if any, cultural policies should
  * be enforced.
  * @param {Context} context The event context context
- * @returns A `RepoMountieConfig` object if one exists
+ * @returns A `Promise` containing a `RepoMountieConfig` object
  */
 export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
   try {
     const content = await fetchFile(context, REPO_CONFIG_FILE);
     return JSON.parse(content);
   } catch (err) {
-    const message = 'Unable to process config file.';
+    const message = 'Unable to fetch config file.';
     logger.error(`${message}, error = ${err.message}`);
 
     throw new Error(message);
