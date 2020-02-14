@@ -24,7 +24,7 @@ import { Context } from 'probot';
 import { REGEXP, TEXT_FILES } from '../constants';
 import { isOrgMember, labelExists, RepoMountieConfig } from './ghutils';
 import { handleBotCommand } from './robo';
-import { loadTemplate } from "./utils";
+import { loadTemplate } from './utils';
 
 /**
  * Process an issue comment.

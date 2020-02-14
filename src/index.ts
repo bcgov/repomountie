@@ -109,9 +109,9 @@ export = async (app: Application) => {
       }`
     );
 
-    const config = await fetchConfigFile(context);
+    const rmconfig = await fetchConfigFile(context);
 
-    await validatePullRequestIfRequired(context, config);
+    await validatePullRequestIfRequired(context, rmconfig);
   }
 
   async function issueCommentCreated(context: Context) {
@@ -192,8 +192,8 @@ export = async (app: Application) => {
       // Functionality below here requires a `config` file exist in the repo.
 
       try {
-        const config = await fetchConfigFile(context);
-        await checkForStaleIssues(context, config);
+        const rmconfig = await fetchConfigFile(context);
+        await checkForStaleIssues(context, rmconfig);
       } catch (err) {
         logger.info('No config file. Skipping.');
       }
