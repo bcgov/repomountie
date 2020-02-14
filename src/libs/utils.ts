@@ -17,9 +17,7 @@
 //
 
 import fs from 'fs';
-import mongoose from 'mongoose';
 import util from 'util';
-import config from '../config';
 import { ComplianceAudit } from '../models/compliance';
 
 /**
@@ -78,38 +76,6 @@ export const loadTemplate = async (path: string): Promise<string> => {
 };
 
 /**
- * Open a database connection.
- *
- * @returns {Promise<any>} Resolved a database connection.
- */
-export const dbConnect = async () => {
-
-    try {
-        const options = {};
-        const user = config.get('db:user');
-        const passwd = config.get('db:password');
-        const host = config.get('db:host');
-        const dbname = config.get('db:database');
-        const curl = `mongodb://${user}:${passwd}@${host}/${dbname}`;
-
-        return await mongoose.connect(curl, options);
-    } catch (err) {
-        const message = `Unable to open database connection`;
-        throw new Error(`${message}, error = ${err.message}`);
-    }
-};
-
-/**
- * Close a database connection.
- *
- * @param {any} connection The database connection to close.
- */
-export const dbCleanup = async (connection: any) => {
-
-    connection.close();
-};
-
-/**
  * Load a template file file and return the contents.
  *
  * @param {string} path The path to the template file
@@ -133,21 +99,4 @@ export const extractComplianceStatus = (repoName: string, orgName: string, data:
     });
 
     return ca;
-};
-
-/**
- * Save a record to persistent storage.
- *
- * @param {object} model The model to be saved
- */
-export const addComplianceStatusToPersistentStorage = async (model: any) => {
-
-    try {
-        const db = await dbConnect();
-        await model.save();
-        dbCleanup(db);
-    } catch (err) {
-        const message = `Unable save record to persistent storage`;
-        throw new Error(`${message}, error = ${err.message}`);
-    }
 };

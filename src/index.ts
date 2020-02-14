@@ -17,15 +17,17 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import mongoose from 'mongoose';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
+import config from './config';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
 import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
-import { addComplianceStatusToPersistentStorage, extractComplianceStatus } from './libs/utils';
+import { extractComplianceStatus } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
@@ -43,7 +45,7 @@ if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   });
 }
 
-export = (app: Application) => {
+export = async (app: Application) => {
   logger.info('Robot Loaded!!!');
 
   routes(app);
@@ -58,6 +60,20 @@ export = (app: Application) => {
   app.on('schedule.repository', repositoryScheduled);
   app.on('repository.deleted', repositoryDelete);
   // app.on('repository_vulnerability_alert.create', blarb);
+
+  try {
+    const options = {};
+    const user = config.get('db:user');
+    const passwd = config.get('db:password');
+    const host = config.get('db:host');
+    const dbname = config.get('db:database');
+    const curl = `mongodb://${user}:${passwd}@${host}/${dbname}`;
+
+    await mongoose.connect(curl, options);
+  } catch (err) {
+    const message = `Unable to open database connection`;
+    throw new Error(`${message}, error = ${err.message}`);
+  }
 
   async function pullRequestOpened(context: Context) {
     try {
@@ -156,9 +172,10 @@ export = (app: Application) => {
     let requiresComplianceFile = false;
     try {
       const data = await fetchComplianceFile(context);
-      const message = extractComplianceStatus(context.payload.repository.name,
-        context.payload.organization.login, data);
-      await addComplianceStatusToPersistentStorage(message);
+      const doc = extractComplianceStatus(context.payload.repository.name,
+        context.payload.installation.account.login, data);
+
+      await doc.save();
     } catch (err) {
       const message = `Unable to check compliance in repository ${context.payload.repository.name}`;
       logger.error(`${message}, error = ${err.message}`);

@@ -18,7 +18,13 @@
 // Created by Jason Leach on 2018-10-04.
 //
 
-import { extractMessage, loadTemplate } from '../src/libs/utils';
+import fs from 'fs';
+import yaml from 'js-yaml';
+import path from 'path';
+import { extractComplianceStatus, extractMessage, loadTemplate } from '../src/libs/utils';
+
+const p1 = path.join(__dirname, 'fixtures/repo-get-content-compliance.json');
+const complianceResponse = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
 jest.mock('fs');
 
@@ -45,5 +51,14 @@ describe('Utility functions', () => {
     const err = new Error('{"message": "Hello World"}');
     const message = await extractMessage(err);
     expect(message).toEqual('Hello World');
+  });
+
+  it('The compliance status should be extracted', async () => {
+    const data = Buffer.from(complianceResponse.data.content, 'base64').toString();
+    const doc = yaml.safeLoad(data);
+    const mobj = extractComplianceStatus('blarb', 'blarb', doc);
+
+    expect(mobj._id).not.toBeUndefined();
+    expect(mobj.records).not.toBeUndefined();
   });
 });
