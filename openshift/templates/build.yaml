@@ -96,13 +96,13 @@ parameters:
   displayName: Name
   name: NAME
   required: true
-  value: repo-mountie
+  value: repomountie
 - description: The URL to your GIT repo, don't use the this default unless your just
     experimenting.
   displayName: Git Repo URL
   name: GIT_REPO_URL
   required: true
-  value: https://github.com/bcgov/repo-mountie.git
+  value: https://github.com/bcgov/repomountie.git
 - description: The git reference or branch.
   displayName: Git Reference
   name: GIT_REF
