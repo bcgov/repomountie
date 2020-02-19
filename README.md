@@ -2,7 +2,7 @@
 
 ## About
 
-The _repo mountie_ is a GitHup application (bot) help ensure cultural niceties are respected.
+The _repomountie_ is a GitHup application (bot) help ensure cultural niceties are respected.
 
 ## Usage
 
