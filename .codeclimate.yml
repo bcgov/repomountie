@@ -8,3 +8,4 @@ exclude_patterns:
   - "script/"
   - "**/vendor/"
   - "**/*.d.ts"
+method-lines: 32
