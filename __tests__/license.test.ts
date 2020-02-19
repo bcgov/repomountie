@@ -74,6 +74,7 @@ describe('Repository integration tests', () => {
       },
       repos: {
         createFile: jest.fn(),
+        getContents: jest.fn(),
       },
     };
 

@@ -10,12 +10,12 @@ compliance.
     Object {
       "last-updated": "2019-11-22T00:03:52.138Z",
       "name": "PIA",
-      "status": "TBD",
+      "status": "completed",
     },
     Object {
       "last-updated": "2019-11-22T00:03:52.138Z",
       "name": "STRA",
-      "status": "TBD",
+      "status": "in-progress",
     },
   ],
 }
@@ -31,12 +31,12 @@ compliance.
     Object {
       "last-updated": "2019-11-22T00:03:52.138Z",
       "name": "PIA",
-      "status": "TBD",
+      "status": "completed",
     },
     Object {
       "last-updated": "2019-11-22T00:03:52.138Z",
       "name": "STRA",
-      "status": "TBD",
+      "status": "in-progress",
     },
   ],
 }

@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2018 Province of British Columbia
+// Copyright © 2018, 2019, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +17,17 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import mongoose from 'mongoose';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
+import config from './config';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
+import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
-import { fetchConfigFile } from './libs/utils';
+import { extractComplianceStatus } from './libs/utils';
 
 process.env.TZ = 'UTC';
 
@@ -34,11 +35,17 @@ if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
     // @ts-ignore: `stack` does not exist on type
     const stack = typeof (reason) !== 'undefined' ? reason.stack : 'unknown';
+    // Token decode errors are OK in test because we use a faux token for
+    // mock objects.
+    if (stack.includes('HttpError: A JSON web token could not be decoded')) {
+      return;
+    }
+
     logger.warn(`Unhandled rejection at promise = ${JSON.stringify(p)}, reason = ${stack}`);
   });
 }
 
-export = (app: Application) => {
+export = async (app: Application) => {
   logger.info('Robot Loaded!!!');
 
   routes(app);
@@ -53,6 +60,20 @@ export = (app: Application) => {
   app.on('schedule.repository', repositoryScheduled);
   app.on('repository.deleted', repositoryDelete);
   // app.on('repository_vulnerability_alert.create', blarb);
+
+  try {
+    const options = {};
+    const user = config.get('db:user');
+    const passwd = config.get('db:password');
+    const host = config.get('db:host');
+    const dbname = config.get('db:database');
+    const curl = `mongodb://${user}:${passwd}@${host}/${dbname}`;
+
+    await mongoose.connect(curl, options);
+  } catch (err) {
+    const message = `Unable to open database connection`;
+    throw new Error(`${message}, error = ${err.message}`);
+  }
 
   async function pullRequestOpened(context: Context) {
     try {
@@ -88,9 +109,9 @@ export = (app: Application) => {
       }`
     );
 
-    const config = await fetchConfigFile(context);
+    const rmconfig = await fetchConfigFile(context);
 
-    await validatePullRequestIfRequired(context, config);
+    await validatePullRequestIfRequired(context, rmconfig);
   }
 
   async function issueCommentCreated(context: Context) {
@@ -133,30 +154,46 @@ export = (app: Application) => {
   async function repositoryScheduled(context: Context) {
     logger.info(`Processing ${context.payload.repository.name}`);
 
+    const owner = context.payload.installation.account.login;
+    if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
+      logger.info(
+        `Skipping scheduled repository ${
+        context.payload.repository.name
+        } because its not part of an allowed installation`
+      );
+      return;
+    }
+
+    if (context.payload.repository.archived) {
+      logger.warn(`The repo ${context.payload.repository.name} is archived. Skipping.`);
+      return;
+    }
+
+    let requiresComplianceFile = false;
     try {
-      const owner = context.payload.installation.account.login;
-      if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
-        logger.info(
-          `Skipping scheduled repository ${
-          context.payload.repository.name
-          } because its not part of an allowed installation`
-        );
-        return;
-      }
+      const data = await fetchComplianceFile(context);
+      const doc = extractComplianceStatus(context.payload.repository.name,
+        context.payload.installation.account.login, data);
 
-      if (context.payload.repository.archived) {
-        logger.warn(`The repo ${context.payload.repository.name} is archived. Skipping.`);
-        return;
-      }
+      await doc.save();
+    } catch (err) {
+      const message = `Unable to check compliance in repository ${context.payload.repository.name}`;
+      logger.error(`${message}, error = ${err.message}`);
 
+      requiresComplianceFile = true;
+    }
+
+    try {
+      if (requiresComplianceFile) {
+        await addSecurityComplianceInfoIfRequired(context, scheduler);
+      }
       await addLicenseIfRequired(context, scheduler);
-      await addSecurityComplianceInfoIfRequired(context, scheduler);
 
       // Functionality below here requires a `config` file exist in the repo.
 
       try {
-        const config = await fetchConfigFile(context);
-        await checkForStaleIssues(context, config);
+        const rmconfig = await fetchConfigFile(context);
+        await checkForStaleIssues(context, rmconfig);
       } catch (err) {
         logger.info('No config file. Skipping.');
       }

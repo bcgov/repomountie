@@ -96,13 +96,13 @@ parameters:
   displayName: Name
   name: NAME
   required: true
-  value: repo-mountie
+  value: repomountie
 - description: The URL to your GIT repo, don't use the this default unless your just
     experimenting.
   displayName: Git Repo URL
   name: GIT_REPO_URL
   required: true
-  value: https://github.com/bcgov/repo-mountie.git
+  value: https://github.com/bcgov/repomountie.git
 - description: The git reference or branch.
   displayName: Git Reference
   name: GIT_REF
@@ -121,18 +121,18 @@ parameters:
 - description: The openshift project where builds and target images are stored.
   displayName: Build Project
   name: SOURCE_IMAGE_NAMESPACE
+  value: 'openshift'
   required: true
-  value: openshift
 - description: The name of the source image.
   displayName: Source Image Name
   name: SOURCE_IMAGE_NAME
+  value: 'nodejs'
   required: true
-  value: nodejs
 - description: The tag of the source image.
   displayName: Source Image Tag
   name: SOURCE_IMAGE_TAG
+  value: "10"
   required: true
-  value: "8"
 - description: The resources CPU limit (in cores) for this build.
   displayName: Resources CPU Limit
   name: CPU_LIMIT

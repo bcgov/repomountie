@@ -22,8 +22,8 @@ import fs from 'fs';
 import path from 'path';
 import { Application, Context } from 'probot';
 import robot from '../src';
+import { fetchConfigFile } from '../src/libs/ghutils';
 import { extractCommands, isValidPullRequestLength, shouldIgnoredLengthCheck } from '../src/libs/pullrequest';
-import { fetchConfigFile } from '../src/libs/utils';
 
 jest.mock('fs');
 
@@ -62,6 +62,10 @@ describe('Repository integration tests', () => {
     app.auth = () => Promise.resolve(github);
 
     context = new Context(issueOpenedEvent, github as any, {} as any);
+
+    context.payload.organization = {
+      login: 'bcgov',
+    };
   });
 
   afterEach(() => {
@@ -80,7 +84,7 @@ describe('Repository integration tests', () => {
     const getContents = jest.fn().mockReturnValueOnce(Promise.reject(err));
     github.repos.getContents = getContents;
 
-    await expect(fetchConfigFile(context)).rejects.toThrow(err);
+    await expect(fetchConfigFile(context)).rejects.toThrow();
     expect(github.repos.getContents).toHaveBeenCalled();
   });
 

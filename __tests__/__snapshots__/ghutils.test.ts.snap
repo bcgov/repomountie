@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Utility functions A file should be retrieved. 1`] = `
+exports[`GitHub utility functions A file should be retrieved. 1`] = `
 "---
 name: compliance
 description: |
@@ -16,7 +16,7 @@ spec:
 "
 `;
 
-exports[`Utility functions File contents should be retrieved 1`] = `
+exports[`GitHub utility functions File contents should be retrieved 1`] = `
 Object {
   "_links": Object {
     "git": "https://api.github.com/repos/bcgov/glarb/git/blobs/fc5f44d45e03b298219083b201db858f7a06aa1d",
@@ -38,7 +38,7 @@ Object {
 }
 `;
 
-exports[`Utility functions The compliance file should be retrieved. 1`] = `
+exports[`GitHub utility functions The compliance file should be retrieved. 1`] = `
 Object {
   "description": "This document is used to track a projects PIA and STRA
 compliance.
@@ -59,7 +59,7 @@ compliance.
 }
 `;
 
-exports[`Utility functions The config file should be retrieved. 1`] = `
+exports[`GitHub utility functions The config file should be retrieved. 1`] = `
 Object {
   "pullRequest": Object {
     "maxLinesChanged": 300,

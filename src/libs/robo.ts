@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
 import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES, REGEXP } from '../constants';
-import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './utils';
+import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './ghutils';
 
 /**
  * Determine if help desk support is required
