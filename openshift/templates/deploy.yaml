@@ -58,6 +58,8 @@ objects:
         name: github-bot
         weight: 100
   - apiVersion: apps/v1
+    # Using the kind `DeploymentConfig` will allow a deployment to trigger
+    # based on an image change event. Not supported with kind `Deployment`.
     kind: Deployment
     metadata:
       name: github-bot
