@@ -1,4 +1,3 @@
-## other configuration excluded from example...
 exclude_patterns:
   - "__tests__/"
   - "__mocks__/"
