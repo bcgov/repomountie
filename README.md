@@ -1,4 +1,4 @@
-<a href="https://codeclimate.com/github/bcgov/repo-mountie/maintainability"><img src="https://api.codeclimate.com/v1/badges/19232a88875658e96155/maintainability" /></a><a href="https://codeclimate.com/github/bcgov/repo-mountie/test_coverage"><img src="https://api.codeclimate.com/v1/badges/19232a88875658e96155/test_coverage" /></a>
+<a href="https://codeclimate.com/github/bcgov/repomountie/maintainability"><img src="https://api.codeclimate.com/v1/badges/a62462e3e0a6843c3778/maintainability" /></a><a href="https://codeclimate.com/github/bcgov/repomountie/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a62462e3e0a6843c3778/test_coverage" /></a>
 
 ## About
 
