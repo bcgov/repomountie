@@ -95,7 +95,6 @@ export const extractComplianceStatus = (repoName: string, orgName: string, data:
         orgName,
         records,
         repoName,
-        updateAt: new Date(),
     });
 
     return ca;

@@ -27,14 +27,18 @@ const ComplianceAuditSchema = new mongoose.Schema({
         {
             name: String,
             status: String,
-            updateAt: Date,
+            updatedAt: Date,
         },
     ],
     repoName: {
         index: true,
         type: String,
     },
-    updateAt: Date,
+}, {
+    timestamps: {
+        createdAt: 'createdAt',
+        updatedAt: 'updatedAt',
+    },
 });
 
 export const ComplianceAudit = mongoose.model('ComplianceAudit',
