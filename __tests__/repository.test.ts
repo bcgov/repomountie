@@ -17,9 +17,14 @@
 //
 
 import fs from 'fs';
+import nock from 'nock';
 import path from 'path';
 import { addFileViaPullRequest, checkIfRefExists, hasPullRequestWithTitle } from '../src/libs/ghutils';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
+
+nock('https://api.github.com')
+    .get('/app/installations')
+    .reply(200, {});
 
 const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));

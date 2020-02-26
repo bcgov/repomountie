@@ -23,7 +23,7 @@ import robot from '../../src';
 jest.mock('mongoose');
 
 nock('https://api.github.com')
-    .get('/app/installations?per_page=100')
+    .get('/app/installations')
     .reply(200, {});
 
 let app;

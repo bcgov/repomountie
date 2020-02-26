@@ -18,10 +18,15 @@
 
 import fs from 'fs';
 import yaml from 'js-yaml';
+import nock from 'nock';
 import path from 'path';
 import { GITHUB_ID, PR_TITLES } from '../src/constants';
 import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from '../src/libs/ghutils';
 import { applyComplianceCommands, handleBotCommand, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
+
+nock('https://api.github.com')
+    .get('/app/installations')
+    .reply(200, {});
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));

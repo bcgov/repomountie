@@ -62,6 +62,7 @@ export const checkIfRefExists = async (context: Context, ref = context.payload.r
     return true;
   } catch (err) {
     logger.info(`No ref ${ref} exists in ${context.payload.repository.name}`);
+
     return false;
   }
 };
