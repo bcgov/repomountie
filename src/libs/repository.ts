@@ -24,10 +24,6 @@ import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEX
 import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, hasPullRequestWithTitle } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
-export const remindMergeRequired = async (context: Context) => {
-  console.log('blarb');
-};
-
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
 
   try {
