@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2019 Province of British Columbia
+// Copyright © 2019, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,36 +16,7 @@
 // Created by Jason Leach on 2019-11-25.
 //
 
-import { Application } from 'probot';
-import robot from '../src';
-
-jest.mock('fs');
-
 describe('Repository integration tests', () => {
-    let app;
-    let github;
-
-    beforeEach(() => {
-        app = new Application();
-        app.app = { getSignedJsonWebToken: () => 'xxx' };
-        app.load(robot);
-
-        github = {
-            git: {
-                createRef: jest.fn(),
-                // getRef,
-            },
-            issues: {
-                addAssignees: jest.fn(),
-            },
-            repos: {
-                createFile: jest.fn(),
-            },
-        };
-
-        // Passes the mocked out GitHub API into out app instance
-        app.auth = () => Promise.resolve(github);
-    });
 
     afterEach(() => {
         jest.clearAllMocks();
@@ -73,6 +42,3 @@ describe('Repository integration tests', () => {
 
     });
 });
-
-// For more information about using TypeScript in your tests, Jest recommends:
-// https://github.com/kulshekhar/ts-jest

@@ -1,6 +1,4 @@
 //
-// Repo Mountie
-//
 // Copyright © 2018, 2019 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,12 +18,10 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Application, Context } from 'probot';
-import robot from '../src';
+import { Context } from 'probot';
 import { COMMIT_FILE_NAMES, PR_TITLES } from '../src/constants';
-import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, hasPullRequestWithTitle, isOrgMember, labelExists, updateFileContent } from '../src/libs/ghutils';
-
-jest.mock('fs');
+import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists, updateFileContent } from '../src/libs/ghutils';
+import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/schedule-lic.json');
 const repoScheduledEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -39,11 +35,8 @@ const configResponse = JSON.parse(fs.readFileSync(p2, 'utf8'));
 const p3 = path.join(__dirname, 'fixtures/master.json');
 const master = JSON.parse(fs.readFileSync(p3, 'utf8'));
 
-const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
-const prNoAddLicense = JSON.parse(fs.readFileSync(p4, 'utf8'));
-
-const p5 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
-const prWithLicense = JSON.parse(fs.readFileSync(p5, 'utf8'));
+const p5 = path.join(__dirname, 'fixtures/repo-get-pulls.json');
+const listPulls = JSON.parse(fs.readFileSync(p5, 'utf8'));
 
 const p6 = path.join(__dirname, 'fixtures/repo-list-commits.json');
 const listCommits = JSON.parse(fs.readFileSync(p6, 'utf8'));
@@ -51,46 +44,15 @@ const listCommits = JSON.parse(fs.readFileSync(p6, 'utf8'));
 const p7 = path.join(__dirname, 'fixtures/org-user-ismember.json');
 const memberhip = JSON.parse(fs.readFileSync(p7, 'utf8'));
 
+const p8 = path.join(__dirname, 'fixtures/repo-get-collaborators.json');
+const collabs = JSON.parse(fs.readFileSync(p8, 'utf8'));
+
 describe('GitHub utility functions', () => {
-    let app;
-    let github;
     let context;
+    const { github } = helper;
 
     beforeEach(() => {
-        app = new Application();
-        app.app = { getSignedJsonWebToken: () => 'xxx' };
-        app.load(robot);
-
-        github = {
-            git: {
-                createRef: jest.fn(),
-                getRef: jest.fn(),
-            },
-            issues: {
-                addAssignees: jest.fn(),
-                createComment: jest.fn(),
-                listLabelsForRepo: jest.fn(),
-            },
-            orgs: {
-                checkMembership: jest.fn(),
-            },
-            pulls: {
-                create: jest.fn().mockReturnValueOnce(Promise.resolve()),
-                list: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
-            },
-            repos: {
-                createFile: jest.fn(),
-                createOrUpdateFile: jest.fn(),
-                getContents: jest.fn(),
-                listCommits: jest.fn().mockReturnValue(Promise.resolve(listCommits)),
-            },
-        };
-
-        // Passes the mocked out GitHub API into out app instance
-        app.auth = () => Promise.resolve(github);
-
         context = new Context(repoScheduledEvent, github as any, {} as any);
-
         context.payload.organization = {
             login: 'bcgov',
         };
@@ -159,15 +121,22 @@ describe('GitHub utility functions', () => {
         expect(github.repos.createFile).toHaveBeenCalled();
     });
 
+    it('Pull requests are retrieved', async () => {
+        github.pulls.list = jest.fn().mockReturnValueOnce(Promise.resolve(listPulls));
+        const results = await fetchPullRequests(context);
+
+        expect(results).toMatchSnapshot();
+    });
+
     it('A pull request should not exists', async () => {
+        github.pulls.list = jest.fn().mockReturnValueOnce(Promise.resolve(listPulls));
         const result = await hasPullRequestWithTitle(context, 'Hello');
 
         expect(result).toBeFalsy();
     });
 
-    it.skip('A pull request should exists', async () => {
-        github.pulls.list.mockReturnValueOnce(Promise.resolve(prWithLicense));
-
+    it('A pull request should exists', async () => {
+        github.pulls.list = jest.fn().mockReturnValueOnce(Promise.resolve(listPulls));
         const result = await hasPullRequestWithTitle(context, PR_TITLES.ADD_LICENSE);
 
         expect(result).toBeTruthy();
@@ -187,6 +156,8 @@ describe('GitHub utility functions', () => {
 
     it('File contents should be retrieved', async () => {
         github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
+        github.repos.listCommits = jest.fn().mockReturnValueOnce(Promise.resolve(listCommits));
+
         const results = await fetchContentsForFile(context, 'helo.yaml');
 
         expect(github.repos.listCommits).toHaveBeenCalled();
@@ -261,5 +232,13 @@ describe('GitHub utility functions', () => {
         github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.reject());
 
         await expect(checkIfFileExists(context, 'hello.yaml')).resolves.toBeFalsy();
+    });
+
+    it('Fetching collaborators should succeed', async () => {
+        github.repos.listCollaborators = jest.fn().mockReturnValueOnce(Promise.resolve(collabs));
+
+        const results = await fetchCollaborators(context);
+
+        expect(results).toMatchSnapshot();
     });
 });

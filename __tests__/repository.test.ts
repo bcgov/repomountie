@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2018 Province of British Columbia
+// Copyright © 2018, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,36 +18,21 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Application } from 'probot';
-import robot from '../src';
 import { addFileViaPullRequest, checkIfRefExists, hasPullRequestWithTitle } from '../src/libs/ghutils';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
 
 const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
-jest.mock('fs');
-
 jest.mock('../src/libs/ghutils', () => ({
-    checkIfRefExists: jest.fn().mockReturnValueOnce(Promise.resolve(true)),
-    hasPullRequestWithTitle: jest.fn().mockReturnValueOnce(Promise.resolve(false)),
     addFileViaPullRequest: jest.fn(),
+    checkIfRefExists: jest.fn().mockReturnValueOnce(Promise.resolve(true)),
     extractMessage: jest.fn().mockReturnValue('Hello Message'),
+    hasPullRequestWithTitle: jest.fn().mockReturnValueOnce(Promise.resolve(false)),
     loadTemplate: jest.fn().mockReturnValue('Hello'),
 }));
 
 describe('Repository integration tests', () => {
-    let app;
-    let github;
-
-    beforeEach(() => {
-        app = new Application();
-        app.app = { getSignedJsonWebToken: () => 'xxx' };
-        app.load(robot);
-
-        // Passes the mocked out GitHub API into out app instance
-        app.auth = () => Promise.resolve(github);
-    });
 
     afterEach(() => {
         jest.clearAllMocks();

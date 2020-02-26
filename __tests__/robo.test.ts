@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2019 Province of British Columbia
+// Copyright © 2019, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,9 +33,9 @@ const p2 = path.join(__dirname, 'fixtures/compliance.yaml');
 const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
 
 jest.mock('../src/libs/ghutils', () => ({
+    assignUsersToIssue: jest.fn(),
     fetchContentsForFile: jest.fn(),
     updateFileContent: jest.fn(),
-    assignUsersToIssue: jest.fn(),
 }));
 
 Date.now = jest.fn(() => 1576090712480);

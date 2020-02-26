@@ -28,7 +28,8 @@ module.exports = {
     '^.+\\.tsx?$': 'ts-jest',
   },
   testEnvironment: 'node',
-  testRegex: '(/__tests__/.*|\\.(test|spec))\\.[ts]sx?$',
-  testPathIgnorePatterns: ['/node_modules/', '/.cache/', '/build/', '/dist/'],
+  testRegex: ['(/__tests__/.*|(\\.|/)(test|spec))\\.[ts]sx?$'],
+  testPathIgnorePatterns: ['/node_modules/', '/.cache/',
+    '/build/', '/dist/', '/__tests__/src/'],
   verbose: true,
 };

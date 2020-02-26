@@ -1,0 +1,81 @@
+{
+    "status": 200,
+    "url": "https://api.github.com/repos/fullboar/hello4/collaborators",
+    "headers": {
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type",
+        "cache-control": "private, max-age=60, s-maxage=60",
+        "connection": "close",
+        "content-encoding": "gzip",
+        "content-security-policy": "default-src 'none'",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Tue, 25 Feb 2020 23:18:11 GMT",
+        "etag": "W/\"ba4ba69f7fc8220e61dca9d13f14c46c\"",
+        "referrer-policy": "origin-when-cross-origin, strict-origin-when-cross-origin",
+        "server": "GitHub.com",
+        "status": "200 OK",
+        "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+        "transfer-encoding": "chunked",
+        "vary": "Accept, Authorization, Cookie, X-GitHub-OTP, Accept-Encoding, Accept, X-Requested-With",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "deny",
+        "x-github-media-type": "github.v3; format=json",
+        "x-github-request-id": "FF5C:56F5:18C15C:3C634F:5E55AB32",
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "4987",
+        "x-ratelimit-reset": "1582676290",
+        "x-xss-protection": "1; mode=block"
+    },
+    "data": [
+        {
+            "login": "bobloblaw",
+            "id": 390383,
+            "node_id": "MDQ6VXNlcjM5MDM4Mwo=",
+            "avatar_url": "https://avatars0.githubusercontent.com/u/390891?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/bobloblaw",
+            "html_url": "https://github.com/bobloblaw",
+            "followers_url": "https://api.github.com/users/bobloblaw/followers",
+            "following_url": "https://api.github.com/users/bobloblaw/following{/other_user}",
+            "gists_url": "https://api.github.com/users/bobloblaw/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/bobloblaw/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/bobloblaw/subscriptions",
+            "organizations_url": "https://api.github.com/users/bobloblaw/orgs",
+            "repos_url": "https://api.github.com/users/bobloblaw/repos",
+            "events_url": "https://api.github.com/users/bobloblaw/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/bobloblaw/received_events",
+            "type": "User",
+            "site_admin": false,
+            "permissions": {
+                "admin": true,
+                "push": true,
+                "pull": true
+            }
+        },
+        {
+            "login": "helloteapot",
+            "id": 390777,
+            "node_id": "MDQ6VXNlcjM5MDc3Nwo=",
+            "avatar_url": "https://avatars0.githubusercontent.com/u/390891?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/helloteapot",
+            "html_url": "https://github.com/helloteapot",
+            "followers_url": "https://api.github.com/users/helloteapot/followers",
+            "following_url": "https://api.github.com/users/helloteapot/following{/other_user}",
+            "gists_url": "https://api.github.com/users/helloteapot/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/helloteapot/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/helloteapot/subscriptions",
+            "organizations_url": "https://api.github.com/users/helloteapot/orgs",
+            "repos_url": "https://api.github.com/users/helloteapot/repos",
+            "events_url": "https://api.github.com/users/helloteapot/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/helloteapot/received_events",
+            "type": "User",
+            "site_admin": false,
+            "permissions": {
+                "admin": false,
+                "push": true,
+                "pull": true
+            }
+        }
+    ]
+}
