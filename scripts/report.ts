@@ -17,6 +17,8 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import fs from 'fs';
+import moment from 'moment';
 import mongoose from 'mongoose';
 import config from '../src/config';
 import { ComplianceAudit } from '../src/models/compliance';
@@ -27,6 +29,7 @@ import { RepoMeta } from '../src/models/repometa';
  */
 const connect = async () => {
     const options = {
+        useCreateIndex: true,
         useNewUrlParser: true,
         useUnifiedTopology: true,
     };
@@ -82,8 +85,46 @@ const prune = async (repoNames: []): Promise<void> => {
     }
 };
 
-const report = async (repoNames: []) => {
-    console.log('TODO: Waiting for feedback from Nick.');
+const sortByMinistry = (records: any[]): any => {
+    const sortedData = {};
+    records.forEach((r) => {
+        if (!(r.ministry in sortedData)) {
+            sortedData[r.ministry] = [];
+        }
+        sortedData[r.ministry].push(r);
+    });
+
+    return sortedData;
+};
+
+const formatAsCSV = (data: any[]) => {
+    const header: any = ['ministry', 'repoName', 'productLead'];
+    const lines: any = [];
+    data.forEach((d) => {
+        const status: any = [];
+        d.records.forEach((r) => {
+            const prefix = r.name.toLowerCase();
+            if (!header.includes(`${prefix}Status`) || !header.includes(`${prefix}UpdatedAt`)) {
+                header.push(`${prefix}Status,${prefix}UpdatedAt`);
+            }
+            status.push(`${r.status},${moment(r.updatedAt).format('MM/DD/YY')}`);
+        });
+        lines.push(`${d.ministry},${d.repoName},${d.productLead},${status.join(',')}`);
+    });
+
+    lines.splice(0, 0, header.join(','));
+
+    return lines;
+};
+
+const report = async (compliance: []) => {
+    const sorted = sortByMinistry(compliance);
+    const keys = Object.keys(sorted);
+
+    keys.forEach((k) => {
+        const lines = formatAsCSV(sorted[k]).join('\n');
+        fs.writeFileSync(`./data/${k}.csv`, lines);
+    });
 };
 
 /**
