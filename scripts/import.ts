@@ -24,6 +24,9 @@ import { RepoMeta } from '../src/models/repometa';
 
 const dataFilePath = './data/csv_output.csv';
 
+/**
+ * Connect to mongo database
+ */
 const connect = async () => {
     const options = {
         useCreateIndex: true,
@@ -39,16 +42,24 @@ const connect = async () => {
     await mongoose.connect(curl, options);
 };
 
+/**
+ * Close connection to mongo database
+ * The connection to mongo needs to be closed so the script
+ * can exit.
+ */
 const cleanup = () => {
     mongoose.connection.close();
 };
 
+/**
+ * Main functionality
+ */
 const main = async () => {
     try {
         await connect();
 
         const fin = fs.readFileSync(dataFilePath);
-        let temp = {};
+        const temp = {};
         let keepers = parse(fin, {
             columns: true,
             skip_empty_lines: true,
