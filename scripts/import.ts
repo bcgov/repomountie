@@ -67,6 +67,7 @@ const main = async () => {
         await RepoMeta.collection.deleteMany();
         await RepoMeta.collection.insertMany(keepers);
 
+        // tslint:disable-next-line:no-console
         console.log(`importing ${keepers.length} records`);
 
         cleanup();
