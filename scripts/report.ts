@@ -85,6 +85,11 @@ const prune = async (repoNames: []): Promise<void> => {
     }
 };
 
+/**
+ * Bucket sort records by ministry
+ * @param {array} records The compliance records
+ * @returns A dictionary of records where the key is the ministry
+ */
 const sortByMinistry = (records: any[]): any => {
     const sortedData = {};
     records.forEach((r) => {
@@ -97,7 +102,12 @@ const sortByMinistry = (records: any[]): any => {
     return sortedData;
 };
 
-const formatAsCSV = (data: any[]) => {
+/**
+ * Convert an array of compliance records to CSV with header
+ * @param {array} data The compliance records
+ * @returns A string formatted as CSV with header fields.
+ */
+const formatAsCSV = (data: any[]): string => {
     const header: any = ['ministry', 'repoName', 'productLead'];
     const lines: any = [];
     data.forEach((d) => {
@@ -114,15 +124,22 @@ const formatAsCSV = (data: any[]) => {
 
     lines.splice(0, 0, header.join(','));
 
-    return lines;
+    return lines.join('\n');
 };
 
-const report = async (compliance: []) => {
+/**
+ * Generate the compliance report
+ * This func will generate a compliance report in CSV format
+ * with header(s). One file will be created for each sorting key
+ * which in this context is the ministry.
+ * @param {array} data The compliance records
+ */
+const report = (compliance: []): void => {
     const sorted = sortByMinistry(compliance);
     const keys = Object.keys(sorted);
 
     keys.forEach((k) => {
-        const lines = formatAsCSV(sorted[k]).join('\n');
+        const lines = formatAsCSV(sorted[k]);
         fs.writeFileSync(`./data/${k}.csv`, lines);
     });
 };
@@ -133,7 +150,7 @@ const report = async (compliance: []) => {
  * @param {Object[]} meta Repository metadata records
  * @returns An array of compliance records populated with additional metadata.
  */
-const merge = (compliance, meta) => {
+const merge = (compliance, meta): any[] => {
     const merged: any = [];
     compliance.forEach((c) => {
         const repodata = meta.find((m) => m.repository === c.repoName);
@@ -157,41 +174,34 @@ const merge = (compliance, meta) => {
  * The connection to mongo needs to be closed so the script
  * can exit.
  */
-const cleanup = () => {
+const cleanup = (): void => {
     mongoose.connection.close();
 };
 
 /**
  * Main functionality
  */
-const main = async () => {
+const main = async (): Promise<void> => {
     try {
+        // Connect to the database
         connect();
 
-        // { "_id" : ObjectId("5e6045eac163623463609bd0"),
-        // "repository" : "representation-grant" }
+        // Prune duplicate records from the database. We're only interested in
+        // changes over time.
         const reponames = await ComplianceAudit.find({}, { repoName: 1, _id: 0 }).distinct('repoName');
         await prune(reponames);
 
-        // { "_id" : ObjectId("5e6045eac163623463609bd0"), "project" : "ag-csb-representation-grant-tools",
-        // "buildConfigName" : "web-pipeline", "gitOrg" : "bcgov",
-        // "repository" : "representation-grant", "productLead" : "ryan.loiselle@gov.bc.ca",
-        // "ministry" : "AG", "org" : "CRTINNOVAT" }
-        const meta = await RepoMeta.find({}, { gitOrg: 0, buildConfigName: 0, _id: 0 }).lean();
+        // Fetch the metadata scraped from OCP and merge it (where possible) into
+        // the compliance records. This information populates the `ministry`
+        // field on which the records will be sorted and reported.
+        const meta: any = await RepoMeta.find({}, { gitOrg: 0, buildConfigName: 0, _id: 0 }).lean();
+        const compliance: any = await ComplianceAudit.find().lean();
+        const merged: any = merge(compliance, meta);
 
-        // { "_id" : ObjectId("5e55940daa59fb0021144e5d"), "orgName" : "fullboar",
-        // "records" : [ { "_id" : ObjectId("5e55940daa59fb0021144e5e"),
-        // "name" : "PIA", "status" : "completed",
-        // "updatedAt" : ISODate("2020-01-09T22:13:28.138Z") },
-        // { "_id" : ObjectId("5e55940daa59fb0021144e5f"), "name" : "STRA",
-        // "status" : "exempt", "updatedAt" : ISODate("2020-01-09T22:13:28.138Z") } ],
-        // "repoName" : "hello6", "createdAt" : ISODate("2020-02-25T21:39:25.350Z"),
-        // "updatedAt" : ISODate("2020-02-25T21:39:25.350Z"), "__v" : 0 }
-        const compliance = await ComplianceAudit.find().lean();
-
-        const merged = merge(compliance, meta);
+        // Generate a series of CSV report files.
         report(merged);
 
+        // Close database connections
         cleanup();
     } catch (err) {
         const message = `Unable to open database connection`;
