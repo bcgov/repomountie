@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2018 Province of British Columbia
+// Copyright © 2018, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,49 +18,26 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Application, Context } from 'probot';
-import robot from '../src';
+import { Context } from 'probot';
 import { fetchConfigFile } from '../src/libs/ghutils';
 import { extractCommands, isValidPullRequestLength, shouldIgnoredLengthCheck } from '../src/libs/pullrequest';
-
-jest.mock('fs');
+import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/pull_request-opened-event.json');
+const issueOpenedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
+
 const p1 = path.join(__dirname, 'fixtures/repo-get-content-config.json');
+const repoFileContent = JSON.parse(fs.readFileSync(p1, 'utf8'));
+
 const p2 = path.join(__dirname, 'fixtures/rmconfig.json');
+const repoMountieConfig = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
 describe('Repository integration tests', () => {
-  let app;
-  let github;
   let context;
-  let issueOpenedEvent;
-  let repoFileContent;
-  let repoMountieConfig;
+  const { app, github } = helper;
 
   beforeEach(() => {
-    app = new Application();
-    app.app = { getSignedJsonWebToken: () => 'xxx' };
-    app.load(robot);
-
-    issueOpenedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
-    repoFileContent = JSON.parse(fs.readFileSync(p1, 'utf8'));
-    repoMountieConfig = JSON.parse(fs.readFileSync(p2, 'utf8'));
-
-    github = {
-      issues: {
-        createComment: jest.fn(),
-      },
-      repos: {
-        createFile: jest.fn(),
-        getContents: jest.fn().mockReturnValueOnce(Promise.resolve(repoFileContent)),
-      },
-    };
-
-    // Passes the mocked out GitHub API into out app instance
-    app.auth = () => Promise.resolve(github);
-
     context = new Context(issueOpenedEvent, github as any, {} as any);
-
     context.payload.organization = {
       login: 'bcgov',
     };
@@ -73,6 +48,8 @@ describe('Repository integration tests', () => {
   });
 
   it('A config file should be fetched from the repo', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(repoFileContent));
+
     const response = await fetchConfigFile(context);
 
     expect(response).not.toBe(repoMountieConfig);
@@ -80,6 +57,8 @@ describe('Repository integration tests', () => {
   });
 
   it('A repo with no config should be handled gracefully', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(repoFileContent));
+
     const err = new Error('Unable to process config file.');
     const getContents = jest.fn().mockReturnValueOnce(Promise.reject(err));
     github.repos.getContents = getContents;
@@ -113,6 +92,8 @@ describe('Repository integration tests', () => {
   });
 
   it('A long PR should trigger a help comment to be added', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(repoFileContent));
+
     context.payload.pull_request.additions = 1000;
     await app.receive({
       name: 'pull_request.opened',
@@ -150,7 +131,9 @@ describe('Repository integration tests', () => {
   });
 
   it('A PR with the ignore command should be ignored', async () => {
+    github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(repoFileContent));
     issueOpenedEvent.payload.pull_request.body += '\n /bot-ignore-length';
+
     await app.receive({
       name: 'pull_request.opened',
       payload: issueOpenedEvent.payload,
@@ -160,6 +143,3 @@ describe('Repository integration tests', () => {
     expect(github.issues.createComment).not.toHaveBeenCalled();
   });
 });
-
-// For more information about using TypeScript in your tests, Jest recommends:
-// https://github.com/kulshekhar/ts-jest

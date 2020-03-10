@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2018 Province of British Columbia
+// Copyright © 2018, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +18,9 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Application } from 'probot';
-import robot from '../src';
 import { fetchConfigFile, labelExists } from '../src/libs/ghutils';
 import { loadTemplate } from '../src/libs/utils';
+import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
 const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -50,8 +47,8 @@ const p7 = path.join(__dirname, '../templates/stale_issue_comment.md');
 const template = fs.readFileSync(p7, 'utf8');
 
 jest.mock('../src/libs/repository', () => ({
-  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
   addLicenseIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
 }));
 
 jest.mock('../src/libs/ghutils', () => ({
@@ -68,47 +65,15 @@ jest.mock('../src/libs/utils', () => ({
 }));
 
 describe('Repository integration tests', () => {
-  let app;
-  let github;
+  const { app, github } = helper;
 
   beforeEach(() => {
-    app = new Application();
-    app.app = { getSignedJsonWebToken: () => 'xxx' };
-    app.load(robot);
-
-    github = {
-      gitdata: {
-        createRef: jest.fn(),
-        getRef: jest.fn(),
-      },
-      issues: {
-        addAssignees: jest.fn(),
-        addLabels: jest.fn(),
-        createComment: jest.fn(),
-        update: jest.fn(),
-      },
-      search: {
-        issuesAndPullRequests: jest.fn(),
-      },
-      pullRequests: {
-        create: jest.fn(),
-        getAll: jest.fn(),
-        list: jest.fn(),
-      },
-      repos: {
-        createFile: jest.fn(),
-      },
-    };
-
-    // Passes the mocked out GitHub API into out app instance
-    app.auth = () => Promise.resolve(github);
-
     // @ts-ignore
-    fetchConfigFile.mockReturnValue(config)
+    fetchConfigFile.mockReturnValue(config);
     // @ts-ignore
-    loadTemplate.mockReturnValue(template)
+    loadTemplate.mockReturnValue(template);
     // @ts-ignore
-    labelExists.mockReturnValue(true)
+    labelExists.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -169,7 +134,6 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).toBeCalled();
   });
 
-
   it('Stale config stanza missing skips', async () => {
     const myConfig = Object.assign({}, config);
     delete myConfig.staleIssue;
@@ -223,6 +187,3 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).toBeCalled();
   });
 });
-
-// For more information about using TypeScript in your tests, Jest recommends:
-// https://github.com/kulshekhar/ts-jest

@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2018 Province of British Columbia
+// Copyright © 2018, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,15 +18,12 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Application } from 'probot';
-import robot from '../src';
+import helper from './src/helper';
 
 jest.mock('../src/libs/repository', () => ({
-  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
   addLicenseIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
+  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
 }));
-
-jest.mock('fs');
 
 const p0 = path.join(__dirname, 'fixtures/repo-created-lic.json');
 const payloadWithLic = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -49,44 +44,15 @@ const p5 = path.join(__dirname, 'fixtures/repo-archived-lic.json');
 const archivedLic = JSON.parse(fs.readFileSync(p5, 'utf8'));
 
 describe('Repository integration tests', () => {
-  let app;
-  let github;
-
-  beforeEach(() => {
-    app = new Application();
-    app.app = { getSignedJsonWebToken: () => 'xxx' };
-    app.load(robot);
-    const getRef = jest.fn();
-    getRef.mockReturnValueOnce(master);
-    getRef.mockReturnValueOnce(master);
-
-    github = {
-      git: {
-        createRef: jest.fn(),
-        getRef,
-      },
-      issues: {
-        addAssignees: jest.fn(),
-      },
-      pulls: {
-        create: jest.fn().mockReturnValueOnce(Promise.resolve()),
-        list: jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense)),
-      },
-      repos: {
-        createFile: jest.fn(),
-        getContents: jest.fn(),
-      },
-    };
-
-    // Passes the mocked out GitHub API into out app instance
-    app.auth = () => Promise.resolve(github);
-  });
+  const { app, github } = helper;
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('A repository without a license should have one added', async () => {
+    github.pulls.list = jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense));
+
     await app.receive({
       name: 'schedule.repository',
       payload: payloadNoLic,
@@ -174,6 +140,3 @@ describe('Repository integration tests', () => {
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 });
-
-// For more information about using TypeScript in your tests, Jest recommends:
-// https://github.com/kulshekhar/ts-jest

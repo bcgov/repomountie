@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2019 Province of British Columbia
+// Copyright © 2019, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +18,15 @@
 
 import fs from 'fs';
 import yaml from 'js-yaml';
+import nock from 'nock';
 import path from 'path';
 import { GITHUB_ID, PR_TITLES } from '../src/constants';
 import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from '../src/libs/ghutils';
 import { applyComplianceCommands, handleBotCommand, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
+
+nock('https://api.github.com')
+    .get('/app/installations')
+    .reply(200, {});
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -35,9 +38,9 @@ const p2 = path.join(__dirname, 'fixtures/compliance.yaml');
 const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
 
 jest.mock('../src/libs/ghutils', () => ({
+    assignUsersToIssue: jest.fn(),
     fetchContentsForFile: jest.fn(),
     updateFileContent: jest.fn(),
-    assignUsersToIssue: jest.fn(),
 }));
 
 Date.now = jest.fn(() => 1576090712480);

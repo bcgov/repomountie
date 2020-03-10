@@ -1,7 +1,5 @@
 //
-// Repo Mountie
-//
-// Copyright © 2018 Province of British Columbia
+// Copyright © 2018, 2020 Province of British Columbia
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,6 +57,7 @@ describe('Utility functions', () => {
     const mobj = extractComplianceStatus('blarb', 'blarb', doc);
 
     expect(mobj._id).not.toBeUndefined();
+    // @ts-ignore
     expect(mobj.records).not.toBeUndefined();
   });
 });

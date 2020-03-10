@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "allowJs": false,
-    "lib": ["es2018"],
+    "lib": [
+      "es2018"
+    ],
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2018",
@@ -17,6 +19,9 @@
     "esModuleInterop": true,
     "declaration": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "__tests__/src/helper.ts"
+  ],
   "compileOnSave": false
 }

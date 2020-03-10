@@ -62,6 +62,7 @@ export const checkIfRefExists = async (context: Context, ref = context.payload.r
     return true;
   } catch (err) {
     logger.info(`No ref ${ref} exists in ${context.payload.repository.name}`);
+
     return false;
   }
 };
@@ -288,12 +289,54 @@ export const addFileViaPullRequest = async (
         base: context.payload.repository.default_branch,
         body: prBody,
         head: srcBranchName,
-        maintainer_can_modify: true, // maintainers cat edit your this PR
+        maintainer_can_modify: true, // maintainers can edit this PR
         title: prTitle,
       })
     );
   } catch (err) {
     const message = `Unable to add ${fileName} file to ${context.payload.repository.name}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
+
+export const fetchCollaborators = async (context): Promise<any[]> => {
+  try {
+    const results = await context.github.repos.listCollaborators(
+      context.repo()
+    );
+
+    if (!results && !results.data) {
+      return [];
+    }
+
+    return results.data;
+  } catch (err) {
+    const message = `Unable to lookup collaborators in repo ${context.payload.repository.name}`;
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
+
+export const fetchPullRequests = async (
+  context, state = 'all'
+): Promise<any[]> => {
+  try {
+    const results = await context.github.pulls.list(
+      context.repo({
+        state,
+      })
+    );
+
+    if (!results && !results.data) {
+      return [];
+    }
+
+    return results.data;
+  } catch (err) {
+    const message = `Unable to lookup PRs in repo ${context.payload.repository.name}`;
     logger.error(`${message}, error = ${err.message}`);
 
     throw err;
@@ -312,14 +355,10 @@ export const hasPullRequestWithTitle = async (
   context, title, state = 'all'
 ): Promise<boolean> => {
   try {
-    const pulls = await context.github.pulls.list(
-      context.repo({
-        state,
-      })
-    );
+    const results = await fetchPullRequests(context, state);
 
-    if (pulls && pulls.data) {
-      return pulls.data.filter((pr) => pr.title === title).length > 0;
+    if (results.filter((pr) => pr.title === title).length > 0) {
+      return true;
     }
 
     return false;

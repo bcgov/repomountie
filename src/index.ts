@@ -22,7 +22,7 @@ import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import config from './config';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
-import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
+import { assignUsersToIssue, fetchCollaborators, fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
@@ -77,7 +77,7 @@ export = async (app: Application) => {
 
   async function pullRequestOpened(context: Context) {
     try {
-      const owner = context.payload.installation.account.login;
+      const owner = context.payload.organization.login;
       const isFromBot = context.isBot;
 
       if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
@@ -89,14 +89,16 @@ export = async (app: Application) => {
         return;
       }
 
-      // This can throw a `TypeError` during testing.
       if (isFromBot) {
-        // Don't act crazy.
-        logger.info(
-          `Skipping PR ${context.payload.pull_request.number} for repo ${
-          context.payload.repository.name
-          } because its from a bot`
-        );
+        if (context.payload.pull_request.assignees.length === 0) {
+          const collaborators = await fetchCollaborators(context);
+          const admins = collaborators.filter((c) => c.permissions.admin === true)
+            .map((u) => u.login);
+          if (admins.length > 0) {
+            await assignUsersToIssue(context, admins);
+          }
+        }
+
         return;
       }
     } catch (err) {
