@@ -41,5 +41,7 @@ const ComplianceAuditSchema = new mongoose.Schema({
     },
 });
 
-export const ComplianceAudit = mongoose.model('ComplianceAudit',
+const ComplianceAudit = mongoose.model('ComplianceAudit',
     ComplianceAuditSchema);
+
+export default ComplianceAudit;

@@ -17,11 +17,10 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
-import mongoose from 'mongoose';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
-import config from './config';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
+import { cleanup, connect } from './db';
 import { assignUsersToIssue, fetchCollaborators, fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
@@ -62,17 +61,13 @@ export = async (app: Application) => {
   // app.on('repository_vulnerability_alert.create', blarb);
 
   try {
-    const options = {};
-    const user = config.get('db:user');
-    const passwd = config.get('db:password');
-    const host = config.get('db:host');
-    const dbname = config.get('db:database');
-    const curl = `mongodb://${user}:${passwd}@${host}/${dbname}`;
-
-    await mongoose.connect(curl, options);
+    await connect();
   } catch (err) {
     const message = `Unable to open database connection`;
     throw new Error(`${message}, error = ${err.message}`);
+  } finally {
+    // for good measure
+    cleanup();
   }
 
   async function pullRequestOpened(context: Context) {
