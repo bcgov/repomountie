@@ -20,7 +20,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
-import { connect } from './db';
+import { cleanup, connect } from './db';
 import { assignUsersToIssue, fetchCollaborators, fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
@@ -65,6 +65,9 @@ export = async (app: Application) => {
   } catch (err) {
     const message = `Unable to open database connection`;
     throw new Error(`${message}, error = ${err.message}`);
+  } finally {
+    // for good measure
+    cleanup();
   }
 
   async function pullRequestOpened(context: Context) {

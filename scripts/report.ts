@@ -166,7 +166,7 @@ const merge = (compliance, meta): any[] => {
 const main = async (): Promise<void> => {
     try {
         // Connect to the database
-        connect();
+        await connect();
 
         // Prune duplicate records from the database. We're only interested in
         // changes over time.
