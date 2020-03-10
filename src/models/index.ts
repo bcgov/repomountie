@@ -22,4 +22,3 @@ import ComplianceAudit from './compliance';
 import RepoMeta from './repometa';
 
 export { ComplianceAudit, RepoMeta };
-
