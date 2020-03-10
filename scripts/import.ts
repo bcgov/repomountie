@@ -20,7 +20,7 @@ import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import mongoose from 'mongoose';
 import config from '../src/config';
-import { RepoMeta } from '../src/models/repometa';
+import { RepoMeta } from '../src/models';
 
 const dataFilePath = './data/csv_output.csv';
 

@@ -21,8 +21,7 @@ import fs from 'fs';
 import moment from 'moment';
 import mongoose from 'mongoose';
 import config from '../src/config';
-import { ComplianceAudit } from '../src/models/compliance';
-import { RepoMeta } from '../src/models/repometa';
+import { ComplianceAudit, RepoMeta } from '../src/models';
 
 /**
  * Connect to mongo database

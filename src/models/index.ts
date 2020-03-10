@@ -13,35 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Created by Jason Leach on 2020-01-27.
+// Created by Jason Leach on 2020-03-10.
 //
 
-import mongoose from 'mongoose';
+'use strict';
 
-const ComplianceAuditSchema = new mongoose.Schema({
-    orgName: {
-        index: true,
-        type: String,
-    },
-    records: [
-        {
-            name: String,
-            status: String,
-            updatedAt: Date,
-        },
-    ],
-    repoName: {
-        index: true,
-        type: String,
-    },
-}, {
-    timestamps: {
-        createdAt: 'createdAt',
-        updatedAt: 'updatedAt',
-    },
-});
+import ComplianceAudit from './compliance';
+import RepoMeta from './repometa';
 
-const ComplianceAudit = mongoose.model('ComplianceAudit',
-    ComplianceAuditSchema);
+export { ComplianceAudit, RepoMeta };
 
-export default ComplianceAudit;

@@ -49,5 +49,7 @@ const RepoMetaSchema = new mongoose.Schema({
     },
 });
 
-export const RepoMeta = mongoose.model('RepoMeta',
+const RepoMeta = mongoose.model('RepoMeta',
     RepoMetaSchema);
+
+export default RepoMeta;
