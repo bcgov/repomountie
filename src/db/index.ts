@@ -18,7 +18,36 @@
 
 'use strict';
 
+import mongoose from 'mongoose';
+import config from '../config';
 import ComplianceAudit from './compliance';
 import RepoMeta from './repometa';
+
+/**
+ * Connect to mongo database
+ */
+export const connect = async () => {
+    const options = {
+        useCreateIndex: true,
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    };
+    const user = config.get('db:user');
+    const passwd = config.get('db:password');
+    const host = config.get('db:host');
+    const dbname = config.get('db:database');
+    const curl = `mongodb://${user}:${passwd}@${host}/${dbname}`;
+
+    await mongoose.connect(curl, options);
+};
+
+/**
+ * Close connection to mongo database
+ * The connection to mongo needs to be closed so the script
+ * can exit.
+ */
+export const cleanup = () => {
+    mongoose.connection.close();
+};
 
 export { ComplianceAudit, RepoMeta };

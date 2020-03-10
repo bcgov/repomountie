@@ -18,38 +18,9 @@
 
 import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
-import mongoose from 'mongoose';
-import config from '../src/config';
-import { RepoMeta } from '../src/models';
+import { cleanup, connect, RepoMeta } from '../src/db';
 
 const dataFilePath = './data/csv_output.csv';
-
-/**
- * Connect to mongo database
- */
-const connect = async () => {
-    const options = {
-        useCreateIndex: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    };
-    const user = config.get('db:user');
-    const passwd = config.get('db:password');
-    const host = config.get('db:host');
-    const dbname = config.get('db:database');
-    const curl = `mongodb://${user}:${passwd}@${host}/${dbname}`;
-
-    await mongoose.connect(curl, options);
-};
-
-/**
- * Close connection to mongo database
- * The connection to mongo needs to be closed so the script
- * can exit.
- */
-const cleanup = () => {
-    mongoose.connection.close();
-};
 
 /**
  * Main functionality
@@ -59,32 +30,44 @@ const main = async () => {
         await connect();
 
         const fin = fs.readFileSync(dataFilePath);
-        const temp = {};
-        let keepers = parse(fin, {
+
+        // Read in and parse the CSV to POJOs.
+        const records = parse(fin, {
             columns: true,
             skip_empty_lines: true,
-        })
-            .filter((r) => r.gitOrg !== 'BCDevOps' && r.ministry !== '')
-            .map((r) => {
-                return { ...r, repository: r.repository.split('.')[0] };
-            });
-
-        keepers.forEach((k) => {
-            temp[`${k.project.split('-').slice(0, -1)}-${k.repository}`] = k;
         });
 
-        keepers = Object.keys(temp).map((k) => temp[k]);
+        // Filter out some objects we don't want and transform some object properties
+        // to be in a format that is more consumable.
+        const transformedRecords = records
+            .filter((r) => r.gitOrg !== 'BCDevOps' && r.ministry !== '')
+            .map((r) => {
+                // Remove `.git` from repository name.
+                return { ...r, repository: r.repository.split('.')[0] };
+            }).reduce((acc, cur) => {
+                // Strip dev/test/tools from the project name (namespace) and combine it
+                // with the repo name for a dictionary key.
+                acc[`${cur.project.split('-').slice(0, -1)}-${cur.repository}`] = cur;
 
-        await RepoMeta.collection.deleteMany();
+                return acc;
+            }, {});
+
+        // Convert the POJO back to an array
+        const keepers = Object.keys(transformedRecords).map((k) => transformedRecords[k]);
+
+        // The `repometa` collection is reference data and should not
+        // accumulate so we flush it before doing a fresh import.
+        await RepoMeta.collection.deleteMany({});
+        // Import the new ref data.
         await RepoMeta.collection.insertMany(keepers);
 
         // tslint:disable-next-line:no-console
         console.log(`importing ${keepers.length} records`);
-
-        cleanup();
     } catch (err) {
-        const message = `Unable to open database connection`;
+        const message = `Unable to import all records`;
         throw new Error(`${message}, error = ${err.message}`);
+    } finally {
+        cleanup();
     }
 };
 

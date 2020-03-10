@@ -19,27 +19,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import fs from 'fs';
 import moment from 'moment';
-import mongoose from 'mongoose';
-import config from '../src/config';
-import { ComplianceAudit, RepoMeta } from '../src/models';
-
-/**
- * Connect to mongo database
- */
-const connect = async () => {
-    const options = {
-        useCreateIndex: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    };
-    const user = config.get('db:user');
-    const passwd = config.get('db:password');
-    const host = config.get('db:host');
-    const dbname = config.get('db:database');
-    const curl = `mongodb://${user}:${passwd}@${host}/${dbname}`;
-
-    await mongoose.connect(curl, options);
-};
+import { cleanup, ComplianceAudit, connect, RepoMeta } from '../src/db';
 
 /**
  * Remove duplicate records
@@ -49,6 +29,9 @@ const connect = async () => {
  * @returns Resolves when processing is complete, rejects on failure.
  */
 const prune = async (repoNames: []): Promise<void> => {
+    const piaRecordName = 'PIA';
+    const straRecordName = 'STRA';
+
     try {
         for (const name of repoNames) {
             const dupes: any = [];
@@ -61,10 +44,10 @@ const prune = async (repoNames: []): Promise<void> => {
                     return;
                 }
 
-                const cPIA = cur.records.filter((v) => v.name === 'PIA');
-                const cSTRA = cur.records.filter((v) => v.name === 'STRA');
-                const lPIA = last.records.filter((v) => v.name === 'PIA');
-                const lSTRA = cur.records.filter((v) => v.name === 'STRA');
+                const cPIA = cur.records.filter((v) => v.name === piaRecordName);
+                const cSTRA = cur.records.filter((v) => v.name === straRecordName);
+                const lPIA = last.records.filter((v) => v.name === piaRecordName);
+                const lSTRA = cur.records.filter((v) => v.name === straRecordName);
 
                 if ((cPIA.status === lPIA.status) && cSTRA.status === lSTRA.status) {
                     dupes.push(cur._id);
@@ -89,17 +72,15 @@ const prune = async (repoNames: []): Promise<void> => {
  * @param {array} records The compliance records
  * @returns A dictionary of records where the key is the ministry
  */
-const sortByMinistry = (records: any[]): any => {
-    const sortedData = {};
-    records.forEach((r) => {
-        if (!(r.ministry in sortedData)) {
-            sortedData[r.ministry] = [];
+const sortByMinistry = (records: any[]): any =>
+    records.reduce((acc, cur) => {
+        if (!(cur.ministry in acc)) {
+            acc[cur.ministry] = [];
         }
-        sortedData[r.ministry].push(r);
-    });
+        acc[cur.ministry].push(cur);
 
-    return sortedData;
-};
+        return acc;
+    }, {});
 
 /**
  * Convert an array of compliance records to CSV with header
@@ -109,18 +90,29 @@ const sortByMinistry = (records: any[]): any => {
 const formatAsCSV = (data: any[]): string => {
     const header: any = ['ministry', 'repoName', 'productLead'];
     const lines: any = [];
+
+    // Build the CSV file, one line for each record in the
+    // input data.
     data.forEach((d) => {
         const status: any = [];
+        // Each data item will have a PIA and STRA record; its not clear if they
+        // will always be in the same order so they are added to the header and
+        // CSV dynamically.
+        // TODO:(jl) Better to sort alphabetically and just pull out the first
+        // two records?
         d.records.forEach((r) => {
             const prefix = r.name.toLowerCase();
             if (!header.includes(`${prefix}Status`) || !header.includes(`${prefix}UpdatedAt`)) {
                 header.push(`${prefix}Status,${prefix}UpdatedAt`);
             }
+            // / add to the status array, joined to the CSV later
             status.push(`${r.status},${moment(r.updatedAt).format('MM/DD/YY')}`);
         });
+        // add the line to the CSV array
         lines.push(`${d.ministry},${d.repoName},${d.productLead},${status.join(',')}`);
     });
 
+    // insert the header at the front of the array
     lines.splice(0, 0, header.join(','));
 
     return lines.join('\n');
@@ -169,15 +161,6 @@ const merge = (compliance, meta): any[] => {
 };
 
 /**
- * Close connection to mongo database
- * The connection to mongo needs to be closed so the script
- * can exit.
- */
-const cleanup = (): void => {
-    mongoose.connection.close();
-};
-
-/**
  * Main functionality
  */
 const main = async (): Promise<void> => {
@@ -199,12 +182,12 @@ const main = async (): Promise<void> => {
 
         // Generate a series of CSV report files.
         report(merged);
-
-        // Close database connections
-        cleanup();
     } catch (err) {
         const message = `Unable to open database connection`;
         throw new Error(`${message}, error = ${err.message}`);
+    } finally {
+        // Close database connections
+        cleanup();
     }
 };
 

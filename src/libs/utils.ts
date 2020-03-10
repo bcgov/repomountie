@@ -18,7 +18,7 @@
 
 import fs from 'fs';
 import util from 'util';
-import { ComplianceAudit } from '../models';
+import { ComplianceAudit } from '../db';
 
 /**
  * Check if a string is valid JSON
