@@ -63,7 +63,7 @@ oc process -f openshift/templates/deploy.json \
 
 This project is **active**.
 
-Progress to date, known issues, or new features will be documented on our publicly available Trello board [here](https://trello.com/b/HGJpxQdS/mobile-pathfinder).
+Progress to date, known issues, or new features will be documented in the `issues` section of this repo.
 
 ## Getting Help or Reporting an Issue
 
