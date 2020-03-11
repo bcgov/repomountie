@@ -92,6 +92,11 @@ objects:
                   value: debug
                 # - name: PRIVATE_KEY_PATH
                 #   value: /etc/github-creds/key.pem
+                - name: WEBHOOK_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: webhook-secret
+                      name: github-creds
                 - name: PRIVATE_KEY
                   valueFrom:
                     secretKeyRef:
