@@ -21,7 +21,7 @@ import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
 import { cleanup, connect } from './db';
-import { assignUsersToIssue, fetchCollaborators, fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
+import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
@@ -85,15 +85,7 @@ export = async (app: Application) => {
       }
 
       if (isFromBot) {
-        if (context.payload.pull_request.assignees.length === 0) {
-          const collaborators = await fetchCollaborators(context);
-          const admins = collaborators.filter((c) => c.permissions.admin === true)
-            .map((u) => u.login);
-          if (admins.length > 0) {
-            await assignUsersToIssue(context, admins);
-          }
-        }
-
+        // Ignore issues created by a 🤖
         return;
       }
     } catch (err) {
