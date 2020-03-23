@@ -22,9 +22,19 @@ import robot from '../../src';
 
 jest.mock('mongoose');
 
+jest.mock('../../src/db', () => ({
+    cleanup: jest.fn(),
+    connect: jest.fn(),
+}));
+
 nock('https://api.github.com')
     .get('/app/installations')
-    .reply(200, {});
+    .query({ per_page: 100 })
+    .reply(200, {
+        account: {
+            login: 'nomatter',
+        },
+    });
 
 let app;
 let github;
@@ -33,7 +43,16 @@ app = new Application();
 app.app = { getSignedJsonWebToken: () => 'xxx' };
 app.load(robot);
 
+
 github = {
+    paginate: jest.fn().mockReturnValue([]),
+    apps: {
+        listRepos: {
+            endpoint: {
+                merge: jest.fn(),
+            },
+        },
+    },
     git: {
         createRef: jest.fn(),
         getRef: jest.fn(),
