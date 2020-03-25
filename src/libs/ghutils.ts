@@ -301,10 +301,12 @@ export const addFileViaPullRequest = async (
   }
 };
 
-export const fetchCollaborators = async (context): Promise<any[]> => {
+export const fetchCollaborators = async (context, affiliation='all'): Promise<any[]> => {
   try {
     const results = await context.github.repos.listCollaborators(
-      context.repo()
+      context.repo({
+        affiliation,
+      })
     );
 
     if (!results && !results.data) {
