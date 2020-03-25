@@ -20,8 +20,8 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
-import { cleanup, connect } from './db';
-import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
+import { connect } from './db';
+import { assignUsersToIssue, fetchCollaborators, fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
@@ -54,9 +54,9 @@ export = async (app: Application) => {
     interval: SCHEDULER_DELAY,
   });
 
+  app.on('schedule.repository', repositoryScheduled);
   app.on('pull_request.opened', pullRequestOpened);
   app.on('issue_comment.created', issueCommentCreated);
-  app.on('schedule.repository', repositoryScheduled);
   app.on('repository.deleted', repositoryDelete);
   // app.on('repository_vulnerability_alert.create', blarb);
 
@@ -65,9 +65,6 @@ export = async (app: Application) => {
   } catch (err) {
     const message = `Unable to open database connection`;
     throw new Error(`${message}, error = ${err.message}`);
-  } finally {
-    // for good measure
-    cleanup();
   }
 
   async function pullRequestOpened(context: Context) {
@@ -85,7 +82,15 @@ export = async (app: Application) => {
       }
 
       if (isFromBot) {
-        // Ignore issues created by a 🤖
+        if (context.payload.pull_request.assignees.length === 0) {
+          const collaborators = await fetchCollaborators(context, 'direct');
+          const admins = collaborators.filter((c) => c.permissions.admin === true)
+            .map((u) => u.login);
+          if (admins.length > 0) {
+            await assignUsersToIssue(context, admins);
+          }
+        }
+
         return;
       }
     } catch (err) {
@@ -104,6 +109,7 @@ export = async (app: Application) => {
   }
 
   async function issueCommentCreated(context: Context) {
+
     try {
       const owner = context.payload.organization.login;
       const isFromBot = context.isBot;
