@@ -19,13 +19,13 @@
 'use strict';
 
 export enum RepoAffiliation {
-    All = "all",
-    Direct = "direct",
-    Outside = "outside"
+    All = 'all',
+    Direct = 'direct',
+    Outside = 'outside',
 }
 
 export enum PullState {
-    All = "all",
-    Open = "open",
-    Closed = "closed"
+    All = 'all',
+    Open = 'open',
+    Closed = 'closed',
 }

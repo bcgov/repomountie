@@ -20,7 +20,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import { PR_TITLES } from '../constants';
 import { PullState, RepoAffiliation } from './enums';
-import { assignUsersToIssue, fetchCollaborators, fetchPullRequests } from "./ghutils";
+import { assignUsersToIssue, fetchCollaborators, fetchPullRequests } from './ghutils';
 
 export const memberAddedOrEditedToRepo = async (context: Context) => {
 
