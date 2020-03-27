@@ -21,7 +21,8 @@ import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
 import { connect } from './db';
-import { assignUsersToIssue, fetchCollaborators, fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
+import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
+import { memberAddedOrEditedToRepo } from './libs/handlers';
 import { checkForStaleIssues, created } from './libs/issue';
 import { validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
@@ -58,6 +59,9 @@ export = async (app: Application) => {
   app.on('pull_request.opened', pullRequestOpened);
   app.on('issue_comment.created', issueCommentCreated);
   app.on('repository.deleted', repositoryDelete);
+  app.on('member.added', memberAddedOrEditedToRepo);
+  app.on('member.edited', memberAddedOrEditedToRepo);
+
   // app.on('repository_vulnerability_alert.create', blarb);
 
   try {
@@ -82,15 +86,7 @@ export = async (app: Application) => {
       }
 
       if (isFromBot) {
-        if (context.payload.pull_request.assignees.length === 0) {
-          const collaborators = await fetchCollaborators(context, 'direct');
-          const admins = collaborators.filter((c) => c.permissions.admin === true)
-            .map((u) => u.login);
-          if (admins.length > 0) {
-            await assignUsersToIssue(context, admins);
-          }
-        }
-
+        // Don't process requests from 🤖.
         return;
       }
     } catch (err) {

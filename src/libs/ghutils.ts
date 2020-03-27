@@ -21,6 +21,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
 import { COMMIT_FILE_NAMES, REPO_CONFIG_FILE } from '../constants';
+import { PullState, RepoAffiliation } from './enums';
 
 interface RepoMountiePullRequestConfig {
   maxLinesChanged: number;
@@ -301,9 +302,10 @@ export const addFileViaPullRequest = async (
   }
 };
 
-export const fetchCollaborators = async (context, affiliation='all'): Promise<any[]> => {
+export const fetchCollaborators = async (
+  context: Context, affiliation: RepoAffiliation = RepoAffiliation.All): Promise<any[]> => {
   try {
-    const results = await context.github.repos.listCollaborators(
+    const results: any = await context.github.repos.listCollaborators(
       context.repo({
         affiliation,
       })
@@ -323,10 +325,10 @@ export const fetchCollaborators = async (context, affiliation='all'): Promise<an
 };
 
 export const fetchPullRequests = async (
-  context, state = 'all'
+  context: Context, state: PullState = PullState.All
 ): Promise<any[]> => {
   try {
-    const results = await context.github.pulls.list(
+    const results: any = await context.github.pulls.list(
       context.repo({
         state,
       })
@@ -354,7 +356,7 @@ export const fetchPullRequests = async (
  * @returns `true` if if a PR exists, false otherwise.
  */
 export const hasPullRequestWithTitle = async (
-  context, title, state = 'all'
+  context: Context, title: string, state: PullState = PullState.All
 ): Promise<boolean> => {
   try {
     const results = await fetchPullRequests(context, state);
@@ -378,14 +380,12 @@ export const hasPullRequestWithTitle = async (
  * @param assignees An `Array` of users to assign to the issue
  */
 export const assignUsersToIssue = async (
-  context: Context, assignees: string[]
+  context: Context, assignees: string[], params: any = undefined
 ) => {
   try {
-    await context.github.issues.addAssignees(
-      context.issue({
-        assignees,
-      })
-    );
+
+    const aParams: any = params ? params : context.issue({ assignees })
+    await context.github.issues.addAssignees(aParams);
   } catch (err) {
     const message = 'Unable to assign user to issue.';
     logger.error(`${message}, error = ${err.message}`);

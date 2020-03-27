@@ -44,7 +44,7 @@ const listCommits = JSON.parse(fs.readFileSync(p6, 'utf8'));
 const p7 = path.join(__dirname, 'fixtures/org-user-ismember.json');
 const memberhip = JSON.parse(fs.readFileSync(p7, 'utf8'));
 
-const p8 = path.join(__dirname, 'fixtures/repo-get-collaborators.json');
+const p8 = path.join(__dirname, 'fixtures/repo-get-collaborators-response.json');
 const collabs = JSON.parse(fs.readFileSync(p8, 'utf8'));
 
 describe('GitHub utility functions', () => {

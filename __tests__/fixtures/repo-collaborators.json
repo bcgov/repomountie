@@ -1,0 +1,52 @@
+[
+    {
+        "login": "rockey",
+        "id": 36056216,
+        "node_id": "MDQ6VXNlcjM2MDU2MjE2",
+        "avatar_url": "https://avatars3.githubusercontent.com/u/36056216?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/rockey",
+        "html_url": "https://github.com/rockey",
+        "followers_url": "https://api.github.com/users/rockey/followers",
+        "following_url": "https://api.github.com/users/rockey/following{/other_user}",
+        "gists_url": "https://api.github.com/users/rockey/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/rockey/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/rockey/subscriptions",
+        "organizations_url": "https://api.github.com/users/rockey/orgs",
+        "repos_url": "https://api.github.com/users/rockey/repos",
+        "events_url": "https://api.github.com/users/rockey/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/rockey/received_events",
+        "type": "User",
+        "site_admin": false,
+        "permissions": {
+            "admin": false,
+            "push": true,
+            "pull": true
+        }
+    },
+    {
+        "login": "sky",
+        "id": 36056216,
+        "node_id": "MDQ6VXNlcjM2MDU2MjE2",
+        "avatar_url": "https://avatars3.githubusercontent.com/u/36056216?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/sky",
+        "html_url": "https://github.com/sky",
+        "followers_url": "https://api.github.com/users/sky/followers",
+        "following_url": "https://api.github.com/users/sky/following{/other_user}",
+        "gists_url": "https://api.github.com/users/sky/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/sky/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/sky/subscriptions",
+        "organizations_url": "https://api.github.com/users/sky/orgs",
+        "repos_url": "https://api.github.com/users/sky/repos",
+        "events_url": "https://api.github.com/users/sky/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/sky/received_events",
+        "type": "User",
+        "site_admin": false,
+        "permissions": {
+            "admin": true,
+            "push": true,
+            "pull": true
+        }
+    }
+]
