@@ -20,7 +20,7 @@ import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests } from '../src/libs/ghutils';
-import { memberAddedOrEditedToRepo } from '../src/libs/handlers';
+import { addCollaboratorsToPullRequests } from '../src/libs/pullrequest';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/member-added-event.json');
@@ -38,7 +38,7 @@ jest.mock('../src/libs/ghutils', () => ({
     assignUsersToIssue: jest.fn(),
 }));
 
-describe('GitHub event handler functions', () => {
+describe('Collaborator assignment to PR', () => {
     let context;
     const { github } = helper;
 
@@ -59,7 +59,7 @@ describe('GitHub event handler functions', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
-        await memberAddedOrEditedToRepo(context);
+        await addCollaboratorsToPullRequests(context);
 
         expect(assignUsersToIssue).toBeCalledTimes(2);
     });
@@ -72,7 +72,7 @@ describe('GitHub event handler functions', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
-        await memberAddedOrEditedToRepo(context);
+        await addCollaboratorsToPullRequests(context);
 
         expect(assignUsersToIssue).toBeCalledTimes(1);
     });
@@ -83,7 +83,7 @@ describe('GitHub event handler functions', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve([]));
 
-        await memberAddedOrEditedToRepo(context);
+        await addCollaboratorsToPullRequests(context);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });
@@ -94,7 +94,7 @@ describe('GitHub event handler functions', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
-        await memberAddedOrEditedToRepo(context);
+        await addCollaboratorsToPullRequests(context);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });
@@ -115,7 +115,7 @@ describe('GitHub event handler functions', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collabs));
 
-        await memberAddedOrEditedToRepo(context);
+        await addCollaboratorsToPullRequests(context);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });

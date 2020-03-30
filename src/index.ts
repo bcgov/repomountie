@@ -22,9 +22,8 @@ import createScheduler from 'probot-scheduler';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
 import { connect } from './db';
 import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
-import { memberAddedOrEditedToRepo } from './libs/handlers';
 import { checkForStaleIssues, created } from './libs/issue';
-import { validatePullRequestIfRequired } from './libs/pullrequest';
+import { addCollaboratorsToPullRequests, validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
 import { routes } from './libs/routes';
 import { extractComplianceStatus } from './libs/utils';
@@ -59,8 +58,8 @@ export = async (app: Application) => {
   app.on('pull_request.opened', pullRequestOpened);
   app.on('issue_comment.created', issueCommentCreated);
   app.on('repository.deleted', repositoryDelete);
-  app.on('member.added', memberAddedOrEditedToRepo);
-  app.on('member.edited', memberAddedOrEditedToRepo);
+  app.on('member.added', memberAddedOrEdited);
+  app.on('member.edited', memberAddedOrEdited);
 
   // app.on('repository_vulnerability_alert.create', blarb);
 
@@ -69,6 +68,10 @@ export = async (app: Application) => {
   } catch (err) {
     const message = `Unable to open database connection`;
     throw new Error(`${message}, error = ${err.message}`);
+  }
+
+  async function memberAddedOrEdited(context: Context) {
+    await addCollaboratorsToPullRequests(context);
   }
 
   async function pullRequestOpened(context: Context) {
