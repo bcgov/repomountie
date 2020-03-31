@@ -383,8 +383,7 @@ export const assignUsersToIssue = async (
   context: Context, assignees: string[], params: any = undefined
 ) => {
   try {
-
-    const aParams: any = params ? params : context.issue({ assignees })
+    const aParams: any = params ? { ...params, assignees } : context.issue({ assignees })
     await context.github.issues.addAssignees(aParams);
   } catch (err) {
     const message = 'Unable to assign user to issue.';

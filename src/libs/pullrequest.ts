@@ -34,7 +34,8 @@ import { loadTemplate } from './utils';
  * @returns True if the PR should be ignored, False otherwise
  */
 
-export const addCollaboratorsToPullRequests = async (context: Context) => {
+export const addCollaboratorsToPullRequests = async (
+  context: Context, owner: string, repo: string) => {
 
   try {
     // filter for PRs created by the bot that don't have any
@@ -57,11 +58,9 @@ export const addCollaboratorsToPullRequests = async (context: Context) => {
       return;
     }
 
-    const owner = context.payload.organization.login;
-    const repo = context.payload.repository.name;
     const promises = pulls.map(pr =>
       assignUsersToIssue(context, assignees, {
-        number: pr.number,
+        issue_number: pr.number,
         owner,
         repo,
       }));

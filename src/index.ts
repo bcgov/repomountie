@@ -71,29 +71,37 @@ export = async (app: Application) => {
   }
 
   async function memberAddedOrEdited(context: Context) {
-    await addCollaboratorsToPullRequests(context);
+    const owner = context.payload.organization.login;
+    const repo = context.payload.repository.name;
+
+    await addCollaboratorsToPullRequests(context, owner, repo);
   }
 
   async function pullRequestOpened(context: Context) {
-    try {
-      const owner = context.payload.organization.login;
-      const isFromBot = context.isBot;
 
-      if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
-        logger.info(
-          `Skipping PR ${context.payload.pull_request.number} for repo ${
-          context.payload.repository.name
-          } because its not from an allowed installation`
-        );
-        return;
+    const owner = context.payload.organization.login;
+    const repo = context.payload.repository.name;
+    const isFromBot = context.isBot;
+
+    if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
+      logger.info(
+        `Skipping PR ${context.payload.pull_request.number} for repo ${
+        context.payload.repository.name
+        } because its not from an allowed installation`
+      );
+
+      return;
+    }
+
+    if (isFromBot) {
+      try {
+        await addCollaboratorsToPullRequests(context, owner, repo);
+      } catch (err) {
+        const message = `Unable to assign collaborators in ${repo}`;
+        logger.error(`${message}, error = ${err.message}`);
       }
 
-      if (isFromBot) {
-        // Don't process requests from 🤖.
-        return;
-      }
-    } catch (err) {
-      logger.info(`Unable to handle pull request, err = ${err.message}`);
+      return;
     }
 
     logger.info(
@@ -102,9 +110,14 @@ export = async (app: Application) => {
       }`
     );
 
-    const rmconfig = await fetchConfigFile(context);
+    try {
+      const rmconfig = await fetchConfigFile(context);
 
-    await validatePullRequestIfRequired(context, rmconfig);
+      await validatePullRequestIfRequired(context, rmconfig);
+
+    } catch (err) {
+      logger.info(`Unable to handle pull request, err = ${err.message}`);
+    }
   }
 
   async function issueCommentCreated(context: Context) {
@@ -149,29 +162,40 @@ export = async (app: Application) => {
     logger.info(`Processing ${context.payload.repository.name}`);
 
     const owner = context.payload.installation.account.login;
+    const repo = context.payload.repository.name;
+
     if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
       logger.info(
         `Skipping scheduled repository ${
-        context.payload.repository.name
+        repo
         } because its not part of an allowed installation`
       );
       return;
     }
 
     if (context.payload.repository.archived) {
-      logger.warn(`The repo ${context.payload.repository.name} is archived. Skipping.`);
+      logger.warn(`The repo ${repo} is archived. Skipping.`);
+      scheduler.stop(context.payload.repository);
+
       return;
+    }
+
+    try {
+      await addCollaboratorsToPullRequests(context, owner, repo);
+    } catch (err) {
+      const message = `Unable to assign collaborators in ${repo}`;
+      logger.error(`${message}, error = ${err.message}`);
     }
 
     let requiresComplianceFile = false;
     try {
       const data = await fetchComplianceFile(context);
-      const doc = extractComplianceStatus(context.payload.repository.name,
+      const doc = extractComplianceStatus(repo,
         context.payload.installation.account.login, data);
 
       await doc.save();
     } catch (err) {
-      const message = `Unable to check compliance in repository ${context.payload.repository.name}`;
+      const message = `Unable to check compliance in repository ${repo}`;
       logger.error(`${message}, error = ${err.message}`);
 
       requiresComplianceFile = true;
@@ -192,7 +216,7 @@ export = async (app: Application) => {
         logger.info('No config file. Skipping.');
       }
     } catch (err) {
-      const message = `Unable to process repository ${context.payload.repository.name}`;
+      const message = `Unable to process repository ${repo}`;
       logger.error(`${message}, error = ${err.message}`);
     }
   }
