@@ -43,7 +43,6 @@ app = new Application();
 app.app = { getSignedJsonWebToken: () => 'xxx' };
 app.load(robot);
 
-
 github = {
     paginate: jest.fn().mockReturnValue([]),
     apps: {

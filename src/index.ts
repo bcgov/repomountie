@@ -22,6 +22,7 @@ import createScheduler from 'probot-scheduler';
 import { ACCESS_CONTROL, SCHEDULER_DELAY } from './constants';
 import { connect } from './db';
 import { fetchComplianceFile, fetchConfigFile } from './libs/ghutils';
+import { memberAddedOrEdited } from './libs/handlers';
 import { checkForStaleIssues, created } from './libs/issue';
 import { addCollaboratorsToPullRequests, validatePullRequestIfRequired } from './libs/pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './libs/repository';
@@ -68,13 +69,6 @@ export = async (app: Application) => {
   } catch (err) {
     const message = `Unable to open database connection`;
     throw new Error(`${message}, error = ${err.message}`);
-  }
-
-  async function memberAddedOrEdited(context: Context) {
-    const owner = context.payload.organization.login;
-    const repo = context.payload.repository.name;
-
-    await addCollaboratorsToPullRequests(context, owner, repo);
   }
 
   async function pullRequestOpened(context: Context) {
