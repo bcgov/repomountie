@@ -41,6 +41,8 @@ jest.mock('../src/libs/ghutils', () => ({
 describe('Collaborator assignment to PR', () => {
     let context;
     const { github } = helper;
+    const owner = 'bcgov';
+    const repo = 'hello5';
 
     beforeEach(() => {
         context = new Context(memberAddedEvent, github as any, {} as any);
@@ -59,7 +61,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
-        await addCollaboratorsToPullRequests(context);
+        await addCollaboratorsToPullRequests(context, owner, repo);
 
         expect(assignUsersToIssue).toBeCalledTimes(2);
     });
@@ -72,7 +74,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
-        await addCollaboratorsToPullRequests(context);
+        await addCollaboratorsToPullRequests(context, owner, repo);
 
         expect(assignUsersToIssue).toBeCalledTimes(1);
     });
@@ -83,7 +85,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve([]));
 
-        await addCollaboratorsToPullRequests(context);
+        await addCollaboratorsToPullRequests(context, owner, repo);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });
@@ -94,7 +96,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
-        await addCollaboratorsToPullRequests(context);
+        await addCollaboratorsToPullRequests(context, owner, repo);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });
@@ -115,7 +117,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collabs));
 
-        await addCollaboratorsToPullRequests(context);
+        await addCollaboratorsToPullRequests(context, owner, repo);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });
