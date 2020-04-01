@@ -37,7 +37,7 @@ jest.mock('../src/libs/ghutils', () => ({
     loadTemplate: jest.fn().mockReturnValue('Hello'),
 }));
 
-describe('Repository integration tests', () => {
+describe('Repository management', () => {
 
     afterEach(() => {
         jest.clearAllMocks();

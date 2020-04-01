@@ -483,6 +483,25 @@ export const addCommentToIssue = async (context: Context, body: string) => {
   }
 };
 
+// TODO:(jl) Needs a test.
+export const searchAndPullRequests = async (context: Context, query: string) => {
+  try {
+    const response = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
+    });
+
+    return response;
+  } catch (err) {
+    const message = 'Unable to search issues.';
+    logger.error(`${message}, error = ${err.message}`);
+
+    throw err;
+  }
+};
+
 export const blarb = async (
   context: Context, fileName, ref = context.payload.repository.default_branch
 ) => {

@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { flatten } from 'lodash';
 import { Context } from 'probot';
 import { REGEXP, TEXT_FILES } from '../constants';
-import { isOrgMember, labelExists, RepoMountieConfig } from './ghutils';
+import { isOrgMember, labelExists, RepoMountieConfig, searchAndPullRequests } from './ghutils';
 import { handleBotCommand } from './robo';
 import { loadTemplate } from './utils';
 
@@ -48,6 +48,8 @@ export const created = async (context: Context) => {
   }
 };
 
+// TODO:(jl) Should this should be moved to repo because its processing
+// all the issues in a repo.
 export const checkForStaleIssues = async (context: Context, config: RepoMountieConfig) => {
   if (!config.staleIssue) {
     return;
@@ -60,14 +62,9 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
   const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
 
   try {
-    const response = await context.github.search.issuesAndPullRequests({
-      order: 'desc',
-      per_page: 100,
-      q: query,
-      sort: 'updated',
-    });
-    const totalCount = response.data.total_count;
-    const items = response.data.items;
+    const response = await searchAndPullRequests(context, query);
+    const totalCount = response.data.total_count ? response.data.total_count : 0;
+    const items = response.data.items ? response.data.items : [];
 
     if (totalCount === 0) {
       return;
@@ -79,8 +76,7 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
       .replace(regex, `${config.staleIssue.maxDaysOld}`);
 
     const labels: string[] = [];
-    if (config.staleIssue &&
-      config.staleIssue.applyLabel &&
+    if (config.staleIssue.applyLabel &&
       (await labelExists(context, config.staleIssue.applyLabel))) {
       labels.push(config.staleIssue.applyLabel);
     }
