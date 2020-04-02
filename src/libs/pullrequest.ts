@@ -128,12 +128,9 @@ export const validatePullRequestIfRequired = async (context: Context, config: Re
     const messageBody = rawMessageBody
       .replace('[USER_NAME]', context.payload.pull_request.user.login)
       .replace('[MAX_LINES]', `${config.pullRequest.maxLinesChanged}`);
-    console.log('2');
 
     await context.github.issues.createComment(context.issue({ body: messageBody }));
   } catch (err) {
-    console.log('3');
-
     const message = 'Unable to validate pull request.';
     logger.error(`${message}, error = ${err.message}`);
   }

@@ -156,7 +156,7 @@ describe('Issues (and PRs)', () => {
     loadTemplate.mockReturnValueOnce(Promise.resolve(tempate));
 
     await checkForStaleIssues(context, config);
-    console.log('xxx', config)
+
     expect(searchAndPullRequests).toBeCalled();
     expect(loadTemplate).toBeCalled();
     expect(labelExists).toBeCalled();
