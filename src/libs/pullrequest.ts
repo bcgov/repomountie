@@ -33,7 +33,6 @@ import { loadTemplate } from './utils';
  * @param {Context} context The event context context
  * @returns True if the PR should be ignored, False otherwise
  */
-
 export const addCollaboratorsToPullRequests = async (
   context: Context, owner: string, repo: string) => {
 
@@ -120,15 +119,17 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
  * @param {Context} context The event context context
  */
 export const validatePullRequestIfRequired = async (context: Context, config: RepoMountieConfig) => {
-  try {
-    if (!isValidPullRequestLength(context, config)) {
-      const rawMessageBody: string = await loadTemplate(TEXT_FILES.HOWTO_PR);
-      const messageBody = rawMessageBody
-        .replace('[USER_NAME]', context.payload.pull_request.user.login)
-        .replace('[MAX_LINES]', `${config.pullRequest.maxLinesChanged}`);
+  if (!isValidPullRequestLength(context, config)) {
+    return;
+  }
 
-      await context.github.issues.createComment(context.issue({ body: messageBody }));
-    }
+  try {
+    const rawMessageBody: string = await loadTemplate(TEXT_FILES.HOWTO_PR);
+    const messageBody = rawMessageBody
+      .replace('[USER_NAME]', context.payload.pull_request.user.login)
+      .replace('[MAX_LINES]', `${config.pullRequest.maxLinesChanged}`);
+
+    await context.github.issues.createComment(context.issue({ body: messageBody }));
   } catch (err) {
     const message = 'Unable to validate pull request.';
     logger.error(`${message}, error = ${err.message}`);

@@ -23,7 +23,7 @@ import { COMMIT_FILE_NAMES, PR_TITLES } from '../src/constants';
 import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists, updateFileContent } from '../src/libs/ghutils';
 import helper from './src/helper';
 
-const p0 = path.join(__dirname, 'fixtures/schedule-lic.json');
+const p0 = path.join(__dirname, 'fixtures/repo-schedule-event.json');
 const repoScheduledEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
 const p1 = path.join(__dirname, 'fixtures/repo-get-content-compliance.json');

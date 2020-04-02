@@ -18,138 +18,107 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fetchConfigFile, labelExists } from '../src/libs/ghutils';
+import { Context } from 'probot';
+import { isOrgMember, labelExists } from '../src/libs/ghutils';
+import { checkForStaleIssues, created } from '../src/libs/issue';
+import { handleBotCommand } from '../src/libs/robo';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
-const p0 = path.join(__dirname, 'fixtures/issue-comment-created-unassigned.json');
-const unassignedIssueCommentCreated = JSON.parse(fs.readFileSync(p0, 'utf8'));
+const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
+const unassignedIssueCommentCreatedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
-const p1 = path.join(__dirname, 'fixtures/issue-comment-created-assigned.json');
-const assignedIssueCommentCreated = JSON.parse(fs.readFileSync(p1, 'utf8'));
+const p1 = path.join(__dirname, 'fixtures/rmconfig.json');
+const config = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
-const p2 = path.join(__dirname, 'fixtures/issue-comment-created-notme.json');
-const unassignedIssueNotMineCommentCreated = JSON.parse(fs.readFileSync(p2, 'utf8'));
+const p2 = path.join(__dirname, '../templates/stale_issue_comment.md');
+const tempate = fs.readFileSync(p2, 'utf8');
 
-const p3 = path.join(__dirname, 'fixtures/repo-created-lic.json');
-const payloadWithLic = JSON.parse(fs.readFileSync(p3, 'utf8'));
+const p3 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
+const issuesAndPulls = JSON.parse(fs.readFileSync(p3, 'utf8'));
 
-const p4 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
-const issuesAndPulls = JSON.parse(fs.readFileSync(p4, 'utf8'));
+const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
+const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
-const p5 = path.join(__dirname, 'fixtures/issues-and-pulls-empty.json');
-const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p5, 'utf8'));
-
-const p6 = path.join(__dirname, 'fixtures/rmconfig.json');
-const config = JSON.parse(fs.readFileSync(p6, 'utf8'));
-
-const p7 = path.join(__dirname, '../templates/stale_issue_comment.md');
-const template = fs.readFileSync(p7, 'utf8');
-
-jest.mock('../src/libs/repository', () => ({
-  addLicenseIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
-  addSecurityComplianceInfoIfRequired: jest.fn().mockReturnValueOnce(Promise.resolve()),
-}));
+// jest.mock('../src/libs/issue', () => ({
+//   created: jest.fn(),
+//   checkForStaleIssues: jest.fn(),
+// }));
 
 jest.mock('../src/libs/ghutils', () => ({
-  fetchComplianceFile: jest.fn(),
-  fetchConfigFile: jest.fn(),
+  isOrgMember: jest.fn(),
   labelExists: jest.fn(),
-  loadTemplate: jest.fn(),
 }));
 
 jest.mock('../src/libs/utils', () => ({
-  addComplianceStatusToPersistentStorage: jest.fn(),
-  extractComplianceStatus: jest.fn(),
   loadTemplate: jest.fn(),
 }));
 
-describe('Repository integration tests', () => {
-  const { app, github } = helper;
+jest.mock('../src/libs/robo', () => ({
+  handleBotCommand: jest.fn(),
+}));
+
+describe('Issues (and PRs)', () => {
+  let context
+  const { github } = helper;
 
   beforeEach(() => {
-    // @ts-ignore
-    fetchConfigFile.mockReturnValue(config);
-    // @ts-ignore
-    loadTemplate.mockReturnValue(template);
-    // @ts-ignore
-    labelExists.mockReturnValue(true);
+    context = undefined;
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('An unassigned PR (issue) assigned', async () => {
-    await app.receive({
-      name: 'issue_comment.created',
-      payload: unassignedIssueCommentCreated,
-    });
+  it('Comments from non-members are ignored', async () => {
+    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    // @ts-ignore
+    isOrgMember.mockReturnValueOnce(Promise.resolve(false));
 
-    expect(github.gitdata.getRef).not.toBeCalled();
-    expect(github.pullRequests.list).not.toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createRef).not.toHaveBeenCalled();
-    expect(github.repos.createFile).not.toHaveBeenCalled();
+    await created(context);
+
+    expect(isOrgMember).toBeCalled();
+    expect(handleBotCommand).not.toBeCalled();
   });
 
-  it('An assigned PR (issue) is skipped', async () => {
-    await app.receive({
-      name: 'issue_comment.created',
-      payload: assignedIssueCommentCreated,
-    });
+  it('Comments without commands are skipped', async () => {
+    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context.payload.comment.body = 'I\'m a teapot';
 
-    expect(github.gitdata.getRef).not.toBeCalled();
-    expect(github.pullRequests.list).not.toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createRef).not.toHaveBeenCalled();
-    expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssignees).not.toHaveBeenCalled();
+    // @ts-ignore
+    isOrgMember.mockReturnValueOnce(Promise.resolve(true));
+
+    await created(context);
+
+    expect(isOrgMember).toBeCalled();
+    expect(handleBotCommand).not.toBeCalled();
   });
 
-  it('An issue not created by me is ignored', async () => {
-    await app.receive({
-      name: 'issue_comment.created',
-      payload: unassignedIssueNotMineCommentCreated,
-    });
+  it('Comments with commands are processed', async () => {
+    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context.payload.comment.body = '@repo-mountie help\n';
 
-    expect(github.gitdata.getRef).not.toBeCalled();
-    expect(github.pullRequests.getAll).not.toHaveBeenCalled();
-    expect(github.pullRequests.create).not.toHaveBeenCalled();
-    expect(github.gitdata.createRef).not.toHaveBeenCalled();
-    expect(github.repos.createFile).not.toHaveBeenCalled();
-    expect(github.issues.addAssignees).not.toHaveBeenCalled();
+    // @ts-ignore
+    isOrgMember.mockReturnValueOnce(Promise.resolve(true));
+
+    await created(context);
+
+    expect(isOrgMember).toBeCalled();
+    expect(handleBotCommand).toBeCalled();
   });
 
-  it('Old issues are closed out', async () => {
-    github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
-      await app.receive({
-        name: 'schedule.repository',
-        payload: payloadWithLic,
-      });
+  // TODO:(jl) Should be moved to repo?
 
-    expect(github.search.issuesAndPullRequests).toBeCalled();
-    expect(github.issues.createComment).toBeCalled();
-    expect(github.issues.addLabels).toBeCalled();
-    expect(github.issues.update).toBeCalled();
-  });
+  it('Repos configured to ignore stale issues ignored', async () => {
+    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
 
-  it('Stale config stanza missing skips', async () => {
-    const myConfig = Object.assign({}, config);
+    const myConfig = JSON.parse(JSON.stringify(config));
     delete myConfig.staleIssue;
 
-    // @ts-ignore
-    fetchConfigFile.mockReturnValue(myConfig)
-    // @ts-ignore
-    loadTemplate.mockReturnValue(template)
-    // @ts-ignore
-    labelExists.mockReturnValue(true)
+    await checkForStaleIssues(context, myConfig);
 
-    github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
-      await app.receive({
-        name: 'schedule.repository',
-        payload: payloadWithLic,
-      });
+    expect(loadTemplate).not.toBeCalled();
+    expect(labelExists).not.toBeCalled();
 
     expect(github.search.issuesAndPullRequests).not.toBeCalled();
     expect(github.issues.createComment).not.toBeCalled();
@@ -157,33 +126,58 @@ describe('Repository integration tests', () => {
     expect(github.issues.update).not.toBeCalled();
   });
 
-  it('No stale issues are handled properly', async () => {
-    github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty)),
-      await app.receive({
-        name: 'schedule.repository',
-        payload: payloadWithLic,
-      });
+  it('Repos without applicable stale label ok', async () => {
+    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    // @ts-ignore
+    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+    // @ts-ignore
+    loadTemplate.mockReturnValueOnce(Promise.resolve(tempate));
+
+    const myConfig = JSON.parse(JSON.stringify(config));
+    delete myConfig.staleIssue.applyLabel;
+
+    await checkForStaleIssues(context, myConfig);
+
+    expect(loadTemplate).toBeCalled();
+    expect(labelExists).not.toBeCalled();
+
+    expect(github.search.issuesAndPullRequests).toBeCalled();
+    expect(github.issues.createComment).toBeCalled();
+    expect(github.issues.addLabels).toBeCalled();
+    expect(github.issues.update).toBeCalled();
+  });
+
+  it('Repos with stale issues are commented, labeled and closed', async () => {
+    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    // @ts-ignore
+    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+    // @ts-ignore
+    loadTemplate.mockReturnValueOnce(Promise.resolve(tempate));
+
+    await checkForStaleIssues(context, config);
+
+    expect(loadTemplate).toBeCalled();
+    expect(labelExists).toBeCalled();
+
+    expect(github.search.issuesAndPullRequests).toBeCalled();
+    expect(github.issues.createComment).toBeCalled();
+    expect(github.issues.addLabels).toBeCalled();
+    expect(github.issues.update).toBeCalled();
+  });
+
+  it('Repos without stale issues ignored', async () => {
+    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    // @ts-ignore
+    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
+
+    await checkForStaleIssues(context, config);
+
+    expect(loadTemplate).not.toBeCalled();
+    expect(labelExists).not.toBeCalled();
 
     expect(github.search.issuesAndPullRequests).toBeCalled();
     expect(github.issues.createComment).not.toBeCalled();
     expect(github.issues.addLabels).not.toBeCalled();
     expect(github.issues.update).not.toBeCalled();
-  });
-
-  it('Applying labels is skipped if non-existent', async () => {
-    // @ts-ignore
-    labelExists.mockReturnValue(false)
-    const addLabelsArgs = { "issue_number": 2, "labels": [], "number": undefined, "owner": "bcgov", "repo": "blarb" };
-
-    github.search.issuesAndPullRequests = jest.fn().mockReturnValueOnce(Promise.resolve(issuesAndPulls)),
-
-      await app.receive({
-        name: 'schedule.repository',
-        payload: payloadWithLic,
-      });
-    expect(github.search.issuesAndPullRequests).toBeCalled();
-    expect(github.issues.createComment).toBeCalled();
-    expect(github.issues.addLabels).toBeCalledWith(addLabelsArgs);
-    expect(github.issues.update).toBeCalled();
   });
 });
