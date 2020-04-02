@@ -19,7 +19,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
-import { isOrgMember, labelExists, searchAndPullRequests } from '../src/libs/ghutils';
+import { isOrgMember, labelExists } from '../src/libs/ghutils';
 import { checkForStaleIssues, created } from '../src/libs/issue';
 import { handleBotCommand } from '../src/libs/robo';
 import { loadTemplate } from '../src/libs/utils';
@@ -47,7 +47,6 @@ const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
 jest.mock('../src/libs/ghutils', () => ({
   isOrgMember: jest.fn(),
-  searchAndPullRequests: jest.fn(),
   labelExists: jest.fn(),
 }));
 
@@ -118,10 +117,10 @@ describe('Issues (and PRs)', () => {
 
     await checkForStaleIssues(context, myConfig);
 
-    expect(searchAndPullRequests).not.toBeCalled();
     expect(loadTemplate).not.toBeCalled();
     expect(labelExists).not.toBeCalled();
 
+    expect(github.search.issuesAndPullRequests).not.toBeCalled();
     expect(github.issues.createComment).not.toBeCalled();
     expect(github.issues.addLabels).not.toBeCalled();
     expect(github.issues.update).not.toBeCalled();
@@ -130,7 +129,7 @@ describe('Issues (and PRs)', () => {
   it('Repos without applicable stale label ok', async () => {
     context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
     // @ts-ignore
-    searchAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
     // @ts-ignore
     loadTemplate.mockReturnValueOnce(Promise.resolve(tempate));
 
@@ -139,10 +138,10 @@ describe('Issues (and PRs)', () => {
 
     await checkForStaleIssues(context, myConfig);
 
-    expect(searchAndPullRequests).toBeCalled();
     expect(loadTemplate).toBeCalled();
     expect(labelExists).not.toBeCalled();
 
+    expect(github.search.issuesAndPullRequests).toBeCalled();
     expect(github.issues.createComment).toBeCalled();
     expect(github.issues.addLabels).toBeCalled();
     expect(github.issues.update).toBeCalled();
@@ -151,16 +150,16 @@ describe('Issues (and PRs)', () => {
   it('Repos with stale issues are commented, labeled and closed', async () => {
     context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
     // @ts-ignore
-    searchAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
     // @ts-ignore
     loadTemplate.mockReturnValueOnce(Promise.resolve(tempate));
 
     await checkForStaleIssues(context, config);
 
-    expect(searchAndPullRequests).toBeCalled();
     expect(loadTemplate).toBeCalled();
     expect(labelExists).toBeCalled();
 
+    expect(github.search.issuesAndPullRequests).toBeCalled();
     expect(github.issues.createComment).toBeCalled();
     expect(github.issues.addLabels).toBeCalled();
     expect(github.issues.update).toBeCalled();
@@ -169,14 +168,14 @@ describe('Issues (and PRs)', () => {
   it('Repos without stale issues ignored', async () => {
     context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
     // @ts-ignore
-    searchAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
+    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
 
     await checkForStaleIssues(context, config);
 
-    expect(searchAndPullRequests).toBeCalled();
     expect(loadTemplate).not.toBeCalled();
     expect(labelExists).not.toBeCalled();
 
+    expect(github.search.issuesAndPullRequests).toBeCalled();
     expect(github.issues.createComment).not.toBeCalled();
     expect(github.issues.addLabels).not.toBeCalled();
     expect(github.issues.update).not.toBeCalled();

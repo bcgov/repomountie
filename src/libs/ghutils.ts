@@ -482,22 +482,3 @@ export const addCommentToIssue = async (context: Context, body: string) => {
     throw err;
   }
 };
-
-// TODO:(jl) Needs a test.
-export const searchAndPullRequests = async (context: Context, query: string) => {
-  try {
-    const response = await context.github.search.issuesAndPullRequests({
-      order: 'desc',
-      per_page: 100,
-      q: query,
-      sort: 'updated',
-    });
-
-    return response;
-  } catch (err) {
-    const message = 'Unable to search issues.';
-    logger.error(`${message}, error = ${err.message}`);
-
-    throw err;
-  }
-};
