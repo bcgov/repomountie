@@ -170,7 +170,7 @@ describe('Pull requests', () => {
     expect(isValidPullRequestLength(context, myConfig)).toBeFalsy();
   });
 
-  it('A PR with the same number of changes is rejected', () => {
+  it('A PR with the same number of changes is accepted', () => {
     const myConfig = JSON.parse(JSON.stringify(config));
     context = new Context(issueOpenedEvent, github as any, {} as any);
     context.payload.pull_request.additions = 10;
@@ -180,16 +180,40 @@ describe('Pull requests', () => {
     expect(isValidPullRequestLength(context, myConfig)).toBeTruthy();
   });
 
-  it('A PR is validated and commented on as needed', async () => {
-    // @ts-ignore
-    loadTemplate.mockReturnValueOnce('bla');
+  it('A PR with less number of changes is accepted', () => {
+    const myConfig = JSON.parse(JSON.stringify(config));
+    context = new Context(issueOpenedEvent, github as any, {} as any);
+    context.payload.pull_request.additions = 5;
 
+    myConfig.pullRequest.maxLinesChanged = 10;
+
+    expect(isValidPullRequestLength(context, myConfig)).toBeTruthy();
+  });
+
+  it('A valid PR length is not commented on', async () => {
     context = new Context(issueOpenedEvent, github as any, {} as any);
     const myConfig = JSON.parse(JSON.stringify(config));
     myConfig.pullRequest.maxLinesChanged = 100;
 
-    await validatePullRequestIfRequired(context, config);
+    await validatePullRequestIfRequired(context, myConfig);
 
+    expect(loadTemplate).not.toBeCalled();
+    expect(github.issues.createComment).not.toBeCalled();
+  });
+
+  it('A invalid PR length is not commented on', async () => {
+    // @ts-ignore
+    loadTemplate.mockReturnValueOnce('bla');
+
+    context = new Context(issueOpenedEvent, github as any, {} as any);
+    context.payload.pull_request.body += '\nHello\nWorld';
+
+    const myConfig = JSON.parse(JSON.stringify(config));
+    myConfig.pullRequest.maxLinesChanged = 2;
+
+    await validatePullRequestIfRequired(context, myConfig);
+
+    expect(loadTemplate).toBeCalled();
     expect(github.issues.createComment).toBeCalled();
   });
 });
