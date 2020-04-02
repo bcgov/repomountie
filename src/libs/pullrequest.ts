@@ -78,7 +78,7 @@ export const addCollaboratorsToPullRequests = async (
  * @returns True if the PR should be ignored, False otherwise
  */
 export const shouldIgnoredLengthCheck = (commands: string[]): boolean => {
-  if (commands.includes(COMMANDS.IGNORE)) {
+  if (commands && commands.includes(COMMANDS.IGNORE)) {
     return true;
   }
 
@@ -92,6 +92,10 @@ export const shouldIgnoredLengthCheck = (commands: string[]): boolean => {
  * @returns An `string[]` any commands used
  */
 export const extractCommands = (body: string): any[] => {
+  if (!body) {
+    return [];
+  }
+
   return Object.values(COMMANDS).filter((cmd) => body.includes(cmd));
 };
 
@@ -119,7 +123,7 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
  * @param {Context} context The event context context
  */
 export const validatePullRequestIfRequired = async (context: Context, config: RepoMountieConfig) => {
-  if (!isValidPullRequestLength(context, config)) {
+  if (isValidPullRequestLength(context, config)) {
     return;
   }
 

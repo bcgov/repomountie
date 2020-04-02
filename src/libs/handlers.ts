@@ -76,7 +76,6 @@ export const pullRequestOpened = async (context: Context): Promise<void> => {
         const rmconfig = await fetchConfigFile(context);
 
         await validatePullRequestIfRequired(context, rmconfig);
-
     } catch (err) {
         logger.info(`Unable to handle pull request, err = ${err.message}`);
     }
