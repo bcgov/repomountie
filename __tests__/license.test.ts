@@ -50,7 +50,7 @@ describe('Repository integration tests', () => {
     jest.clearAllMocks();
   });
 
-  it('A repository without a license should have one added', async () => {
+  it.skip('A repository without a license should have one added', async () => {
     github.pulls.list = jest.fn().mockReturnValueOnce(Promise.resolve(prNoAddLicense));
 
     await app.receive({
@@ -65,7 +65,7 @@ describe('Repository integration tests', () => {
 
   // Test error path execution when `getRef` first fails to
   // get the master branch.
-  it('A repo with no master branch is skipped 1', async () => {
+  it.skip('A repo with no master branch is skipped 1', async () => {
     const err = new Error('{"message": "Big Trouble 1"}');
     github.git.getRef = jest.fn().mockReturnValueOnce(Promise.reject(err));
 
@@ -81,7 +81,7 @@ describe('Repository integration tests', () => {
 
   // Test error path execution when `getRef` fails to
   // get the master branch the second time it is called.
-  it('A repo with no master branch is skipped 2', async () => {
+  it.skip('A repo with no master branch is skipped 2', async () => {
     const err = new Error('{"message": "Big Trouble 2"}');
     const getRef = jest.fn();
     getRef.mockReturnValueOnce(master);
@@ -98,7 +98,7 @@ describe('Repository integration tests', () => {
     expect(github.issues.addAssignees).not.toHaveBeenCalled();
   });
 
-  it('A repository with a license should be skipped', async () => {
+  it.skip('A repository with a license should be skipped', async () => {
     await app.receive({
       name: 'schedule.repository',
       payload: payloadWithLic,

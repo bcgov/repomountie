@@ -18,9 +18,59 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
-import { COMMANDS, TEXT_FILES } from '../constants';
-import { RepoMountieConfig } from './ghutils';
+import { COMMANDS, PR_TITLES, TEXT_FILES } from '../constants';
+import { PullState, RepoAffiliation } from './enums';
+import { assignUsersToIssue, fetchCollaborators, fetchPullRequests, RepoMountieConfig } from './ghutils';
 import { loadTemplate } from './utils';
+
+/**
+ * Add collaborators to pull requests
+ * This func will assign repo collaborators with `admin` and
+ * `push` permission to all the pull requests in the repo. The
+ * pull request must be one that was created by the bot and
+ * not have any existing assignees.
+ *
+ * @param {Context} context The event context context
+ * @returns True if the PR should be ignored, False otherwise
+ */
+
+export const addCollaboratorsToPullRequests = async (
+  context: Context, owner: string, repo: string) => {
+
+  try {
+    // filter for PRs created by the bot that don't have any
+    // assignees
+    const pulls: any = (await fetchPullRequests(context, PullState.Open))
+      .filter(p => p.assignees.length === 0)
+      .filter(p => Object.values(PR_TITLES).includes(p.title.trim()));
+
+    if (pulls.length === 0) {
+      return;
+    }
+
+    // filter for collaborators who are admin or can write
+    const assignees: any = (await fetchCollaborators(context, RepoAffiliation.Direct))
+      .filter((c) => (c.permissions.admin === true ||
+        c.permissions.push === true))
+      .map((u) => u.login);
+
+    if (assignees.length === 0) {
+      return;
+    }
+
+    const promises = pulls.map(pr =>
+      assignUsersToIssue(context, assignees, {
+        issue_number: pr.number,
+        owner,
+        repo,
+      }));
+
+    await Promise.all(promises);
+  } catch (err) {
+    const message = `Unable to assign users to PR`;
+    logger.error(`${message}, error = ${err.message}`);
+  }
+}
 
 /**
  * Check to see if a pull request (PR) contains the command for ignore.

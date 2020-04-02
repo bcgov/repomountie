@@ -18,6 +18,7 @@
 
 'use strict';
 
+import { logger } from '@bcgov/common-nodejs-utils';
 import mongoose from 'mongoose';
 import config from '../config';
 import ComplianceAudit from './compliance';
@@ -37,8 +38,14 @@ export const connect = async () => {
     const host = config.get('db:host');
     const dbname = config.get('db:database');
     const curl = `mongodb://${user}:${passwd}@${host}/${dbname}`;
+    try {
+        await mongoose.connect(curl, options);
+    } catch (err) {
+        const message = `Unable to connect to ${host}/${dbname}`;
+        logger.error(`${message}, error = ${err.message}`);
 
-    await mongoose.connect(curl, options);
+        throw err;
+    }
 };
 
 /**
