@@ -23,6 +23,47 @@ import { PullState, RepoAffiliation } from './enums';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests, RepoMountieConfig } from './ghutils';
 import { loadTemplate } from './utils';
 
+export const requestUpdateForPullRequest = async (
+  context: Context, owner: string, repo: string) => {
+
+  const maxDaysOld = 0; //config.get('staleIssueMaxDaysOld');
+  const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
+  const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
+  const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
+  const response = await context.github.search.issuesAndPullRequests({
+    order: 'desc',
+    per_page: 100,
+    q: query,
+    sort: 'updated',
+  });
+  const issues = response.data.items
+    .filter(p => Object.values(PR_TITLES).includes(p.title.trim()));
+
+  if (issues.length === 0) {
+    return;
+  }
+
+  const x = issues.map(i =>
+    context.github.issues.listComments({
+      issue_number: i.number,
+      owner,
+      repo,
+    }));
+  const foo = await Promise.all(x);
+  console.log(foo[0].data[0].body);
+
+  const body = "Hello World";
+  const promises = issues.map(i =>
+    context.github.issues.createComment({
+      issue_number: i.number,
+      owner,
+      repo,
+      body,
+    }));
+
+  await Promise.all(promises);
+
+};
 /**
  * Add collaborators to pull requests
  * This func will assign repo collaborators with `admin` and
