@@ -82,6 +82,7 @@ export const authmware = async (app) => {
 
   // For development purposes only ignore the expiration
   // time of tokens.
+  // Thanks.
   if (config.get('environment') !== 'production') {
     opts.ignoreExpiration = true;
   }
