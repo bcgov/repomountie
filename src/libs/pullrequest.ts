@@ -26,7 +26,7 @@ import { loadTemplate } from './utils';
 export const requestUpdateForPullRequest = async (
   context: Context, owner: string, repo: string) => {
 
-  const maxDaysOld = 0; //config.get('staleIssueMaxDaysOld');
+  const maxDaysOld = 0; // config.get('staleIssueMaxDaysOld');
   const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
   const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
   const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
@@ -50,9 +50,9 @@ export const requestUpdateForPullRequest = async (
       repo,
     }));
   const foo = await Promise.all(x);
-  console.log(foo[0].data[0].body);
+  // console.log(foo[0].data[0].body);
 
-  const body = "Hello World";
+  const body = 'Hello World';
   const promises = issues.map(i =>
     context.github.issues.createComment({
       issue_number: i.number,
