@@ -134,6 +134,7 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
     }
 
     try {
+        // Housekeeping of PRs that were created by the bot.
         await addCollaboratorsToPullRequests(context, owner, repo);
         await requestUpdateForPullRequest(context, owner, repo);
     } catch (err) {

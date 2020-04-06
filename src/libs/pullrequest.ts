@@ -24,8 +24,19 @@ import { PullState, RepoAffiliation } from './enums';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests, RepoMountieConfig } from './ghutils';
 import { loadTemplate } from './utils';
 
+/**
+ * Add comment to stale PRs
+ * This func will add a comment to pull request that are
+ * older than a threshold of days, and that were originally
+ * created by the bot.
+ *
+ * @param {Context} context The event context context
+ * @param {string} owner The organization name
+ * @param {string} repo The repo name
+ * @returns A void promise, rejection for failure
+ */
 export const requestUpdateForPullRequest = async (
-  context: Context, owner: string, repo: string) => {
+  context: Context, owner: string, repo: string): Promise<void> => {
 
   const maxDaysOld = 0; // config.get('staleIssueMaxDaysOld');
   const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
@@ -62,6 +73,7 @@ export const requestUpdateForPullRequest = async (
 
   await Promise.all(promises);
 };
+
 /**
  * Add collaborators to pull requests
  * This func will assign repo collaborators with `admin` and
