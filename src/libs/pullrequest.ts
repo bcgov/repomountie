@@ -37,8 +37,8 @@ export const requestUpdateForPullRequest = async (
     q: query,
     sort: 'updated',
   });
-  const issues = response.data.items
-    .filter(p => Object.values(PR_TITLES).includes(p.title.trim()));
+  const issues = response.data.items ? response.data.items
+    .filter(p => Object.values(PR_TITLES).includes(p.title.trim())) : [];
 
   if (issues.length === 0) {
     return;
