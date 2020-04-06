@@ -63,7 +63,8 @@ export const VALID_LICENSES = {
 
 export const TEXT_FILES = {
   HOWTO_PR: 'templates/howto_pull_request.md',
-  STALE_COMMENT: 'templates/stale_issue_comment.md',
+  STALE_ISSUE_COMMENT: 'templates/stale_issue_comment.md',
+  STALE_PR_COMMENT: 'templates/stale_pr_comment.md',
   WHY_COMPLY: 'templates/why-comply.md',
   WHY_LICENSE: 'templates/why-license.md',
 };

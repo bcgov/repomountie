@@ -76,7 +76,7 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
     }
 
     const regex = /\[MAX_DAYS_OLD\]/gi;
-    const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_COMMENT);
+    const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_ISSUE_COMMENT);
     const body = rawMessageBody
       .replace(regex, `${config.staleIssue.maxDaysOld}`);
 

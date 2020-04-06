@@ -17,6 +17,7 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import moment from 'moment';
 import { Context } from 'probot';
 import { COMMANDS, PR_TITLES, TEXT_FILES } from '../constants';
 import { PullState, RepoAffiliation } from './enums';
@@ -43,26 +44,23 @@ export const requestUpdateForPullRequest = async (
     return;
   }
 
-  const x = issues.map(i =>
-    context.github.issues.listComments({
-      issue_number: i.number,
-      owner,
-      repo,
-    }));
-  const foo = await Promise.all(x);
-  // console.log(foo[0].data[0].body);
+  const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_PR_COMMENT);
+  const regex = /\[DAYS_OLD\]/gi;
+  const promises = issues.map(i => {
+    const now = moment(Date.now());
+    const diffInDays = now.diff(moment(i.updated_at), 'days');
+    const body = rawMessageBody
+      .replace(regex, `${diffInDays}`);
 
-  const body = 'Hello World';
-  const promises = issues.map(i =>
     context.github.issues.createComment({
       issue_number: i.number,
       owner,
       repo,
       body,
-    }));
+    });
+  });
 
   await Promise.all(promises);
-
 };
 /**
  * Add collaborators to pull requests
