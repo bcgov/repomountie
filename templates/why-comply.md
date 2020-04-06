@@ -11,9 +11,9 @@ To help with reporting, I've added a compliance audit file as part of this pull 
 | Status      | Description                                                                                            |
 | ----------- | :----------------------------------------------------------------------------------------------------- |
 | TBD         | If you're surprised by this news, use this state. I'll let you talk to your MISO and check back later. |
-| in-progress | Use this state when your assessment(s) are underway.                                                   |
-| completed   | Use this state when your assessment(s) are completed. 🙌 🎉                                            |
-| exempt      | The PIA or STRA isn't applicable to your project / repo.                                               |
+| in-progress | Use this state when your assessment(s) are underway. |
+| completed   | Use this state when your assessment(s) are completed. 🙌 🎉 |
+| not-required      | You have consulted with your MISO or Privacy Officer and they  agree that no PIA or STRA is required.|
 
 Here is what a completed audit file might look like:
 

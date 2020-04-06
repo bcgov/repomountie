@@ -75,7 +75,7 @@ export const COMMANDS = {
 
 export const REGEXP = {
   command: '@repo-mountie\\s+',
-  compliance: '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|exempt)',
+  compliance: '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|not-required)',
   help: '@repo-mountie\\s+help',
 };
 
