@@ -20,7 +20,7 @@ import fs from 'fs';
 import nock from 'nock';
 import path from 'path';
 import { addFileViaPullRequest, checkIfRefExists, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
+import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from '../src/libs/repository';
 
 nock('https://api.github.com')
     .get('/app/installations')
@@ -106,5 +106,12 @@ describe('Repository management', () => {
         });
 
         await expect(addSecurityComplianceInfoIfRequired(context)).rejects.toThrow();
+    });
+
+    it('Upgrade', async () => {
+        const owner = 'bcgov';
+        const repo = 'hello5';
+
+        await fixDeprecatedComplianceStatus(context, owner, repo);
     });
 });

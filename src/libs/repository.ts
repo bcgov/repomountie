@@ -19,12 +19,66 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import yaml from 'js-yaml';
 import { Context } from 'probot';
 import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
-import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, hasPullRequestWithTitle } from './ghutils';
+import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, fetchFile, hasPullRequestWithTitle } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
+export const fixDeprecatedComplianceStatus = async (
+  context: Context, owner: string, repo: string
+) => {
+  try {
+    if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
+      logger.info(`This repo has no main branch ${context.payload.repository.name}`);
+      return;
+    }
+
+    if ((await checkIfRefExists(context, BRANCHES.RENAME_STATUS))) {
+      logger.info(`This repo already has this branch ${context.payload.repository.name}`);
+      return;
+    }
+
+    // will throw if the file does not exists
+    const data: any = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
+    const doc = yaml.safeLoad(Buffer.from(data.content, 'base64').toString());
+    let didUpdate = false;
+
+    doc.spec.forEach(item => {
+      if (item.status === 'exempt') {
+        item.status = 'not-required';
+        item['last-updated'] = new Date(Date.now()).toISOString();
+        didUpdate = true;
+      }
+    });
+
+    if (!didUpdate) {
+      return;
+    }
+
+    // Add the updated file via a PR
+    const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_RENAME_STATUS);
+
+    await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.CHANGE_STATUS,
+      PR_TITLES.RENAME_STATUS, prMessageBody, BRANCHES.RENAME_STATUS,
+      COMMIT_FILE_NAMES.COMPLIANCE, yaml.safeDump(doc), data.sha);
+
+  } catch (err) {
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(`Unable to update compliance file ${context.payload.repository.name}`);
+    } else {
+      logger.error(err.message);
+    }
+
+    throw err;
+  }
+};
+
 export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
+
+  const owner = context.payload.installation.account.login;
+  const repo = context.payload.repository.name;
 
   try {
     if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
@@ -47,7 +101,7 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
     const data: string = (await loadTemplate(TEMPLATES.COMPLIANCE))
       .split('[TODAY]').join(new Date().toISOString());
 
-    await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_COMPLIANCE,
+    await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.ADD_COMPLIANCE,
       PR_TITLES.ADD_COMPLIANCE, prMessageBody, BRANCHES.ADD_COMPLIANCE,
       COMMIT_FILE_NAMES.COMPLIANCE, data);
   } catch (err) {
@@ -68,6 +122,9 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
     return;
   }
 
+  const owner = context.payload.installation.account.login;
+  const repo = context.payload.repository.name;
+
   try {
     if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
       logger.info(`This repo has no main branch ${context.payload.repository.name}`);
@@ -83,7 +140,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
     const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_LICENSE);
     const licenseData: string = await loadTemplate(TEMPLATES.LICENSE);
 
-    await addFileViaPullRequest(context, COMMIT_MESSAGES.ADD_LICENSE,
+    await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.ADD_LICENSE,
       PR_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
       COMMIT_FILE_NAMES.LICENSE, licenseData);
   } catch (err) {

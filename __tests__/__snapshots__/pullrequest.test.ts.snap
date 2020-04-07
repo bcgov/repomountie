@@ -4,7 +4,7 @@ exports[`Pull requests Repos with stale bot PRs are processed 1`] = `
 Array [
   Array [
     Object {
-      "body": "Foo 327 bar",
+      "body": "Foo 329 bar",
       "issue_number": 2,
       "owner": "bcgov",
       "repo": "hello6",
