@@ -158,12 +158,13 @@ describe('Repository management', () => {
         const owner = 'bcgov';
         const repo = 'hello5';
 
-        doc.spec.forEach(s => {
+        const aDoc = yaml.safeLoad(yaml.safeDump(doc));
+        aDoc.spec.forEach(s => {
             s.status = 'completed';
         });
 
         const myComplianceResponse = JSON.parse(JSON.stringify(complianceResponse));
-        const content = Buffer.from(yaml.safeDump(doc)).toString('base64');
+        const content = Buffer.from(yaml.safeDump(aDoc)).toString('base64');
 
         myComplianceResponse.data.content = content;
 
