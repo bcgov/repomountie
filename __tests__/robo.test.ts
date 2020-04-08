@@ -74,7 +74,6 @@ describe('Bot command processing', () => {
     });
 
     it('Valid compliance commands are processed', async () => {
-        console.log(Date.now());
         const comment = `@repo-mountie update-pia completed\n@repo-mountie update-stra completed`;
         const result = applyComplianceCommands(comment, doc);
         expect(result).toMatchSnapshot();
