@@ -166,7 +166,7 @@ export const fetchFile = async (
       throw new Error('No content returned or wrong file type.');
     }
 
-    return Buffer.from(data.content, 'base64').toString();
+    return data;
   } catch (err) {
     const message = `Unable to fetch ${fileName}`;
     logger.error(`${message}, error = ${err.message}`);
@@ -184,8 +184,10 @@ export const fetchFile = async (
  */
 export const fetchComplianceFile = async (context: Context): Promise<RepoCompliance> => {
   try {
-    const content = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
-    return yaml.safeLoad(content);
+    const data: any = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
+    const fileContentAsString = Buffer.from(data.content, 'base64').toString();
+
+    return yaml.safeLoad(fileContentAsString);
   } catch (err) {
     const message = 'Unable to fetch compliance file.';
     logger.error(`${message}, error = ${err.message}`);
@@ -203,8 +205,9 @@ export const fetchComplianceFile = async (context: Context): Promise<RepoComplia
  */
 export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
   try {
-    const content = await fetchFile(context, REPO_CONFIG_FILE);
-    return JSON.parse(content);
+    const data: any = await fetchFile(context, REPO_CONFIG_FILE);
+    const fileContentAsString = Buffer.from(data.content, 'base64').toString();
+    return JSON.parse(fileContentAsString);
   } catch (err) {
     const message = 'Unable to fetch config file.';
     logger.error(`${message}, error = ${err.message}`);
@@ -245,54 +248,61 @@ export const labelExists = async (
  * Adds a file to a repo via a PR based of the
  * master branch.
  * @param {Context} context The event context context
+ * @param {string} owner The organization name
+ * @param {string} repo The name of the repo
  * @param {string} commitMessage The commit message for the file
  * @param {string} prTitle The title of the pull request
  * @param {string} prBody The message body of the pull request
  * @param {string} srcBranchName The source branch for the pull request
  * @param {string} fileName The name of the file to be added
  * @param {string} fileData The data of the file to be added
+ * @param {string} fileSHA Required if the file already exists.
  */
 export const addFileViaPullRequest = async (
-  context: Context, commitMessage: string, prTitle: string,
-  prBody: string, srcBranchName: string, fileName: string,
-  fileData: string
+  context: Context, owner: string, repo: string, commitMessage: string,
+  prTitle: string, prBody: string, srcBranchName: string, fileName: string,
+  fileData: string, fileSHA: string = ''
 ) => {
   try {
+    const params = { owner, repo };
+
     // If we don't have a main branch we won't have anywhere
     // to merge the PR.
     const mainbr = await context.github.git.getRef(
-      context.repo({
-        ref: `heads/${context.payload.repository.default_branch}`,
-      })
+      { ...params, ref: `heads/${context.payload.repository.default_branch}` }
     );
 
     // Create a branch to commit to commit the license file
     await context.github.git.createRef(
-      context.repo({
+      {
+        ...params,
         ref: `refs/heads/${srcBranchName}`,
-        sha: mainbr.data.object.sha, // where we fork from.
-      })
+        sha: mainbr.data.object.sha, // where we fork from
+      }
     );
 
+    const aParams: any = fileSHA !== '' ? { ...params, sha: fileSHA } : params;
+
     // Add the file to the new branch
-    await context.github.repos.createFile(
-      context.repo({
+    await context.github.repos.createOrUpdateFile(
+      {
+        ...aParams,
         branch: srcBranchName,
         content: Buffer.from(fileData).toString('base64'),
         message: commitMessage,
         path: fileName,
-      })
-    );
+      });
 
     // Create a PR to merge the licence ref into master
     await context.github.pulls.create(
-      context.repo({
+      {
+        ...params,
         base: context.payload.repository.default_branch,
         body: prBody,
         head: srcBranchName,
         maintainer_can_modify: true, // maintainers can edit this PR
         title: prTitle,
-      })
+      }
     );
   } catch (err) {
     const message = `Unable to add ${fileName} file to ${context.payload.repository.name}`;

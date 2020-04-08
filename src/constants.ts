@@ -37,16 +37,19 @@ export const COMMIT_MESSAGES = {
   ADD_COMPLIANCE: 'Add compliance audit file',
   ADD_LICENSE: 'Add Apache License 2.0',
   UPDATE_COMPLIANCE: 'Updating compliance audit file',
+  CHANGE_STATUS: 'Rename PIA and STRA status',
 };
 
 export const PR_TITLES = {
   ADD_COMPLIANCE: 'Add missing compliance audit file',
   ADD_LICENSE: 'Add missing license',
+  RENAME_STATUS: 'Rename PIA and STRA status from exempt',
 };
 
 export const BRANCHES = {
   ADD_COMPLIANCE: 'repo-mountie/add-compliance',
   ADD_LICENSE: 'repo-mountie/add-license',
+  RENAME_STATUS: 'repo-mountie/rename-status',
 };
 
 export const TEMPLATES = {
@@ -67,6 +70,7 @@ export const TEXT_FILES = {
   STALE_PR_COMMENT: 'templates/stale_pr_comment.md',
   WHY_COMPLY: 'templates/why-comply.md',
   WHY_LICENSE: 'templates/why-license.md',
+  WHY_RENAME_STATUS: 'templates/why-rename-status.md',
 };
 
 export const COMMANDS = {
@@ -75,7 +79,7 @@ export const COMMANDS = {
 
 export const REGEXP = {
   command: '@repo-mountie\\s+',
-  compliance: '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|exempt)',
+  compliance: '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|not-required)',
   help: '@repo-mountie\\s+help',
 };
 

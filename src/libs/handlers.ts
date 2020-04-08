@@ -25,7 +25,7 @@ import { ACCESS_CONTROL } from '../constants';
 import { fetchComplianceFile, fetchConfigFile } from './ghutils';
 import { checkForStaleIssues, created } from './issue';
 import { addCollaboratorsToPullRequests, requestUpdateForPullRequest, validatePullRequestIfRequired } from './pullrequest';
-import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './repository';
+import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from './repository';
 import { extractComplianceStatus } from './utils';
 
 export const memberAddedOrEdited = async (context: Context): Promise<void> => {
@@ -135,6 +135,13 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
 
     try {
         // Housekeeping of PRs that were created by the bot.
+        await fixDeprecatedComplianceStatus(context, owner, repo);
+    } catch (err) {
+        const message = `Unable to assign upgrade compliance file in ${repo}`;
+        logger.error(`${message}, error = ${err.message}`);
+    }
+
+    try {
         await addCollaboratorsToPullRequests(context, owner, repo);
         await requestUpdateForPullRequest(context, owner, repo);
     } catch (err) {

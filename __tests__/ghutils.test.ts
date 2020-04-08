@@ -111,14 +111,17 @@ describe('GitHub utility functions', () => {
     });
 
     it('A file should be added by PR', async () => {
+        const owner = 'bcgov';
+        const repo = 'hello5';
         github.git.getRef.mockReturnValueOnce(master);
-        await addFileViaPullRequest(context, 'Hello', 'World',
+
+        await addFileViaPullRequest(context, owner, repo, 'Hello', 'World',
             'This is a body.', 'blarb', 'blarb.txt', 'some-data-here');
 
         expect(github.git.getRef).toHaveBeenCalled();
         expect(github.pulls.create).toHaveBeenCalled();
         expect(github.git.createRef).toHaveBeenCalled();
-        expect(github.repos.createFile).toHaveBeenCalled();
+        expect(github.repos.createOrUpdateFile).toHaveBeenCalled();
     });
 
     it('Pull requests are retrieved', async () => {
