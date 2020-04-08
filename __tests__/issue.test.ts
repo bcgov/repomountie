@@ -40,11 +40,6 @@ const issuesAndPulls = JSON.parse(fs.readFileSync(p3, 'utf8'));
 const p4 = path.join(__dirname, 'fixtures/issues-empty.json');
 const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
-// jest.mock('../src/libs/issue', () => ({
-//   created: jest.fn(),
-//   checkForStaleIssues: jest.fn(),
-// }));
-
 jest.mock('../src/libs/ghutils', () => ({
   isOrgMember: jest.fn(),
   labelExists: jest.fn(),
@@ -68,6 +63,7 @@ describe('Issues (and PRs)', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('Comments from non-members are ignored', async () => {

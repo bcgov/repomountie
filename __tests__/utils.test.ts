@@ -30,6 +30,7 @@ describe('Utility functions', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('A template can be loaded', async () => {

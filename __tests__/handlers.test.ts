@@ -79,6 +79,7 @@ describe('GitHub event handlers', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     it('Member added handler', async () => {

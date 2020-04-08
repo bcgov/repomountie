@@ -48,6 +48,7 @@ describe('Repository integration tests', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it.skip('A repository without a license should have one added', async () => {

@@ -60,6 +60,7 @@ describe('GitHub utility functions', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     it('Labels should be fetched for lookup', async () => {

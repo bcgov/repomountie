@@ -63,6 +63,7 @@ describe('Pull requests', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('Pull requests are assigned appropriately', async () => {

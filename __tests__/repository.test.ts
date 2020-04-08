@@ -57,7 +57,8 @@ jest.mock('../src/libs/utils', () => ({
 
 describe('Repository management', () => {
 
-    beforeEach(() => {
+    afterEach(() => {
+        jest.clearAllMocks();
         jest.resetAllMocks();
     });
 
