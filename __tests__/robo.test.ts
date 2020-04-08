@@ -18,17 +18,12 @@
 
 import fs from 'fs';
 import yaml from 'js-yaml';
-import nock from 'nock';
 import path from 'path';
 import { Context } from 'probot';
 import { PR_TITLES } from '../src/constants';
 import { assignUsersToIssue, fetchContentsForFile } from '../src/libs/ghutils';
 import { applyComplianceCommands, handleBotCommand, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
 import helper from './src/helper';
-
-nock('https://api.github.com')
-    .get('/app/installations')
-    .reply(200, {});
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
 const issueCommentEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));

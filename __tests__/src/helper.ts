@@ -16,9 +16,6 @@
 // Created by Jason Leach on 2020-02-26.
 //
 
-import nock from 'nock';
-import { Application } from 'probot';
-import robot from '../../src';
 
 jest.mock('mongoose');
 
@@ -27,21 +24,17 @@ jest.mock('../../src/db', () => ({
     connect: jest.fn(),
 }));
 
-nock('https://api.github.com')
-    .get('/app/installations')
-    .query({ per_page: 100 })
-    .reply(200, {
-        account: {
-            login: 'nomatter',
-        },
-    });
+// nock('https://api.github.com')
+//     .get('/app/installations')
+//     .query({ per_page: 100 })
+//     .reply(200, {
+//         account: {
+//             login: 'nomatter',
+//         },
+//         repositories: [],
+//     });
 
-let app;
 let github;
-
-app = new Application();
-app.app = { getSignedJsonWebToken: () => 'xxx' };
-app.load(robot);
 
 github = {
     paginate: jest.fn().mockReturnValue([]),
@@ -92,10 +85,6 @@ github = {
     },
 };
 
-// Passes the mocked out GitHub API into out app instance
-app.auth = () => Promise.resolve(github);
-
 export default {
-    app,
     github,
 };

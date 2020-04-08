@@ -18,15 +18,10 @@
 
 import fs from 'fs';
 import yaml from 'js-yaml';
-import nock from 'nock';
 import path from 'path';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
-
-nock('https://api.github.com')
-    .get('/app/installations')
-    .reply(200, {});
 
 const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
 const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
@@ -36,9 +31,6 @@ const complianceResponse = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
 const p2 = path.join(__dirname, 'fixtures/compliance.yaml');
 const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
-
-// const p1 = path.join(__dirname, 'fixtures/master.json');
-// const master = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
 jest.mock('../src/libs/ghutils', () => ({
     addFileViaPullRequest: jest.fn(),
