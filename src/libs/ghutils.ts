@@ -404,36 +404,6 @@ export const assignUsersToIssue = async (
 };
 
 /**
- * Update the contents of a file or create it if non-existent.
- * This fn updates the contents of a file by creating a commit
- * with the appropriate changes.
- * @param {Context} context The event context context
- * @param {string} fileName The name of the file to lookup
- * @returns undefined if successful, throws otherwise
- */
-export const updateFileContent = async (
-  context: Context, commitMessage: string, srcBranchName: string,
-  fileName: string, fileData: string, fileSHA
-) => {
-  try {
-    await context.github.repos.createOrUpdateFile(
-      context.repo({
-        branch: srcBranchName,
-        content: Buffer.from(fileData).toString('base64'),
-        message: commitMessage,
-        path: fileName,
-        sha: fileSHA,
-      })
-    );
-  } catch (err) {
-    const message = 'Unable to update file.';
-    logger.error(`${message}, error = ${err.message}`);
-
-    throw err;
-  }
-};
-
-/**
  * Check if a user is member of an organization
  * This fn will check if the given user ID belongs to the
  * organization in the given context.

@@ -20,7 +20,7 @@ import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
 import { COMMIT_FILE_NAMES, PR_TITLES } from '../src/constants';
-import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFileContent, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists, updateFileContent } from '../src/libs/ghutils';
+import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFileContent, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists } from '../src/libs/ghutils';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/repo-schedule-event.json');
@@ -166,18 +166,6 @@ describe('GitHub utility functions', () => {
         expect(github.repos.listCommits).toHaveBeenCalled();
         expect(github.repos.getContents).toHaveBeenCalled();
         expect(results).toMatchSnapshot();
-    });
-
-    it('Updating a file on GitHub succeeds', async () => {
-        github.repos.createOrUpdateFile = jest.fn().mockReturnValueOnce(Promise.resolve());
-
-        await expect(updateFileContent(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).resolves.toBeUndefined();
-    });
-
-    it('Updating a file on GitHub fails', async () => {
-        github.repos.createOrUpdateFile = jest.fn().mockReturnValueOnce(Promise.reject());
-
-        await expect(updateFileContent(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).rejects.toThrow();
     });
 
     it('A user is a member of the organization', async () => {

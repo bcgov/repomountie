@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
 import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES, REGEXP } from '../constants';
-import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from './ghutils';
+import { assignUsersToIssue, fetchContentsForFile } from './ghutils';
 
 /**
  * Determine if help desk support is required
@@ -123,10 +123,15 @@ export const handleComplianceCommands = async (context: Context) => {
         let doc = yaml.safeLoad(Buffer.from(data.content, 'base64').toString());
         doc = applyComplianceCommands(comment, doc);
 
-        await updateFileContent(context, COMMIT_MESSAGES.UPDATE_COMPLIANCE,
-            BRANCHES.ADD_COMPLIANCE, COMMIT_FILE_NAMES.COMPLIANCE,
-            yaml.safeDump(doc), data.sha);
-
+        await context.github.repos.createOrUpdateFile(
+            context.repo({
+                branch: BRANCHES.ADD_COMPLIANCE,
+                content: Buffer.from(yaml.safeDump(doc)).toString('base64'),
+                message: COMMIT_MESSAGES.UPDATE_COMPLIANCE,
+                path: COMMIT_FILE_NAMES.COMPLIANCE,
+                sha: data.sha,
+            })
+        );
     } catch (err) {
         const message = 'Unable to process compliance commands';
         logger.error(`${message}, error = ${err.message}`);
