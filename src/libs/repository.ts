@@ -22,7 +22,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
 import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
-import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, fetchFile, hasPullRequestWithTitle } from './ghutils';
+import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
 export const fixDeprecatedComplianceStatus = async (
@@ -40,7 +40,7 @@ export const fixDeprecatedComplianceStatus = async (
     }
 
     // will throw if the file does not exists
-    const data: any = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
+    const data: any = await fetchFileContent(context, COMMIT_FILE_NAMES.COMPLIANCE);
     const doc = yaml.safeLoad(Buffer.from(data.content, 'base64').toString());
     let didUpdate = false;
 

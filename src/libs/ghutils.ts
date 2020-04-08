@@ -79,7 +79,7 @@ export const checkIfRefExists = async (context: Context, ref = context.payload.r
  */
 export const checkIfFileExists = async (context, fileName, ref = 'master'): Promise<boolean> => {
   try {
-    await fetchFile(context, fileName, ref);
+    await fetchFileContent(context, fileName, ref);
     return true;
   } catch (err) {
     return false;
@@ -149,7 +149,7 @@ export const fetchContentsForFile = async (
  * @param {string} ref The ref where the file exists
  * @returns A string containing the file data
  */
-export const fetchFile = async (
+export const fetchFileContent = async (
   context, fileName, ref = context.payload.repository.default_branch
 ): Promise<string> => {
   try {
@@ -184,7 +184,7 @@ export const fetchFile = async (
  */
 export const fetchComplianceFile = async (context: Context): Promise<RepoCompliance> => {
   try {
-    const data: any = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
+    const data: any = await fetchFileContent(context, COMMIT_FILE_NAMES.COMPLIANCE);
     const fileContentAsString = Buffer.from(data.content, 'base64').toString();
 
     return yaml.safeLoad(fileContentAsString);
@@ -205,7 +205,7 @@ export const fetchComplianceFile = async (context: Context): Promise<RepoComplia
  */
 export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
   try {
-    const data: any = await fetchFile(context, REPO_CONFIG_FILE);
+    const data: any = await fetchFileContent(context, REPO_CONFIG_FILE);
     const fileContentAsString = Buffer.from(data.content, 'base64').toString();
     return JSON.parse(fileContentAsString);
   } catch (err) {

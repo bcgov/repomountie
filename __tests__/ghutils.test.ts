@@ -20,7 +20,7 @@ import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
 import { COMMIT_FILE_NAMES, PR_TITLES } from '../src/constants';
-import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists, updateFileContent } from '../src/libs/ghutils';
+import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFileContent, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists, updateFileContent } from '../src/libs/ghutils';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/repo-schedule-event.json');
@@ -69,13 +69,13 @@ describe('GitHub utility functions', () => {
 
     it('A file should be retrieved.', async () => {
         github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
-        const data = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
+        const data = await fetchFileContent(context, COMMIT_FILE_NAMES.COMPLIANCE);
 
         expect(data).toMatchSnapshot();
     });
 
     it('A file should not be retrieved.', async () => {
-        await expect(fetchFile(context, 'blarb.txt')).rejects.toThrow(Error);
+        await expect(fetchFileContent(context, 'blarb.txt')).rejects.toThrow(Error);
     });
 
     it('The compliance file should be retrieved.', async () => {

@@ -20,7 +20,7 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import nock from 'nock';
 import path from 'path';
-import { addFileViaPullRequest, checkIfRefExists, fetchFile, hasPullRequestWithTitle } from '../src/libs/ghutils';
+import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 
@@ -46,7 +46,7 @@ jest.mock('../src/libs/ghutils', () => ({
     extractMessage: jest.fn().mockReturnValue('Hello Message'),
     hasPullRequestWithTitle: jest.fn().mockReturnValueOnce(Promise.resolve(false)),
     loadTemplate: jest.fn().mockReturnValue('Hello'),
-    fetchFile: jest.fn(),
+    fetchFileContent: jest.fn(),
     checkIfFileExists: jest.fn(),
 }));
 
@@ -142,14 +142,14 @@ describe('Repository management', () => {
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true).mockReturnValueOnce(false);
         // @ts-ignore
-        fetchFile.mockReturnValueOnce(myComplianceResponse.data)
+        fetchFileContent.mockReturnValueOnce(myComplianceResponse.data)
         // @ts-ignore
         loadTemplate.mockReturnValueOnce('bla');
 
         await fixDeprecatedComplianceStatus(context, owner, repo);
 
         expect(checkIfRefExists).toBeCalledTimes(2);
-        expect(fetchFile).toBeCalled();
+        expect(fetchFileContent).toBeCalled();
         expect(loadTemplate).toBeCalled();
         expect(addFileViaPullRequest).toBeCalled();
     });
@@ -171,14 +171,14 @@ describe('Repository management', () => {
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true).mockReturnValueOnce(false);
         // @ts-ignore
-        fetchFile.mockReturnValueOnce(myComplianceResponse.data)
+        fetchFileContent.mockReturnValueOnce(myComplianceResponse.data)
         // @ts-ignore
         loadTemplate.mockReturnValueOnce('bla');
 
         await fixDeprecatedComplianceStatus(context, owner, repo);
 
         expect(checkIfRefExists).toBeCalledTimes(2);
-        expect(fetchFile).toBeCalled();
+        expect(fetchFileContent).toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(addFileViaPullRequest).not.toBeCalled();
     });
@@ -193,7 +193,7 @@ describe('Repository management', () => {
         await fixDeprecatedComplianceStatus(context, owner, repo);
 
         expect(checkIfRefExists).toBeCalledTimes(1);
-        expect(fetchFile).not.toBeCalled();
+        expect(fetchFileContent).not.toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(addFileViaPullRequest).not.toBeCalled();
     });
@@ -208,7 +208,7 @@ describe('Repository management', () => {
         await fixDeprecatedComplianceStatus(context, owner, repo);
 
         expect(checkIfRefExists).toBeCalledTimes(2);
-        expect(fetchFile).not.toBeCalled();
+        expect(fetchFileContent).not.toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(addFileViaPullRequest).not.toBeCalled();
     });
