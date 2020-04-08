@@ -20,7 +20,7 @@ import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
 import { COMMIT_FILE_NAMES, PR_TITLES } from '../src/constants';
-import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFileContent, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists } from '../src/libs/ghutils';
+import { addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFileContent, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists } from '../src/libs/ghutils';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/repo-schedule-event.json');
@@ -199,18 +199,6 @@ describe('GitHub utility functions', () => {
 
         const result = await isOrgMember(context, 'helloworld');
         expect(result).toBeFalsy();
-    });
-
-    it('Adding a comment to an issue should succeed', async () => {
-        const result = await addCommentToIssue(context, 'helloworld');
-
-        expect(result).toBeUndefined();
-    });
-
-    it('Adding a comment to an issue should fail', async () => {
-        github.issues.createComment = jest.fn().mockReturnValueOnce(Promise.reject(new Error()));
-
-        await expect(addCommentToIssue(context, 'helloworld')).rejects.toThrow();
     });
 
     it('Return true if a file exists', async () => {

@@ -440,25 +440,3 @@ export const isOrgMember = async (context: Context, userID: string): Promise<boo
     throw err;
   }
 };
-
-/**
- * Add a comment to an issue
- * This fn will add a comment to a given issue
- * @param {Context} context The query context
- * @param {string} body The comment body
- * @returns Undefined if successful, thrown error otherwise
- */
-export const addCommentToIssue = async (context: Context, body: string) => {
-  try {
-    await context.github.issues.createComment(
-      context.issue({
-        body,
-      })
-    );
-  } catch (err) {
-    const message = 'Unable to add comment to issue.';
-    logger.error(`${message}, error = ${err.message}`);
-
-    throw err;
-  }
-};
