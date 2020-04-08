@@ -277,11 +277,11 @@ export const addFileViaPullRequest = async (
       {
         ...params,
         ref: `refs/heads/${srcBranchName}`,
-        sha: mainbr.data.object.sha, // where we fork from 
+        sha: mainbr.data.object.sha, // where we fork from
       }
     );
 
-    const aParams: any = fileSHA != '' ? { ...params, sha: fileSHA } : params;
+    const aParams: any = fileSHA !== '' ? { ...params, sha: fileSHA } : params;
 
     // Add the file to the new branch
     await context.github.repos.createOrUpdateFile(
