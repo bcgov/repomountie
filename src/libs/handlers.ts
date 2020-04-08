@@ -134,18 +134,13 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
     }
 
     try {
-        // Housekeeping of PRs that were created by the bot.
-        await fixDeprecatedComplianceStatus(context, owner, repo);
+        await Promise.all([
+            addCollaboratorsToPullRequests(context, owner, repo),
+            fixDeprecatedComplianceStatus(context, owner, repo),
+            requestUpdateForPullRequest(context, owner, repo),
+        ]);
     } catch (err) {
-        const message = `Unable to assign upgrade compliance file in ${repo}`;
-        logger.error(`${message}, error = ${err.message}`);
-    }
-
-    try {
-        await addCollaboratorsToPullRequests(context, owner, repo);
-        await requestUpdateForPullRequest(context, owner, repo);
-    } catch (err) {
-        const message = `Unable to assign collaborators in ${repo}`;
+        const message = `Complete all housekeeping tasks, repo is ${repo}`;
         logger.error(`${message}, error = ${err.message}`);
     }
 

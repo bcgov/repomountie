@@ -42,36 +42,42 @@ export const requestUpdateForPullRequest = async (
   const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
   const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
   const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
-  const response = await context.github.search.issuesAndPullRequests({
-    order: 'desc',
-    per_page: 100,
-    q: query,
-    sort: 'updated',
-  });
-  const issues = response.data.items ? response.data.items
-    .filter(p => Object.values(PR_TITLES).includes(p.title.trim())) : [];
 
-  if (issues.length === 0) {
-    return;
-  }
-
-  const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_PR_COMMENT);
-  const regex = /\[DAYS_OLD\]/gi;
-  const promises = issues.map(i => {
-    const now = moment(Date.now());
-    const diffInDays = now.diff(moment(i.updated_at), 'days');
-    const body = rawMessageBody
-      .replace(regex, `${diffInDays}`);
-
-    context.github.issues.createComment({
-      issue_number: i.number,
-      owner,
-      repo,
-      body,
+  try {
+    const response = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
     });
-  });
+    const issues = response.data.items ? response.data.items
+      .filter(p => Object.values(PR_TITLES).includes(p.title.trim())) : [];
 
-  await Promise.all(promises);
+    if (issues.length === 0) {
+      return;
+    }
+
+    const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_PR_COMMENT);
+    const regex = /\[DAYS_OLD\]/gi;
+    const promises = issues.map(i => {
+      const now = moment(Date.now());
+      const diffInDays = now.diff(moment(i.updated_at), 'days');
+      const body = rawMessageBody
+        .replace(regex, `${diffInDays}`);
+
+      context.github.issues.createComment({
+        issue_number: i.number,
+        owner,
+        repo,
+        body,
+      });
+    });
+
+    await Promise.all(promises);
+  } catch (err) {
+    const message = `Unable to request PR update`;
+    logger.error(`${message}, error = ${err.message}`);
+  }
 };
 
 /**

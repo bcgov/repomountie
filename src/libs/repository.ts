@@ -70,8 +70,6 @@ export const fixDeprecatedComplianceStatus = async (
     } else {
       logger.error(err.message);
     }
-
-    throw err;
   }
 };
 
