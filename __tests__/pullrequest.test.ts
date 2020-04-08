@@ -19,9 +19,9 @@
 import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
-import { COMMANDS } from '../src/constants';
+import { COMMANDS, PR_TITLES } from '../src/constants';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests } from '../src/libs/ghutils';
-import { addCollaboratorsToPullRequests, extractCommands, isValidPullRequestLength, shouldIgnoredLengthCheck, validatePullRequestIfRequired } from '../src/libs/pullrequest';
+import { addCollaboratorsToPullRequests, extractCommands, isValidPullRequestLength, requestUpdateForPullRequest, shouldIgnoredLengthCheck, validatePullRequestIfRequired } from '../src/libs/pullrequest';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -36,6 +36,12 @@ const collabs = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
 const p3 = path.join(__dirname, 'fixtures/rmconfig.json');
 const config = JSON.parse(fs.readFileSync(p3, 'utf8'));
+
+const p4 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
+const issuesAndPulls = JSON.parse(fs.readFileSync(p4, 'utf8'));
+
+const p5 = path.join(__dirname, 'fixtures/issues-empty.json');
+const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p5, 'utf8'));
 
 jest.mock('../src/libs/ghutils', () => ({
   fetchPullRequests: jest.fn(),
@@ -203,7 +209,7 @@ describe('Pull requests', () => {
 
   it('A invalid PR length is not commented on', async () => {
     // @ts-ignore
-    loadTemplate.mockReturnValueOnce('bla');
+    loadTemplate.mockReturnValueOnce('bla1');
 
     context = new Context(issueOpenedEvent, github as any, {} as any);
     context.payload.pull_request.body += '\nHello\nWorld';
@@ -215,5 +221,41 @@ describe('Pull requests', () => {
 
     expect(loadTemplate).toBeCalled();
     expect(github.issues.createComment).toBeCalled();
+  });
+
+  it('Repos without any stale bot PRs are skipped', async () => {
+    context = new Context(issueOpenedEvent, github as any, {} as any);
+    const owner = 'bcgov';
+    const repo = 'hello5';
+
+    // @ts-ignore
+    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
+
+    await requestUpdateForPullRequest(context, owner, repo);
+
+    expect(loadTemplate).not.toBeCalled();
+    expect(github.issues.createComment).not.toBeCalled();
+  });
+
+  it('Repos with stale bot PRs are processed', async () => {
+    context = new Context(issueOpenedEvent, github as any, {} as any);
+    const owner = 'bcgov';
+    const repo = 'hello6';
+
+    const response = JSON.parse(JSON.stringify(issuesAndPulls));
+    response.data.items[0].title = PR_TITLES.ADD_COMPLIANCE;
+
+    // @ts-ignore
+    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(response));
+    // @ts-ignore
+    loadTemplate.mockReturnValueOnce('Foo [DAYS_OLD] bar');
+
+    await requestUpdateForPullRequest(context, owner, repo);
+
+    const call = github.issues.createComment.mock.calls
+
+    expect(loadTemplate).toBeCalled();
+    expect(github.issues.createComment).toBeCalled();
+    expect(call).toMatchSnapshot();
   });
 });

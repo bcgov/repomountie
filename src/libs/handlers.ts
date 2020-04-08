@@ -24,7 +24,7 @@ import { Context } from 'probot';
 import { ACCESS_CONTROL } from '../constants';
 import { fetchComplianceFile, fetchConfigFile } from './ghutils';
 import { checkForStaleIssues, created } from './issue';
-import { addCollaboratorsToPullRequests, validatePullRequestIfRequired } from './pullrequest';
+import { addCollaboratorsToPullRequests, requestUpdateForPullRequest, validatePullRequestIfRequired } from './pullrequest';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from './repository';
 import { extractComplianceStatus } from './utils';
 
@@ -134,7 +134,9 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
     }
 
     try {
+        // Housekeeping of PRs that were created by the bot.
         await addCollaboratorsToPullRequests(context, owner, repo);
+        await requestUpdateForPullRequest(context, owner, repo);
     } catch (err) {
         const message = `Unable to assign collaborators in ${repo}`;
         logger.error(`${message}, error = ${err.message}`);

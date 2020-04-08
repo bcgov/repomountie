@@ -17,11 +17,62 @@
 //
 
 import { logger } from '@bcgov/common-nodejs-utils';
+import moment from 'moment';
 import { Context } from 'probot';
 import { COMMANDS, PR_TITLES, TEXT_FILES } from '../constants';
 import { PullState, RepoAffiliation } from './enums';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests, RepoMountieConfig } from './ghutils';
 import { loadTemplate } from './utils';
+
+/**
+ * Add comment to stale PRs
+ * This func will add a comment to pull request that are
+ * older than a threshold of days, and that were originally
+ * created by the bot.
+ *
+ * @param {Context} context The event context context
+ * @param {string} owner The organization name
+ * @param {string} repo The repo name
+ * @returns A void promise, rejection for failure
+ */
+export const requestUpdateForPullRequest = async (
+  context: Context, owner: string, repo: string): Promise<void> => {
+
+  const maxDaysOld = 0; // config.get('staleIssueMaxDaysOld');
+  const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
+  const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
+  const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
+  const response = await context.github.search.issuesAndPullRequests({
+    order: 'desc',
+    per_page: 100,
+    q: query,
+    sort: 'updated',
+  });
+  const issues = response.data.items ? response.data.items
+    .filter(p => Object.values(PR_TITLES).includes(p.title.trim())) : [];
+
+  if (issues.length === 0) {
+    return;
+  }
+
+  const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_PR_COMMENT);
+  const regex = /\[DAYS_OLD\]/gi;
+  const promises = issues.map(i => {
+    const now = moment(Date.now());
+    const diffInDays = now.diff(moment(i.updated_at), 'days');
+    const body = rawMessageBody
+      .replace(regex, `${diffInDays}`);
+
+    context.github.issues.createComment({
+      issue_number: i.number,
+      owner,
+      repo,
+      body,
+    });
+  });
+
+  await Promise.all(promises);
+};
 
 /**
  * Add collaborators to pull requests
