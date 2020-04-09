@@ -95,6 +95,7 @@ describe('Repository management', () => {
     it('Adding a compliance file should fail because ref missing', async () => {
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(false);
+
         await expect(addSecurityComplianceInfoIfRequired(context)).resolves.toBe(undefined);
     });
 
@@ -103,6 +104,7 @@ describe('Repository management', () => {
         checkIfRefExists.mockReturnValueOnce(true);
         // @ts-ignore
         hasPullRequestWithTitle.mockReturnValueOnce(true);
+
         await expect(addSecurityComplianceInfoIfRequired(context)).resolves.toBe(undefined);
     });
 
@@ -115,6 +117,8 @@ describe('Repository management', () => {
         addFileViaPullRequest.mockImplementation(() => {
             throw new Error();
         });
+        // @ts-ignore
+        loadTemplate.mockReturnValue('bla [TODAY] bla');
 
         await expect(addSecurityComplianceInfoIfRequired(context)).rejects.toThrow();
     });
@@ -137,7 +141,7 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(myComplianceResponse.data)
         // @ts-ignore
-        loadTemplate.mockReturnValueOnce('bla');
+        loadTemplate.mockReturnValueOnce('bla [TODAY] bla');
 
         await fixDeprecatedComplianceStatus(context, owner, repo);
 
@@ -166,7 +170,7 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(myComplianceResponse.data)
         // @ts-ignore
-        loadTemplate.mockReturnValueOnce('bla');
+        loadTemplate.mockReturnValueOnce('bla [TODAY] bla');
 
         await fixDeprecatedComplianceStatus(context, owner, repo);
 

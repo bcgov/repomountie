@@ -97,7 +97,8 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
     // Add a license via a PR
     const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_COMPLY);
     const data: string = (await loadTemplate(TEMPLATES.COMPLIANCE))
-      .split('[TODAY]').join(new Date().toISOString());
+      .split('[TODAY]')
+      .join(new Date().toISOString());
 
     await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.ADD_COMPLIANCE,
       PR_TITLES.ADD_COMPLIANCE, prMessageBody, BRANCHES.ADD_COMPLIANCE,

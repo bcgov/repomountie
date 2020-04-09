@@ -45,11 +45,13 @@ const repoDeletedEvent = JSON.parse(fs.readFileSync(p4, 'utf8'));
 jest.mock('../src/libs/pullrequest', () => ({
     addCollaboratorsToPullRequests: jest.fn(),
     validatePullRequestIfRequired: jest.fn(),
+    requestUpdateForPullRequest: jest.fn(),
 }));
 
 jest.mock('../src/libs/repository', () => ({
     addSecurityComplianceInfoIfRequired: jest.fn(),
     addLicenseIfRequired: jest.fn(),
+    fixDeprecatedComplianceStatus: jest.fn(),
 }));
 
 jest.mock('../src/libs/issue', () => ({
@@ -239,6 +241,11 @@ describe('GitHub event handlers', () => {
         context.payload.installation.account.login = 'bcgov';
         context.payload.repository.archived = false;
 
+        // @ts-ignore
+        // extractComplianceStatus.mockReturnValue({
+        //     save: () => { console.log('x'); },
+        // });
+
         await repositoryScheduled(context, scheduler);
 
         expect(addCollaboratorsToPullRequests).toBeCalled();
@@ -259,6 +266,10 @@ describe('GitHub event handlers', () => {
         fetchConfigFile.mockImplementationOnce(() => {
             throw new Error();
         });
+        // // @ts-ignore
+        // extractComplianceStatus.mockReturnValue({
+        //     save: () => { },
+        // });
 
         await repositoryScheduled(context, scheduler);
 
