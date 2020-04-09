@@ -19,6 +19,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import moment from 'moment';
 import { Context } from 'probot';
+import config from '../config';
 import { COMMANDS, PR_TITLES, TEXT_FILES } from '../constants';
 import { PullState, RepoAffiliation } from './enums';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests, RepoMountieConfig } from './ghutils';
@@ -38,7 +39,7 @@ import { loadTemplate } from './utils';
 export const requestUpdateForPullRequest = async (
   context: Context, owner: string, repo: string): Promise<void> => {
 
-  const maxDaysOld = 0; // config.get('staleIssueMaxDaysOld');
+  const maxDaysOld = config.get('staleIssueMaxDaysOld');
   const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
   const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
   const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
