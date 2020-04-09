@@ -18,18 +18,15 @@
 
 import fs from 'fs';
 import yaml from 'js-yaml';
-import nock from 'nock';
 import path from 'path';
-import { GITHUB_ID, PR_TITLES } from '../src/constants';
-import { assignUsersToIssue, fetchContentsForFile, updateFileContent } from '../src/libs/ghutils';
+import { Context } from 'probot';
+import { PR_TITLES } from '../src/constants';
+import { assignUsersToIssue, fetchContentsForFile } from '../src/libs/ghutils';
 import { applyComplianceCommands, handleBotCommand, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
-
-nock('https://api.github.com')
-    .get('/app/installations')
-    .reply(200, {});
+import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
-const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
+const issueCommentEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
 const p1 = path.join(__dirname, 'fixtures/repo-get-content-compliance.json');
 const content = JSON.parse(fs.readFileSync(p1, 'utf8'));
@@ -40,20 +37,23 @@ const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
 jest.mock('../src/libs/ghutils', () => ({
     assignUsersToIssue: jest.fn(),
     fetchContentsForFile: jest.fn(),
-    updateFileContent: jest.fn(),
 }));
 
-Date.now = jest.fn(() => 1576090712480);
+Date.now = jest.fn();
 
 describe('Bot command processing', () => {
+    let context;
+    const { github } = helper;
 
     beforeEach(() => {
-        context.payload.issue.user.login = `${GITHUB_ID}[bot]`;
-        context.payload.comment.body = 'I\'m a teapot';
+        context = undefined;
+        // @ts-ignore
+        Date.now.mockReturnValue(1576090712480);
     });
 
     afterEach(() => {
         jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     it('Missing compliance commands are ignored', async () => {
@@ -75,6 +75,7 @@ describe('Bot command processing', () => {
     });
 
     it('Help requests issues are processed', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = '@repo-mountie help\n';
         const result = helpDeskSupportRequired(context.payload);
 
@@ -82,6 +83,7 @@ describe('Bot command processing', () => {
     });
 
     it('Non-help comments are ignored', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = 'I\'m a teapot';
         const result = helpDeskSupportRequired(context.payload);
 
@@ -89,6 +91,7 @@ describe('Bot command processing', () => {
     });
 
     it('Missing file causes update to be skipped', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = `@repo-mountie update-pia completed`;
         // @ts-ignore
         fetchContentsForFile.mockReturnValueOnce(undefined);
@@ -96,11 +99,12 @@ describe('Bot command processing', () => {
         await handleComplianceCommands(context);
 
         expect(fetchContentsForFile).toBeCalled();
-        expect(updateFileContent).not.toBeCalled();
+        expect(github.repos.createOrUpdateFile).not.toBeCalled();
     });
 
 
     it('Invalid command causes update to be skipped', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = `@repo-mountie update-blarb completed`;
         // @ts-ignore
         fetchContentsForFile.mockReturnValueOnce(content.data);
@@ -108,10 +112,11 @@ describe('Bot command processing', () => {
         await handleComplianceCommands(context);
 
         expect(fetchContentsForFile).not.toBeCalled();
-        expect(updateFileContent).not.toBeCalled();
+        expect(github.repos.createOrUpdateFile).not.toBeCalled();
     });
 
     it('Compliance commands are processed appropriately', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = `@repo-mountie update-pia completed`;
         // @ts-ignore
         fetchContentsForFile.mockReturnValueOnce(content.data);
@@ -119,19 +124,25 @@ describe('Bot command processing', () => {
         await handleComplianceCommands(context);
 
         expect(fetchContentsForFile).toBeCalled();
-        expect(updateFileContent).toBeCalled();
+        expect(github.repos.createOrUpdateFile).toBeCalled();
     });
 
     it('An error is handled correctly', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = `@repo-mountie help`;
         context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
+        context.payload.sender.type = 'User';
+
         // @ts-ignore
-        assignUsersToIssue.mockRejectedValueOnce(new Error());
+        assignUsersToIssue.mockImplementationOnce(() => {
+            throw new Error();
+        });
 
         await expect(handleBotCommand(context)).rejects.toThrow();
     });
 
     it('An unknown PR is disregarded', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = 'I fixed up the code real good.';
         context.payload.issue.title = 'Fix a bug';
         // @ts-ignore
@@ -143,6 +154,7 @@ describe('Bot command processing', () => {
     });
 
     it('A request for help is processed correctly', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = '/help';
         context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
         // @ts-ignore
@@ -152,6 +164,7 @@ describe('Bot command processing', () => {
     });
 
     it('A ', async () => {
+        context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
         // @ts-ignore
 

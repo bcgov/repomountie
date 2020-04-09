@@ -53,16 +53,21 @@ jest.mock('../src/libs/utils', () => ({
   loadTemplate: jest.fn(),
 }));
 
+Date.now = jest.fn();
+
 describe('Pull requests', () => {
   let context;
   const { github } = helper;
 
   beforeEach(() => {
     context = undefined;
+    // @ts-ignore
+    Date.now.mockReturnValue(1576090712480);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('Pull requests are assigned appropriately', async () => {

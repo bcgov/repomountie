@@ -22,13 +22,8 @@
 'use strict';
 
 import fs from 'fs';
-import nock from 'nock';
 import path from 'path';
 import { isAuthorized } from '../src/libs/authmware';
-
-nock('https://api.github.com')
-  .get('/app/installations')
-  .reply(200, {});
 
 const path2 = path.join(__dirname, 'fixtures/jwt-decoded-sa-20181107.json');
 const saOk = JSON.parse(fs.readFileSync(path2, 'utf8'));

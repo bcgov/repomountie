@@ -79,7 +79,7 @@ export const checkIfRefExists = async (context: Context, ref = context.payload.r
  */
 export const checkIfFileExists = async (context, fileName, ref = 'master'): Promise<boolean> => {
   try {
-    await fetchFile(context, fileName, ref);
+    await fetchFileContent(context, fileName, ref);
     return true;
   } catch (err) {
     return false;
@@ -149,7 +149,7 @@ export const fetchContentsForFile = async (
  * @param {string} ref The ref where the file exists
  * @returns A string containing the file data
  */
-export const fetchFile = async (
+export const fetchFileContent = async (
   context, fileName, ref = context.payload.repository.default_branch
 ): Promise<string> => {
   try {
@@ -184,7 +184,7 @@ export const fetchFile = async (
  */
 export const fetchComplianceFile = async (context: Context): Promise<RepoCompliance> => {
   try {
-    const data: any = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
+    const data: any = await fetchFileContent(context, COMMIT_FILE_NAMES.COMPLIANCE);
     const fileContentAsString = Buffer.from(data.content, 'base64').toString();
 
     return yaml.safeLoad(fileContentAsString);
@@ -205,7 +205,7 @@ export const fetchComplianceFile = async (context: Context): Promise<RepoComplia
  */
 export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
   try {
-    const data: any = await fetchFile(context, REPO_CONFIG_FILE);
+    const data: any = await fetchFileContent(context, REPO_CONFIG_FILE);
     const fileContentAsString = Buffer.from(data.content, 'base64').toString();
     return JSON.parse(fileContentAsString);
   } catch (err) {
@@ -404,36 +404,6 @@ export const assignUsersToIssue = async (
 };
 
 /**
- * Update the contents of a file or create it if non-existent.
- * This fn updates the contents of a file by creating a commit
- * with the appropriate changes.
- * @param {Context} context The event context context
- * @param {string} fileName The name of the file to lookup
- * @returns undefined if successful, throws otherwise
- */
-export const updateFileContent = async (
-  context: Context, commitMessage: string, srcBranchName: string,
-  fileName: string, fileData: string, fileSHA
-) => {
-  try {
-    await context.github.repos.createOrUpdateFile(
-      context.repo({
-        branch: srcBranchName,
-        content: Buffer.from(fileData).toString('base64'),
-        message: commitMessage,
-        path: fileName,
-        sha: fileSHA,
-      })
-    );
-  } catch (err) {
-    const message = 'Unable to update file.';
-    logger.error(`${message}, error = ${err.message}`);
-
-    throw err;
-  }
-};
-
-/**
  * Check if a user is member of an organization
  * This fn will check if the given user ID belongs to the
  * organization in the given context.
@@ -465,28 +435,6 @@ export const isOrgMember = async (context: Context, userID: string): Promise<boo
     }
 
     const message = 'Unable to lookup user';
-    logger.error(`${message}, error = ${err.message}`);
-
-    throw err;
-  }
-};
-
-/**
- * Add a comment to an issue
- * This fn will add a comment to a given issue
- * @param {Context} context The query context
- * @param {string} body The comment body
- * @returns Undefined if successful, thrown error otherwise
- */
-export const addCommentToIssue = async (context: Context, body: string) => {
-  try {
-    await context.github.issues.createComment(
-      context.issue({
-        body,
-      })
-    );
-  } catch (err) {
-    const message = 'Unable to add comment to issue.';
     logger.error(`${message}, error = ${err.message}`);
 
     throw err;

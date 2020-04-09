@@ -22,11 +22,11 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import { Context } from 'probot';
 import { ACCESS_CONTROL } from '../constants';
-import { fetchComplianceFile, fetchConfigFile } from './ghutils';
+import { fetchConfigFile } from './ghutils';
 import { checkForStaleIssues, created } from './issue';
 import { addCollaboratorsToPullRequests, requestUpdateForPullRequest, validatePullRequestIfRequired } from './pullrequest';
+import { fetchComplianceMetrics } from './reporting';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from './repository';
-import { extractComplianceStatus } from './utils';
 
 export const memberAddedOrEdited = async (context: Context): Promise<void> => {
     const owner = context.payload.organization.login;
@@ -134,43 +134,24 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
     }
 
     try {
-        // Housekeeping of PRs that were created by the bot.
-        await fixDeprecatedComplianceStatus(context, owner, repo);
+        // These are all independent func. Rather than call them each in a
+        // try/catch I'm bundling them.
+        await Promise.all([
+            addCollaboratorsToPullRequests(context, owner, repo),
+            fixDeprecatedComplianceStatus(context, owner, repo),
+            requestUpdateForPullRequest(context, owner, repo),
+            addLicenseIfRequired(context, scheduler),
+            addSecurityComplianceInfoIfRequired(context, scheduler),
+            fetchComplianceMetrics(context),
+        ]);
     } catch (err) {
-        const message = `Unable to assign upgrade compliance file in ${repo}`;
+        const message = `Unable to complete all housekeeping tasks, repo is ${repo}`;
         logger.error(`${message}, error = ${err.message}`);
     }
 
     try {
-        await addCollaboratorsToPullRequests(context, owner, repo);
-        await requestUpdateForPullRequest(context, owner, repo);
-    } catch (err) {
-        const message = `Unable to assign collaborators in ${repo}`;
-        logger.error(`${message}, error = ${err.message}`);
-    }
-
-    let requiresComplianceFile = false;
-    try {
-        const data = await fetchComplianceFile(context);
-        const doc = extractComplianceStatus(repo,
-            context.payload.installation.account.login, data);
-
-        await doc.save();
-    } catch (err) {
-        const message = `Unable to check compliance in repository ${repo}`;
-        logger.error(`${message}, error = ${err.message}`);
-
-        requiresComplianceFile = true;
-    }
-
-    try {
-        if (requiresComplianceFile) {
-            await addSecurityComplianceInfoIfRequired(context, scheduler);
-        }
-        await addLicenseIfRequired(context, scheduler);
-
-        // Functionality below here requires a `config` file exist in the repo.
-
+        // functionality below here requires a `config` file
+        // exist in the repo.
         try {
             const rmconfig = await fetchConfigFile(context);
             await checkForStaleIssues(context, rmconfig);
