@@ -19,12 +19,12 @@
 import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
-import { fetchComplianceFile, fetchConfigFile } from '../src/libs/ghutils';
+import { fetchConfigFile } from '../src/libs/ghutils';
 import { issueCommentCreated, memberAddedOrEdited, pullRequestOpened, repositoryDeleted, repositoryScheduled } from '../src/libs/handlers';
 import { checkForStaleIssues, created } from '../src/libs/issue';
 import { addCollaboratorsToPullRequests, validatePullRequestIfRequired } from '../src/libs/pullrequest';
+import { fetchComplianceMetrics } from '../src/libs/reporting';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
-import { extractComplianceStatus } from '../src/libs/utils';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/member-added-event.json');
@@ -42,14 +42,20 @@ const repoScheduledEvent = JSON.parse(fs.readFileSync(p3, 'utf8'));
 const p4 = path.join(__dirname, 'fixtures/repo-deleted-event.json');
 const repoDeletedEvent = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
+jest.mock('../src/libs/reporting', () => ({
+    fetchComplianceMetrics: jest.fn(),
+}));
+
 jest.mock('../src/libs/pullrequest', () => ({
     addCollaboratorsToPullRequests: jest.fn(),
     validatePullRequestIfRequired: jest.fn(),
+    requestUpdateForPullRequest: jest.fn(),
 }));
 
 jest.mock('../src/libs/repository', () => ({
     addSecurityComplianceInfoIfRequired: jest.fn(),
     addLicenseIfRequired: jest.fn(),
+    fixDeprecatedComplianceStatus: jest.fn(),
 }));
 
 jest.mock('../src/libs/issue', () => ({
@@ -59,11 +65,6 @@ jest.mock('../src/libs/issue', () => ({
 
 jest.mock('../src/libs/ghutils', () => ({
     fetchConfigFile: jest.fn(),
-    fetchComplianceFile: jest.fn(),
-}));
-
-jest.mock('../src/libs/utils', () => ({
-    extractComplianceStatus: jest.fn(),
 }));
 
 describe('GitHub event handlers', () => {
@@ -79,6 +80,7 @@ describe('GitHub event handlers', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     it('Member added handler', async () => {
@@ -186,8 +188,7 @@ describe('GitHub event handlers', () => {
         await repositoryScheduled(context, {});
 
         expect(addCollaboratorsToPullRequests).not.toBeCalled();
-        expect(fetchComplianceFile).not.toBeCalled();
-        expect(extractComplianceStatus).not.toBeCalled();
+        expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
         expect(addLicenseIfRequired).not.toBeCalled();
         expect(fetchConfigFile).not.toBeCalled();
@@ -203,8 +204,7 @@ describe('GitHub event handlers', () => {
         await repositoryScheduled(context, scheduler);
 
         expect(addCollaboratorsToPullRequests).not.toBeCalled();
-        expect(fetchComplianceFile).not.toBeCalled();
-        expect(extractComplianceStatus).not.toBeCalled();
+        expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
         expect(addLicenseIfRequired).not.toBeCalled();
         expect(fetchConfigFile).not.toBeCalled();
@@ -212,20 +212,15 @@ describe('GitHub event handlers', () => {
         expect(scheduler.stop).toBeCalled();
     });
 
-    it('Scheduled repos without compiance file have one added', async () => {
+    it('Scheduled repos without compliance file have one added', async () => {
         context = new Context(repoScheduledEvent, github as any, {} as any);
         context.payload.installation.account.login = 'bcgov';
         context.payload.repository.archived = false;
-        // @ts-ignore
-        fetchComplianceFile.mockImplementationOnce(() => {
-            throw new Error();
-        });
 
         await repositoryScheduled(context, scheduler);
 
         expect(addCollaboratorsToPullRequests).toBeCalled();
-        expect(fetchComplianceFile).toBeCalled();
-        expect(extractComplianceStatus).not.toBeCalled();
+        expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();
         expect(fetchConfigFile).toBeCalled();
@@ -238,11 +233,15 @@ describe('GitHub event handlers', () => {
         context.payload.installation.account.login = 'bcgov';
         context.payload.repository.archived = false;
 
+        // @ts-ignore
+        // extractComplianceStatus.mockReturnValue({
+        //     save: () => { console.log('x'); },
+        // });
+
         await repositoryScheduled(context, scheduler);
 
         expect(addCollaboratorsToPullRequests).toBeCalled();
-        expect(fetchComplianceFile).toBeCalled();
-        expect(extractComplianceStatus).toBeCalled();
+        expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();
         expect(fetchConfigFile).toBeCalled();
@@ -258,12 +257,15 @@ describe('GitHub event handlers', () => {
         fetchConfigFile.mockImplementationOnce(() => {
             throw new Error();
         });
+        // // @ts-ignore
+        // extractComplianceStatus.mockReturnValue({
+        //     save: () => { },
+        // });
 
         await repositoryScheduled(context, scheduler);
 
         expect(addCollaboratorsToPullRequests).toBeCalled();
-        expect(fetchComplianceFile).toBeCalled();
-        expect(extractComplianceStatus).toBeCalled();
+        expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();
         expect(fetchConfigFile).toBeCalled();

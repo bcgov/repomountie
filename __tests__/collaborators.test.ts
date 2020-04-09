@@ -53,6 +53,7 @@ describe('Collaborator assignment to PR', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     it('Collaborators are assigned to two open PRs', async () => {

@@ -19,6 +19,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import moment from 'moment';
 import { Context } from 'probot';
+import config from '../config';
 import { COMMANDS, PR_TITLES, TEXT_FILES } from '../constants';
 import { PullState, RepoAffiliation } from './enums';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests, RepoMountieConfig } from './ghutils';
@@ -38,40 +39,46 @@ import { loadTemplate } from './utils';
 export const requestUpdateForPullRequest = async (
   context: Context, owner: string, repo: string): Promise<void> => {
 
-  const maxDaysOld = 0; // config.get('staleIssueMaxDaysOld');
+  const maxDaysOld = config.get('staleIssueMaxDaysOld');
   const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
   const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
   const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
-  const response = await context.github.search.issuesAndPullRequests({
-    order: 'desc',
-    per_page: 100,
-    q: query,
-    sort: 'updated',
-  });
-  const issues = response.data.items ? response.data.items
-    .filter(p => Object.values(PR_TITLES).includes(p.title.trim())) : [];
 
-  if (issues.length === 0) {
-    return;
-  }
-
-  const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_PR_COMMENT);
-  const regex = /\[DAYS_OLD\]/gi;
-  const promises = issues.map(i => {
-    const now = moment(Date.now());
-    const diffInDays = now.diff(moment(i.updated_at), 'days');
-    const body = rawMessageBody
-      .replace(regex, `${diffInDays}`);
-
-    context.github.issues.createComment({
-      issue_number: i.number,
-      owner,
-      repo,
-      body,
+  try {
+    const response = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
     });
-  });
+    const issues = response.data.items ? response.data.items
+      .filter(p => Object.values(PR_TITLES).includes(p.title.trim())) : [];
 
-  await Promise.all(promises);
+    if (issues.length === 0) {
+      return;
+    }
+
+    const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_PR_COMMENT);
+    const regex = /\[DAYS_OLD\]/gi;
+    const promises = issues.map(i => {
+      const now = moment(Date.now());
+      const diffInDays = now.diff(moment(i.updated_at), 'days');
+      const body = rawMessageBody
+        .replace(regex, `${diffInDays}`);
+
+      context.github.issues.createComment({
+        issue_number: i.number,
+        owner,
+        repo,
+        body,
+      });
+    });
+
+    await Promise.all(promises);
+  } catch (err) {
+    const message = `Unable to request PR update`;
+    logger.error(`${message}, error = ${err.message}`);
+  }
 };
 
 /**
@@ -157,12 +164,12 @@ export const extractCommands = (body: string): any[] => {
  * @param {RepoMountieConfig} config The repo config file
  * @returns True if the length is valid, False otherwise
  */
-export const isValidPullRequestLength = (context: Context, config: RepoMountieConfig): boolean => {
+export const isValidPullRequestLength = (context: Context, rmConfig: RepoMountieConfig): boolean => {
   const commands = extractCommands(context.payload.pull_request.body);
   const linesChanged =
     context.payload.pull_request.additions + context.payload.pull_request.deletions;
 
-  if (shouldIgnoredLengthCheck(commands) || linesChanged <= config.pullRequest.maxLinesChanged) {
+  if (shouldIgnoredLengthCheck(commands) || linesChanged <= rmConfig.pullRequest.maxLinesChanged) {
     return true;
   }
 
@@ -173,8 +180,8 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
  * Validate the PR against codified cultural policies
  * @param {Context} context The event context context
  */
-export const validatePullRequestIfRequired = async (context: Context, config: RepoMountieConfig) => {
-  if (isValidPullRequestLength(context, config)) {
+export const validatePullRequestIfRequired = async (context: Context, rmConfig: RepoMountieConfig) => {
+  if (isValidPullRequestLength(context, rmConfig)) {
     return;
   }
 
@@ -182,7 +189,7 @@ export const validatePullRequestIfRequired = async (context: Context, config: Re
     const rawMessageBody: string = await loadTemplate(TEXT_FILES.HOWTO_PR);
     const messageBody = rawMessageBody
       .replace('[USER_NAME]', context.payload.pull_request.user.login)
-      .replace('[MAX_LINES]', `${config.pullRequest.maxLinesChanged}`);
+      .replace('[MAX_LINES]', `${rmConfig.pullRequest.maxLinesChanged}`);
 
     await context.github.issues.createComment(context.issue({ body: messageBody }));
   } catch (err) {

@@ -20,7 +20,7 @@ import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
 import { COMMIT_FILE_NAMES, PR_TITLES } from '../src/constants';
-import { addCommentToIssue, addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFile, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists, updateFileContent } from '../src/libs/ghutils';
+import { addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFileContent, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists } from '../src/libs/ghutils';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/repo-schedule-event.json');
@@ -60,6 +60,7 @@ describe('GitHub utility functions', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     it('Labels should be fetched for lookup', async () => {
@@ -69,13 +70,13 @@ describe('GitHub utility functions', () => {
 
     it('A file should be retrieved.', async () => {
         github.repos.getContents = jest.fn().mockReturnValueOnce(Promise.resolve(complianceResponse));
-        const data = await fetchFile(context, COMMIT_FILE_NAMES.COMPLIANCE);
+        const data = await fetchFileContent(context, COMMIT_FILE_NAMES.COMPLIANCE);
 
         expect(data).toMatchSnapshot();
     });
 
     it('A file should not be retrieved.', async () => {
-        await expect(fetchFile(context, 'blarb.txt')).rejects.toThrow(Error);
+        await expect(fetchFileContent(context, 'blarb.txt')).rejects.toThrow(Error);
     });
 
     it('The compliance file should be retrieved.', async () => {
@@ -168,18 +169,6 @@ describe('GitHub utility functions', () => {
         expect(results).toMatchSnapshot();
     });
 
-    it('Updating a file on GitHub succeeds', async () => {
-        github.repos.createOrUpdateFile = jest.fn().mockReturnValueOnce(Promise.resolve());
-
-        await expect(updateFileContent(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).resolves.toBeUndefined();
-    });
-
-    it('Updating a file on GitHub fails', async () => {
-        github.repos.createOrUpdateFile = jest.fn().mockReturnValueOnce(Promise.reject());
-
-        await expect(updateFileContent(context, 'Hello', 'Hello', 'Hello.txt', 'data', '1bc3')).rejects.toThrow();
-    });
-
     it('A user is a member of the organization', async () => {
         github.orgs.checkMembership = jest.fn().mockReturnValueOnce(Promise.resolve(memberhip));
 
@@ -211,18 +200,6 @@ describe('GitHub utility functions', () => {
 
         const result = await isOrgMember(context, 'helloworld');
         expect(result).toBeFalsy();
-    });
-
-    it('Adding a comment to an issue should succeed', async () => {
-        const result = await addCommentToIssue(context, 'helloworld');
-
-        expect(result).toBeUndefined();
-    });
-
-    it('Adding a comment to an issue should fail', async () => {
-        github.issues.createComment = jest.fn().mockReturnValueOnce(Promise.reject(new Error()));
-
-        await expect(addCommentToIssue(context, 'helloworld')).rejects.toThrow();
     });
 
     it('Return true if a file exists', async () => {
