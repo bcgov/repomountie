@@ -164,12 +164,12 @@ export const extractCommands = (body: string): any[] => {
  * @param {RepoMountieConfig} config The repo config file
  * @returns True if the length is valid, False otherwise
  */
-export const isValidPullRequestLength = (context: Context, config: RepoMountieConfig): boolean => {
+export const isValidPullRequestLength = (context: Context, rmConfig: RepoMountieConfig): boolean => {
   const commands = extractCommands(context.payload.pull_request.body);
   const linesChanged =
     context.payload.pull_request.additions + context.payload.pull_request.deletions;
 
-  if (shouldIgnoredLengthCheck(commands) || linesChanged <= config.pullRequest.maxLinesChanged) {
+  if (shouldIgnoredLengthCheck(commands) || linesChanged <= rmConfig.pullRequest.maxLinesChanged) {
     return true;
   }
 
@@ -180,8 +180,8 @@ export const isValidPullRequestLength = (context: Context, config: RepoMountieCo
  * Validate the PR against codified cultural policies
  * @param {Context} context The event context context
  */
-export const validatePullRequestIfRequired = async (context: Context, config: RepoMountieConfig) => {
-  if (isValidPullRequestLength(context, config)) {
+export const validatePullRequestIfRequired = async (context: Context, rmConfig: RepoMountieConfig) => {
+  if (isValidPullRequestLength(context, rmConfig)) {
     return;
   }
 
@@ -189,7 +189,7 @@ export const validatePullRequestIfRequired = async (context: Context, config: Re
     const rawMessageBody: string = await loadTemplate(TEXT_FILES.HOWTO_PR);
     const messageBody = rawMessageBody
       .replace('[USER_NAME]', context.payload.pull_request.user.login)
-      .replace('[MAX_LINES]', `${config.pullRequest.maxLinesChanged}`);
+      .replace('[MAX_LINES]', `${rmConfig.pullRequest.maxLinesChanged}`);
 
     await context.github.issues.createComment(context.issue({ body: messageBody }));
   } catch (err) {
