@@ -102,8 +102,9 @@ const formatAsCSV = (data: any[]): string => {
         // two records?
         d.records.forEach((r) => {
             const prefix = r.name.toLowerCase();
-            if (!header.includes(`${prefix}Status`) || !header.includes(`${prefix}UpdatedAt`)) {
-                header.push(`${prefix}Status,${prefix}UpdatedAt`);
+            if (!header.includes(`${prefix}Status`) && !header.includes(`${prefix}UpdatedAt`)) {
+                header.push(`${prefix}Status`);
+                header.push(`${prefix}UpdatedAt`);
             }
             // / add to the status array, joined to the CSV later
             status.push(`${r.status},${moment(r.updatedAt).format('MM/DD/YY')}`);
