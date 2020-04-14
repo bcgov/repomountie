@@ -126,7 +126,7 @@ objects:
                   memory: 320Mi
                 requests:
                   cpu: 500m
-                  memory: 256Mi
+                  memory: 192Mi
           # volumes:
           #   - name: github-key
           #     secret:
