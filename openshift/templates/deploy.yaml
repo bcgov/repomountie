@@ -57,18 +57,18 @@ objects:
         kind: Service
         name: github-bot
         weight: 100
-  - apiVersion: apps/v1
+  - apiVersion: v1
     # Using the kind `DeploymentConfig` will allow a deployment to trigger
     # based on an image change event. Not supported with kind `Deployment`.
-    kind: Deployment
+    kind: DeploymentConfig
     metadata:
       name: github-bot
       labels:
         app: repomountie
     spec:
-      selector:
-        matchLabels:
-          role: github-bot
+      # selector:
+      #   matchLabels:
+      #     role: github-bot
       template:
         metadata:
           labels:
@@ -158,16 +158,16 @@ objects:
         - name: https
           port: 443
           targetPort: 8080
-  - apiVersion: apps/v1
-    kind: Deployment
+  - apiVersion: v1
+    kind: DeploymentConfig
     metadata:
       name: mongodb
       labels:
         app: repomountie
     spec:
-      selector:
-        matchLabels:
-          role: mongodb
+      # selector:
+      #   matchLabels:
+      #     role: mongodb
       template:
         metadata:
           labels:
