@@ -123,10 +123,10 @@ objects:
               resources:
                 limits:
                   cpu: 500m
-                  memory: 256Mi
+                  memory: 320Mi
                 requests:
                   cpu: 500m
-                  memory: 96Mi
+                  memory: 256Mi
           # volumes:
           #   - name: github-key
           #     secret:
