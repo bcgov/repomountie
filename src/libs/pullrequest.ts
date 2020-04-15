@@ -20,7 +20,7 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import moment from 'moment';
 import { Context } from 'probot';
 import config from '../config';
-import { COMMANDS, PR_TITLES, TEXT_FILES } from '../constants';
+import { COMMANDS, ISSUE_TITLES, TEXT_FILES } from '../constants';
 import { PullState, RepoAffiliation } from './enums';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests, RepoMountieConfig } from './ghutils';
 import { loadTemplate } from './utils';
@@ -52,7 +52,7 @@ export const requestUpdateForPullRequest = async (
       sort: 'updated',
     });
     const issues = response.data.items ? response.data.items
-      .filter(p => Object.values(PR_TITLES).includes(p.title.trim())) : [];
+      .filter(p => Object.values(ISSUE_TITLES).includes(p.title.trim())) : [];
 
     if (issues.length === 0) {
       return;
@@ -99,7 +99,7 @@ export const addCollaboratorsToPullRequests = async (
     // assignees
     const pulls: any = (await fetchPullRequests(context, PullState.Open))
       .filter(p => p.assignees.length === 0)
-      .filter(p => Object.values(PR_TITLES).includes(p.title.trim()));
+      .filter(p => Object.values(ISSUE_TITLES).includes(p.title.trim()));
 
     if (pulls.length === 0) {
       return;

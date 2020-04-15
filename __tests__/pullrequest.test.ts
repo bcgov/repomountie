@@ -19,7 +19,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
-import { COMMANDS, PR_TITLES } from '../src/constants';
+import { COMMANDS, ISSUE_TITLES } from '../src/constants';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests } from '../src/libs/ghutils';
 import { addCollaboratorsToPullRequests, extractCommands, isValidPullRequestLength, requestUpdateForPullRequest, shouldIgnoredLengthCheck, validatePullRequestIfRequired } from '../src/libs/pullrequest';
 import { loadTemplate } from '../src/libs/utils';
@@ -248,7 +248,7 @@ describe('Pull requests', () => {
     const repo = 'hello6';
 
     const response = JSON.parse(JSON.stringify(issuesAndPulls));
-    response.data.items[0].title = PR_TITLES.ADD_COMPLIANCE;
+    response.data.items[0].title = ISSUE_TITLES.ADD_COMPLIANCE;
 
     // @ts-ignore
     github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(response));

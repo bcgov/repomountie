@@ -20,7 +20,7 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
-import { PR_TITLES } from '../src/constants';
+import { ISSUE_TITLES } from '../src/constants';
 import { assignUsersToIssue, fetchContentsForFile } from '../src/libs/ghutils';
 import { applyComplianceCommands, handleBotCommand, handleComplianceCommands, helpDeskSupportRequired } from '../src/libs/robo';
 import helper from './src/helper';
@@ -130,7 +130,7 @@ describe('Bot command processing', () => {
     it('An error is handled correctly', async () => {
         context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = `@repo-mountie help`;
-        context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
+        context.payload.issue.title = ISSUE_TITLES.ADD_COMPLIANCE;
         context.payload.sender.type = 'User';
 
         // @ts-ignore
@@ -156,7 +156,7 @@ describe('Bot command processing', () => {
     it('A request for help is processed correctly', async () => {
         context = new Context(issueCommentEvent, github as any, {} as any);
         context.payload.comment.body = '/help';
-        context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
+        context.payload.issue.title = ISSUE_TITLES.ADD_COMPLIANCE;
         // @ts-ignore
         assignUsersToIssue.mockReturnValueOnce();
 
@@ -165,7 +165,7 @@ describe('Bot command processing', () => {
 
     it('A ', async () => {
         context = new Context(issueCommentEvent, github as any, {} as any);
-        context.payload.issue.title = PR_TITLES.ADD_COMPLIANCE;
+        context.payload.issue.title = ISSUE_TITLES.ADD_COMPLIANCE;
         // @ts-ignore
 
         await handleBotCommand(context);
