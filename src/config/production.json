@@ -1,8 +1,0 @@
-{
-  "sso": {
-    "authUrl": "https://sso.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/auth",
-    "tokenUrl": "https://sso.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/token",
-    "certsUrl": "https://sso.pathfinder.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/certs"
-  },
-  "staleIssueMaxDaysOld": 90
-}

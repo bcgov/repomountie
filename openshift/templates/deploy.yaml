@@ -81,10 +81,6 @@ objects:
               image: docker-registry.default.svc:5000/devhub-tools/repomountie
               ports:
                 - containerPort: 8080
-              # volumeMounts:
-              #   - name: github-key
-              #     mountPath: /etc/github-creds
-              #     readOnly: true
               env:
                 - name: APP_ID
                   value: ${APP_ID}
@@ -127,13 +123,14 @@ objects:
                 requests:
                   cpu: 500m
                   memory: 192Mi
-          # volumes:
-          #   - name: github-key
-          #     secret:
-          #       secretName: github-creds
-          #       items:
-          #         - key: private-key
-          #           path: key.pem
+              volumeMounts:
+                - name: config-vol
+                  mountPath: /opt/app-root/src/build/config/config.json
+                  subPath: config.json
+          volumes:
+            - name: config-vol
+              configMap:
+                name: repomountie-config
         triggers:
           - type: ImageChange
             imageChangeParams:

@@ -26,6 +26,7 @@ import dotenv from 'dotenv';
 import nconf from 'nconf';
 import path from 'path';
 
+const configFileName = 'config.json';
 const env = process.env.NODE_ENV || 'development';
 const defaultPort = 3000;
 
@@ -60,7 +61,7 @@ nconf.overrides({
 nconf
   .argv()
   .env()
-  .file({ file: path.join(__dirname, `${env}.json`) });
+  .file({ file: path.join(__dirname, `${configFileName}`) });
 
 // if nothing else is set, use defaults. This will be set if
 // they do not exist in overrides or the config file.
