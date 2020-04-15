@@ -75,7 +75,14 @@ export const fixMinistryTopic = async (
     })
 
   } catch (err) {
-    //console.log(err.message);
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(`Error adding topic issue to ${context.payload.repository.name}`);
+    } else {
+      logger.error(err.message);
+    }
+
+    throw err;
   }
 };
 
