@@ -32,6 +32,9 @@ const allOpenPulls = JSON.parse(fs.readFileSync(p1, 'utf8'));
 const p2 = path.join(__dirname, 'fixtures/repo-collaborators.json');
 const collaborators = JSON.parse(fs.readFileSync(p2, 'utf8'));
 
+const p4 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
+const issuesAndPulls = JSON.parse(fs.readFileSync(p4, 'utf8'));
+
 jest.mock('../src/libs/ghutils', () => ({
     fetchPullRequests: jest.fn(),
     fetchCollaborators: jest.fn(),
@@ -58,26 +61,14 @@ describe('Collaborator assignment to PR', () => {
 
     it('Collaborators are assigned to two open PRs', async () => {
         // @ts-ignore
-        fetchPullRequests.mockReturnValue(Promise.resolve(allOpenPulls));
+        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
         await addCollaboratorsToPullRequests(context, owner, repo);
 
         expect(assignUsersToIssue).toBeCalledTimes(2);
-    });
-
-    it('Collaborators are assigned to unassigned PR', async () => {
-        allOpenPulls[2].assignees = ['Rubble'];
-
-        // @ts-ignore
-        fetchPullRequests.mockReturnValue(Promise.resolve(allOpenPulls));
-        // @ts-ignore
-        fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
-
-        await addCollaboratorsToPullRequests(context, owner, repo);
-
-        expect(assignUsersToIssue).toBeCalledTimes(1);
     });
 
     it('A repo with no collaborators is skipped', async () => {
