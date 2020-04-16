@@ -36,7 +36,7 @@ import { loadTemplate } from './utils';
  * @param {string} repo The repo name
  * @returns A void promise, rejection for failure
  */
-export const requestUpdateForPullRequest = async (
+export const requestUpdateForMyIssues = async (
   context: Context, owner: string, repo: string): Promise<void> => {
 
   const maxDaysOld = config.get('staleIssueMaxDaysOld');
@@ -89,7 +89,7 @@ export const requestUpdateForPullRequest = async (
  * @param {Context} context The event context context
  * @returns True if the PR should be ignored, False otherwise
  */
-export const addCollaboratorsToPullRequests = async (
+export const addCollaboratorsToMyIssues = async (
   context: Context, owner: string, repo: string) => {
 
   try {

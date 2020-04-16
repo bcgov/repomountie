@@ -24,7 +24,7 @@ import { Context } from 'probot';
 import { ACCESS_CONTROL } from '../constants';
 import { fetchConfigFile } from './ghutils';
 import { checkForStaleIssues, created } from './issue';
-import { addCollaboratorsToPullRequests, requestUpdateForPullRequest, validatePullRequestIfRequired } from './pullrequest';
+import { addCollaboratorsToMyIssues, requestUpdateForMyIssues, validatePullRequestIfRequired } from './pullrequest';
 import { fetchComplianceMetrics } from './reporting';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus, fixMinistryTopic } from './repository';
 
@@ -33,7 +33,7 @@ export const memberAddedOrEdited = async (context: Context): Promise<void> => {
     const repo = context.payload.repository.name;
 
     try {
-        await addCollaboratorsToPullRequests(context, owner, repo);
+        await addCollaboratorsToMyIssues(context, owner, repo);
     } catch (err) {
         const message = 'Unable to handel member event';
         logger.error(`${message}, error = ${err.message}`);
@@ -57,7 +57,7 @@ export const pullRequestOpened = async (context: Context): Promise<void> => {
 
     if (isFromBot) {
         try {
-            await addCollaboratorsToPullRequests(context, owner, repo);
+            await addCollaboratorsToMyIssues(context, owner, repo);
         } catch (err) {
             const message = `Unable to assign collaborators in ${repo}`;
             logger.error(`${message}, error = ${err.message}`);
@@ -137,9 +137,9 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
         // These are all independent func. Rather than call them each in a
         // try/catch I'm bundling them.
         await Promise.all([
-            addCollaboratorsToPullRequests(context, owner, repo),
+            addCollaboratorsToMyIssues(context, owner, repo),
             fixDeprecatedComplianceStatus(context, owner, repo),
-            requestUpdateForPullRequest(context, owner, repo),
+            requestUpdateForMyIssues(context, owner, repo),
             addLicenseIfRequired(context, scheduler),
             addSecurityComplianceInfoIfRequired(context, scheduler),
             fetchComplianceMetrics(context),

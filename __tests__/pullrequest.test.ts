@@ -21,7 +21,7 @@ import path from 'path';
 import { Context } from 'probot';
 import { COMMANDS, ISSUE_TITLES } from '../src/constants';
 import { assignUsersToIssue, fetchCollaborators } from '../src/libs/ghutils';
-import { addCollaboratorsToPullRequests, extractCommands, isValidPullRequestLength, requestUpdateForPullRequest, shouldIgnoredLengthCheck, validatePullRequestIfRequired } from '../src/libs/pullrequest';
+import { addCollaboratorsToMyIssues, extractCommands, isValidPullRequestLength, requestUpdateForMyIssues, shouldIgnoredLengthCheck, validatePullRequestIfRequired } from '../src/libs/pullrequest';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -77,7 +77,7 @@ describe('Pull requests', () => {
     // @ts-ignore
     fetchCollaborators.mockReturnValueOnce(Promise.resolve(collabs.data));
 
-    await addCollaboratorsToPullRequests(context, owner, repo);
+    await addCollaboratorsToMyIssues(context, owner, repo);
 
     expect(github.search.issuesAndPullRequests).toBeCalled();
     expect(fetchCollaborators).toBeCalled();
@@ -92,7 +92,7 @@ describe('Pull requests', () => {
     // @ts-ignore
     github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
 
-    await addCollaboratorsToPullRequests(context, owner, repo);
+    await addCollaboratorsToMyIssues(context, owner, repo);
 
     expect(github.search.issuesAndPullRequests).toBeCalled();
     expect(fetchCollaborators).not.toBeCalled();
@@ -109,7 +109,7 @@ describe('Pull requests', () => {
     // @ts-ignore
     fetchCollaborators.mockReturnValueOnce(Promise.resolve([]));
 
-    await addCollaboratorsToPullRequests(context, owner, repo);
+    await addCollaboratorsToMyIssues(context, owner, repo);
 
     expect(github.search.issuesAndPullRequests).toBeCalled();
     expect(fetchCollaborators).toBeCalled();
@@ -233,7 +233,7 @@ describe('Pull requests', () => {
     // @ts-ignore
     github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
 
-    await requestUpdateForPullRequest(context, owner, repo);
+    await requestUpdateForMyIssues(context, owner, repo);
 
     expect(loadTemplate).not.toBeCalled();
     expect(github.issues.createComment).not.toBeCalled();
@@ -252,7 +252,7 @@ describe('Pull requests', () => {
     // @ts-ignore
     loadTemplate.mockReturnValueOnce('Foo [DAYS_OLD] bar');
 
-    await requestUpdateForPullRequest(context, owner, repo);
+    await requestUpdateForMyIssues(context, owner, repo);
 
     const call = github.issues.createComment.mock.calls
 

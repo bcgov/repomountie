@@ -20,7 +20,7 @@ import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
 import { assignUsersToIssue, fetchCollaborators, fetchPullRequests } from '../src/libs/ghutils';
-import { addCollaboratorsToPullRequests } from '../src/libs/pullrequest';
+import { addCollaboratorsToMyIssues } from '../src/libs/pullrequest';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/member-added-event.json');
@@ -66,7 +66,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
-        await addCollaboratorsToPullRequests(context, owner, repo);
+        await addCollaboratorsToMyIssues(context, owner, repo);
 
         expect(assignUsersToIssue).toBeCalledTimes(2);
     });
@@ -77,7 +77,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve([]));
 
-        await addCollaboratorsToPullRequests(context, owner, repo);
+        await addCollaboratorsToMyIssues(context, owner, repo);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });
@@ -88,7 +88,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
 
-        await addCollaboratorsToPullRequests(context, owner, repo);
+        await addCollaboratorsToMyIssues(context, owner, repo);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });
@@ -109,7 +109,7 @@ describe('Collaborator assignment to PR', () => {
         // @ts-ignore
         fetchCollaborators.mockReturnValue(Promise.resolve(collabs));
 
-        await addCollaboratorsToPullRequests(context, owner, repo);
+        await addCollaboratorsToMyIssues(context, owner, repo);
 
         expect(assignUsersToIssue).not.toBeCalled();
     });
