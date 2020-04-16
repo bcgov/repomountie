@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, PR_TITLES, REGEXP } from '../constants';
+import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, HELP_DESK, ISSUE_TITLES, REGEXP } from '../constants';
 import { assignUsersToIssue, fetchContentsForFile } from './ghutils';
 
 /**
@@ -148,10 +148,10 @@ export const handleBotCommand = async (context: Context) => {
 
     try {
         switch (context.payload.issue.title) {
-            case PR_TITLES.ADD_COMPLIANCE:
+            case ISSUE_TITLES.ADD_COMPLIANCE:
                 await handleComplianceCommands(context);
                 break;
-            case PR_TITLES.ADD_LICENSE:
+            case ISSUE_TITLES.ADD_LICENSE:
                 await handleLicenseCommands(context);
                 break;
             default:

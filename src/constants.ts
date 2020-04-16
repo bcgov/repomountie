@@ -40,7 +40,8 @@ export const COMMIT_MESSAGES = {
   CHANGE_STATUS: 'Rename PIA and STRA status',
 };
 
-export const PR_TITLES = {
+export const ISSUE_TITLES = {
+  ADD_TOPICS: 'Add missing topics',
   ADD_COMPLIANCE: 'Add missing compliance audit file',
   ADD_LICENSE: 'Add missing license',
   RENAME_STATUS: 'Rename PIA and STRA status from exempt',
@@ -71,6 +72,7 @@ export const TEXT_FILES = {
   WHY_COMPLY: 'templates/why-comply.md',
   WHY_LICENSE: 'templates/why-license.md',
   WHY_RENAME_STATUS: 'templates/why-rename-status.md',
+  WHY_TOPICS: 'templates/why-topics.md',
 };
 
 export const COMMANDS = {
@@ -87,3 +89,5 @@ export const ACCESS_CONTROL = {
   allowedInstallations: ['bcgov', 'fullboar'],
   allowedSsoClients: ['reggie-api'],
 };
+
+export const MINISTRY_SHORT_CODES = ['CITZ']

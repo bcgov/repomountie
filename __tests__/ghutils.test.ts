@@ -19,7 +19,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
-import { COMMIT_FILE_NAMES, PR_TITLES } from '../src/constants';
+import { COMMIT_FILE_NAMES, ISSUE_TITLES } from '../src/constants';
 import { addFileViaPullRequest, assignUsersToIssue, checkIfFileExists, checkIfRefExists, fetchCollaborators, fetchComplianceFile, fetchConfigFile, fetchContentsForFile, fetchFileContent, fetchPullRequests, hasPullRequestWithTitle, isOrgMember, labelExists } from '../src/libs/ghutils';
 import helper from './src/helper';
 
@@ -141,7 +141,7 @@ describe('GitHub utility functions', () => {
 
     it('A pull request should exists', async () => {
         github.pulls.list = jest.fn().mockReturnValueOnce(Promise.resolve(listPulls));
-        const result = await hasPullRequestWithTitle(context, PR_TITLES.ADD_LICENSE);
+        const result = await hasPullRequestWithTitle(context, ISSUE_TITLES.ADD_LICENSE);
 
         expect(result).toBeTruthy();
     });

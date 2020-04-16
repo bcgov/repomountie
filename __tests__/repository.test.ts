@@ -19,18 +19,29 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
+import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from '../src/libs/repository';
+import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus, fixMinistryTopic } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
+import helper from './src/helper';
 
-const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
-const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
+// const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
+// const context = JSON.parse(fs.readFileSync(p0, 'utf8'));
 
 const p1 = path.join(__dirname, 'fixtures/repo-get-content-compliance.json');
 const complianceResponse = JSON.parse(fs.readFileSync(p1, 'utf8'));
 
 const p2 = path.join(__dirname, 'fixtures/compliance.yaml');
 const doc = yaml.safeLoad(fs.readFileSync(p2, 'utf8'));
+
+const p4 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
+const issuesAndPulls = JSON.parse(fs.readFileSync(p4, 'utf8'));
+
+const p5 = path.join(__dirname, 'fixtures/repo-schedule-event.json');
+const repoScheduleEvent = JSON.parse(fs.readFileSync(p5, 'utf8'));
+
+const p6 = path.join(__dirname, 'fixtures/repo-get-topics.json');
+const repoGetTopics = JSON.parse(fs.readFileSync(p6, 'utf8'));
 
 jest.mock('../src/libs/ghutils', () => ({
     addFileViaPullRequest: jest.fn(),
@@ -48,6 +59,12 @@ jest.mock('../src/libs/utils', () => ({
 }));
 
 describe('Repository management', () => {
+    let context;
+    const { github } = helper;
+
+    beforeEach(() => {
+        context = undefined;
+    });
 
     afterEach(() => {
         jest.clearAllMocks();
@@ -55,6 +72,8 @@ describe('Repository management', () => {
     });
 
     it('Adding a license should resolve', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+
         // @ts-ignore
         addFileViaPullRequest.mockImplementation(() =>
             Promise.resolve());
@@ -62,12 +81,16 @@ describe('Repository management', () => {
     });
 
     it('Adding a license should fail because ref missing', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(false);
         await expect(addLicenseIfRequired(context)).resolves.toBe(undefined);
     });
 
     it('Adding a license should fail because pr exists', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
         // @ts-ignore
@@ -76,6 +99,11 @@ describe('Repository management', () => {
     });
 
     it('Adding a license should fail because add file failed', async () => {
+        const aRepoScheduleEvent = JSON.parse(JSON.stringify(repoScheduleEvent));
+        aRepoScheduleEvent.payload.repository.license = null;
+
+        context = new Context(aRepoScheduleEvent, github as any, {} as any);
+
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
         // @ts-ignore
@@ -89,10 +117,14 @@ describe('Repository management', () => {
     });
 
     it('Adding a compliance file should resolve', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+
         await expect(addSecurityComplianceInfoIfRequired(context)).resolves.toBe(undefined);
     });
 
     it('Adding a compliance file should fail because ref missing', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(false);
 
@@ -100,6 +132,8 @@ describe('Repository management', () => {
     });
 
     it('Adding a compliance file should fail because pr exists', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
         // @ts-ignore
@@ -109,6 +143,8 @@ describe('Repository management', () => {
     });
 
     it('Adding a compliance file should fail because add file failed', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
         // @ts-ignore
@@ -124,6 +160,7 @@ describe('Repository management', () => {
     });
 
     it('Updating a compliance file should succeed', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = 'bcgov';
         const repo = 'hello5';
 
@@ -152,6 +189,7 @@ describe('Repository management', () => {
     });
 
     it('Valid compliance status should not be updated', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = 'bcgov';
         const repo = 'hello5';
 
@@ -181,6 +219,7 @@ describe('Repository management', () => {
     });
 
     it('Repos without a master branch should fail', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = 'bcgov';
         const repo = 'hello5';
 
@@ -196,6 +235,7 @@ describe('Repository management', () => {
     });
 
     it('Repos with a fix branch already should not be updated', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = 'bcgov';
         const repo = 'hello5';
 
@@ -208,5 +248,62 @@ describe('Repository management', () => {
         expect(fetchFileContent).not.toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(addFileViaPullRequest).not.toBeCalled();
+    });
+
+    it('Repo with valid topics is ignored', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = 'bcgov';
+        const repo = 'hello5';
+        const aTopicsResponse = JSON.parse(JSON.stringify(repoGetTopics));
+        aTopicsResponse.data.names = ['CITZ'];
+
+        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+        github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
+
+        await fixMinistryTopic(context, owner, repo);
+
+        expect(github.repos.listTopics).toBeCalled();
+        expect(github.search.issuesAndPullRequests).not.toBeCalled();
+        expect(loadTemplate).not.toBeCalled();
+        expect(github.issues.create).not.toBeCalled();
+    });
+
+    it('Repo with existing issues is ignored', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = 'bcgov';
+        const repo = 'hello5';
+        const aTopicsResponse = JSON.parse(JSON.stringify(repoGetTopics));
+        aTopicsResponse.data.names = ['cat'];
+
+        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+        github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
+
+        await fixMinistryTopic(context, owner, repo);
+
+        expect(github.repos.listTopics).toBeCalled();
+        expect(github.search.issuesAndPullRequests).toBeCalled();
+        expect(loadTemplate).not.toBeCalled();
+        expect(github.issues.create).not.toBeCalled();
+    });
+
+    it('Repo with not topics or issues is processed', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = 'bcgov';
+        const repo = 'hello5';
+        const aTopicsResponse = JSON.parse(JSON.stringify(repoGetTopics));
+        aTopicsResponse.data.names = ['cat'];
+        const aRepoResponse = JSON.parse(JSON.stringify(issuesAndPulls));
+        aRepoResponse.data.items = [];
+        aRepoResponse.data.total_count = 0;
+
+        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(aRepoResponse));
+        github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
+
+        await fixMinistryTopic(context, owner, repo);
+
+        expect(github.repos.listTopics).toBeCalled();
+        expect(github.search.issuesAndPullRequests).toBeCalled();
+        expect(loadTemplate).toBeCalled();
+        expect(github.issues.create).toBeCalled();
     });
 });

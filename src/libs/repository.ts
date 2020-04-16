@@ -21,9 +21,68 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, PR_TITLES, TEMPLATES, TEXT_FILES } from '../constants';
+import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, GITHUB_ID, ISSUE_TITLES, MINISTRY_SHORT_CODES, TEMPLATES, TEXT_FILES } from '../constants';
 import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
+
+export const fixMinistryTopic = async (
+  context: Context, owner: string, repo: string
+) => {
+
+  try {
+
+    // Check if the repo has suitable topics.
+
+    const listTopicsResponse = await context.github.repos.listTopics({
+      owner,
+      repo,
+    });
+
+    const topics = listTopicsResponse.data.names ? listTopicsResponse.data.names : [];
+
+    if (topics.length !== 0 && topics.some(r => MINISTRY_SHORT_CODES.includes(r.toUpperCase()))) {
+      logger.info(`The repo ${context.payload.repository.name} has matching topics `);
+      return;
+    }
+
+    // Check if the repo already has an issue created by me
+    // requesting topics be added.
+
+    const query = `repo:${owner}/${repo} is:open is:issue author:app/${GITHUB_ID} "${ISSUE_TITLES.ADD_TOPICS}"`;
+    const issuesResponse = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
+    });
+    const totalCount = issuesResponse.data.total_count ? issuesResponse.data.total_count : 0;
+
+    if (totalCount > 0) {
+      return;
+    }
+
+    // Create an issue requesting that the proper topics are
+    // added to the repo.
+
+    const body: string = await loadTemplate(TEXT_FILES.WHY_TOPICS);
+
+    await context.github.issues.create({
+      body,
+      owner,
+      repo,
+      title: ISSUE_TITLES.ADD_TOPICS,
+    });
+  } catch (err) {
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(`Error adding topic issue to ${context.payload.repository.name}`);
+    } else {
+      logger.error(err.message);
+    }
+
+    throw err;
+  }
+};
 
 export const fixDeprecatedComplianceStatus = async (
   context: Context, owner: string, repo: string
@@ -60,7 +119,7 @@ export const fixDeprecatedComplianceStatus = async (
     const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_RENAME_STATUS);
 
     await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.CHANGE_STATUS,
-      PR_TITLES.RENAME_STATUS, prMessageBody, BRANCHES.RENAME_STATUS,
+      ISSUE_TITLES.RENAME_STATUS, prMessageBody, BRANCHES.RENAME_STATUS,
       COMMIT_FILE_NAMES.COMPLIANCE, yaml.safeDump(doc), data.sha);
 
   } catch (err) {
@@ -84,7 +143,7 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
       return;
     }
 
-    if ((await hasPullRequestWithTitle(context, PR_TITLES.ADD_COMPLIANCE))) {
+    if ((await hasPullRequestWithTitle(context, ISSUE_TITLES.ADD_COMPLIANCE))) {
       logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
       return;
     }
@@ -101,7 +160,7 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
       .join(new Date().toISOString());
 
     await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.ADD_COMPLIANCE,
-      PR_TITLES.ADD_COMPLIANCE, prMessageBody, BRANCHES.ADD_COMPLIANCE,
+      ISSUE_TITLES.ADD_COMPLIANCE, prMessageBody, BRANCHES.ADD_COMPLIANCE,
       COMMIT_FILE_NAMES.COMPLIANCE, data);
   } catch (err) {
     const message = extractMessage(err);
@@ -130,7 +189,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
       return;
     }
 
-    if ((await hasPullRequestWithTitle(context, PR_TITLES.ADD_LICENSE))) {
+    if ((await hasPullRequestWithTitle(context, ISSUE_TITLES.ADD_LICENSE))) {
       logger.info(`Licencing PR exists in ${context.payload.repository.name}`);
       return;
     }
@@ -140,7 +199,7 @@ export const addLicenseIfRequired = async (context: Context, scheduler: any = un
     const licenseData: string = await loadTemplate(TEMPLATES.LICENSE);
 
     await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.ADD_LICENSE,
-      PR_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
+      ISSUE_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
       COMMIT_FILE_NAMES.LICENSE, licenseData);
   } catch (err) {
     const message = extractMessage(err);
