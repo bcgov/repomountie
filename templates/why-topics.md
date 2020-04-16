@@ -30,24 +30,31 @@ That's in, you're done!!!
 
 | Short Code | Organization Name |
 | :--------- | :------------ |
-| | Advanced Education, Skills & Training |
-| | Agriculture |
+| AEST | Advanced Education, Skills & Training |
+| AGRI | Agriculture |
+| ALC | Agriculture Land Commission |
 | AG | Attorney General |
-| | Children & Family Development |
+| MCF | Children & Family Development |
 | CITZ | Citizens' Services |
+| DBC | Destination BC |
+| EMBC | Emergency Management BC |
 | EAO | Environmental Assessment Office |
-| | Education |
-| | Energy, Mines & Petroleum Resources |
-| | Environment & Climate Change Strategy |
-| | Finance |
-| | Forests, Lands, Natural Resource Operations & Rural Development |
+| EDUC | Education |
+| EMPR | Energy, Mines & Petroleum Resources |
+| ENV | Environment & Climate Change Strategy |
+| FIN | Finance |
+| FLNR | Forests, Lands, Natural Resource Operations & Rural Development |
 | HLTH | Health |
-| | Indigenous Relations & Reconciliation |
+| FLNR | Indigenous Relations & Reconciliation |
 | | Jobs, Economic Development & Competitiveness |
-| | Labour |
-| | Mental Health & Addictions |
-| | Municipal Affairs & Housing |
+| LBR | Labour Policy & Legislation |
+| LDB | BC Liquor Distribution Branch |
+| MMHA | Mental Health & Addictions |
+| MAH | Municipal Affairs & Housing |
+| BCPC | Pension Corporation |
 | PSA | Public Safety & Solicitor General & Emergency B.C. |
-| | Social Development & Poverty Reduction |
-| | Tourism, Arts & Culture |
-| | Transportation & Infrastructure |
+| SDPR | Social Development & Poverty Reduction |
+| TCA | Tourism, Arts & Culture |
+| TRAN | Transportation & Infrastructure |
+
+**NOTE** See an error or omission? Please create an issue [here](https://github.com/bcgov/repomountie) to get it remedied.
