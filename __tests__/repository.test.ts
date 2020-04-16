@@ -98,8 +98,11 @@ describe('Repository management', () => {
         await expect(addLicenseIfRequired(context)).resolves.toBe(undefined);
     });
 
-    it.skip('Adding a license should fail because add file failed', async () => {
-        context = new Context(repoScheduleEvent, github as any, {} as any);
+    it('Adding a license should fail because add file failed', async () => {
+        const aRepoScheduleEvent = JSON.parse(JSON.stringify(repoScheduleEvent));
+        aRepoScheduleEvent.payload.repository.license = null;
+
+        context = new Context(aRepoScheduleEvent, github as any, {} as any);
 
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
