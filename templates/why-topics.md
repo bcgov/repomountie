@@ -46,7 +46,7 @@ That's in, you're done!!!
 | FLNR | Forests, Lands, Natural Resource Operations & Rural Development |
 | HLTH | Health |
 | FLNR | Indigenous Relations & Reconciliation |
-| | Jobs, Economic Development & Competitiveness |
+| JEDC | Jobs, Economic Development & Competitiveness |
 | LBR | Labour Policy & Legislation |
 | LDB | BC Liquor Distribution Branch |
 | MMHA | Mental Health & Addictions |
