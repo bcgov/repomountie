@@ -40,7 +40,7 @@ export const fixMinistryTopic = async (
 
     const topics = listTopicsResponse.data.names ? listTopicsResponse.data.names : [];
 
-    if (topics.length !== 0 && topics.some(r => MINISTRY_SHORT_CODES.includes(r))) {
+    if (topics.length !== 0 && topics.some(r => MINISTRY_SHORT_CODES.includes(r.toUpperCase()))) {
       logger.info(`The repo ${context.payload.repository.name} has matching topics `);
       return;
     }
@@ -73,7 +73,6 @@ export const fixMinistryTopic = async (
       repo,
       title: ISSUE_TITLES.ADD_TOPICS,
     })
-
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
