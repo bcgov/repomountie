@@ -59,6 +59,7 @@ github = {
         createComment: jest.fn(),
         listLabelsForRepo: jest.fn(),
         update: jest.fn(),
+        create: jest.fn(),
     },
     orgs: {
         checkMembership: jest.fn(),
@@ -79,6 +80,7 @@ github = {
         getContents: jest.fn(),
         listCollaborators: jest.fn(),
         listCommits: jest.fn(),
+        listTopics: jest.fn(),
     },
     search: {
         issuesAndPullRequests: jest.fn(),

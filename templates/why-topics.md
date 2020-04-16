@@ -18,7 +18,7 @@ That's in, you're done!!!
 
 ### Pro Tip 🤓
 
-- If your org is **not** in the list below, or the table contains errors, please create an issue [here](https://github.com/bcgov/repomountie).
+- If your org is **not** in the list below, or the table contains errors, please create an issue [here](https://github.com/bcgov/repomountie/issues).
 
 - While you're doing this, add additional `topics` that would help someone searching for "something". These can be the language used `javascript` or `R`; something like `opendata` or `data` for data only repos; or any other key words that are useful. 
 
@@ -57,4 +57,4 @@ That's in, you're done!!!
 | TCA | Tourism, Arts & Culture |
 | TRAN | Transportation & Infrastructure |
 
-**NOTE** See an error or omission? Please create an issue [here](https://github.com/bcgov/repomountie) to get it remedied.
+**NOTE** See an error or omission? Please create an issue [here](https://github.com/bcgov/repomountie/issues) to get it remedied.

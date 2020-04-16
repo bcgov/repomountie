@@ -21,7 +21,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, ISSUE_TITLES, MINISTRY_SHORT_CODES, TEMPLATES, TEXT_FILES } from '../constants';
+import { BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, GITHUB_ID, ISSUE_TITLES, MINISTRY_SHORT_CODES, TEMPLATES, TEXT_FILES } from '../constants';
 import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
@@ -48,7 +48,7 @@ export const fixMinistryTopic = async (
     // Check if the repo already has an issue created by me
     // requesting topics be added.
 
-    const query = `repo:${owner}/${repo} is:open is:issue "${ISSUE_TITLES.ADD_TOPICS}"`;
+    const query = `repo:${owner}/${repo} is:open is:issue author:app/${GITHUB_ID} "${ISSUE_TITLES.ADD_TOPICS}"`;
     const issuesResponse = await context.github.search.issuesAndPullRequests({
       order: 'desc',
       per_page: 100,
@@ -67,12 +67,11 @@ export const fixMinistryTopic = async (
     const body: string = await loadTemplate(TEXT_FILES.WHY_TOPICS);
 
     await context.github.issues.create({
-      // assignees
       body,
       owner,
       repo,
       title: ISSUE_TITLES.ADD_TOPICS,
-    })
+    });
   } catch (err) {
     const message = extractMessage(err);
     if (message) {

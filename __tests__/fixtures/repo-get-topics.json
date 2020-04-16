@@ -1,0 +1,33 @@
+{
+    "status": 200,
+    "url": "https://api.github.com/repos/bcgov/hello2/topics",
+    "headers": {
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset",
+        "cache-control": "private, max-age=60, s-maxage=60",
+        "connection": "close",
+        "content-length": "12",
+        "content-security-policy": "default-src 'none'",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Thu, 16 Apr 2020 19:51:09 GMT",
+        "etag": "\"1d06f87a07aef27862a6146dd1aee028\"",
+        "referrer-policy": "origin-when-cross-origin, strict-origin-when-cross-origin",
+        "server": "GitHub.com",
+        "status": "200 OK",
+        "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+        "vary": "Accept, Authorization, Cookie, X-GitHub-OTP, Accept-Encoding, Accept, X-Requested-With",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "deny",
+        "x-github-media-type": "github.mercy-preview; format=json",
+        "x-github-request-id": "C23A:1200:1BAA6A:35E279:5E98B72D",
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "4383",
+        "x-ratelimit-reset": "1587067425",
+        "x-xss-protection": "1; mode=block"
+    },
+    "data": {
+        "names": [
+            "cats"
+        ]
+    }
+}
