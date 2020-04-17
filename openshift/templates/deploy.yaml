@@ -78,7 +78,6 @@ objects:
           terminationGracePeriodSeconds: 10
           containers:
             - name: bot
-              image: docker-registry.default.svc:5000/devhub-tools/repomountie
               ports:
                 - containerPort: 8080
               env:
@@ -131,17 +130,17 @@ objects:
             - name: config-vol
               configMap:
                 name: repomountie-config
-        triggers:
-          - type: ImageChange
-            imageChangeParams:
-              automatic: true
-              containerNames:
-                - bot
-              from:
-                kind: ImageStreamTag
-                name: "repomountie:${REPOMOUNTIE_IMAGE_TAG}"
-                namespace: docker-registry.default.svc:5000/devhub-tools/repomountie
-          - type: ConfigChange
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - bot
+            from:
+              kind: ImageStreamTag
+              name: "repomountie:${REPOMOUNTIE_IMAGE_TAG}"
+              namespace: devhub-tools
+        - type: ConfigChange
   - apiVersion: v1
     kind: Service
     metadata:
