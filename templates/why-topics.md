@@ -14,6 +14,10 @@ Below is a table of abbreviation a.k.a short codes for each ministry; they're th
 
 That's in, you're done!!!
 
+### How to use
+
+Once topics are added, you can use them in GitHub's search. For example, enter something like `org:bcgov topic:citz` to find all the repos that belong to Citizens' Services. You can refine this search by adding key words specific to a subject you're interested in. To learn more about searching through repos check out [GitHub's doc on searching](https://help.github.com/en/github/searching-for-information-on-github/searching-for-repositories).
+
 ### Pro Tip 🤓
 
 - If your org is **not** in the list below, or the table contains errors, please create an issue [here](https://github.com/bcgov/repomountie/issues).
