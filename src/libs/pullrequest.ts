@@ -115,6 +115,10 @@ export const addCollaboratorsToMyIssues = async (
       .filter((c) => c.permissions.admin === true)
       .map((u) => u.login);
 
+    // Can use this filter if repos do not have `admin` users.
+    // .filter((c) => (c.permissions.admin === true ||
+    //   c.permissions.push === true))
+
     if (assignees.length === 0) {
       return;
     }
