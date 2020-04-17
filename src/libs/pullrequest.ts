@@ -20,9 +20,9 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import moment from 'moment';
 import { Context } from 'probot';
 import config from '../config';
-import { COMMANDS, ISSUE_TITLES, TEXT_FILES } from '../constants';
-import { PullState, RepoAffiliation } from './enums';
-import { assignUsersToIssue, fetchCollaborators, fetchPullRequests, RepoMountieConfig } from './ghutils';
+import { BOT_NAME, COMMANDS, TEXT_FILES } from '../constants';
+import { RepoAffiliation } from './enums';
+import { assignUsersToIssue, fetchCollaborators, RepoMountieConfig } from './ghutils';
 import { loadTemplate } from './utils';
 
 /**
@@ -36,13 +36,13 @@ import { loadTemplate } from './utils';
  * @param {string} repo The repo name
  * @returns A void promise, rejection for failure
  */
-export const requestUpdateForPullRequest = async (
+export const requestUpdateForMyIssues = async (
   context: Context, owner: string, repo: string): Promise<void> => {
 
   const maxDaysOld = config.get('staleIssueMaxDaysOld');
   const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
   const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
-  const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
+  const query = `repo:${owner}/${repo} is:open updated:<${timestamp} author:app/${BOT_NAME}`;
 
   try {
     const response = await context.github.search.issuesAndPullRequests({
@@ -51,16 +51,14 @@ export const requestUpdateForPullRequest = async (
       q: query,
       sort: 'updated',
     });
-    const issues = response.data.items ? response.data.items
-      .filter(p => Object.values(ISSUE_TITLES).includes(p.title.trim())) : [];
 
-    if (issues.length === 0) {
+    if (response.data.items.length === 0) {
       return;
     }
 
     const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_PR_COMMENT);
     const regex = /\[DAYS_OLD\]/gi;
-    const promises = issues.map(i => {
+    const promises = response.data.items.map(i => {
       const now = moment(Date.now());
       const diffInDays = now.diff(moment(i.updated_at), 'days');
       const body = rawMessageBody
@@ -91,33 +89,41 @@ export const requestUpdateForPullRequest = async (
  * @param {Context} context The event context context
  * @returns True if the PR should be ignored, False otherwise
  */
-export const addCollaboratorsToPullRequests = async (
+export const addCollaboratorsToMyIssues = async (
   context: Context, owner: string, repo: string) => {
 
   try {
-    // filter for PRs created by the bot that don't have any
+    // filter for issues created by the bot that don't have any
     // assignees
-    const pulls: any = (await fetchPullRequests(context, PullState.Open))
-      .filter(p => p.assignees.length === 0)
-      .filter(p => Object.values(ISSUE_TITLES).includes(p.title.trim()));
 
-    if (pulls.length === 0) {
+    const query = `repo:${owner}/${repo} is:open is:pr no:assignee author:app/${BOT_NAME}`;
+    const response = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
+    });
+    const totalCount = response.data.total_count ? response.data.total_count : 0;
+
+    if (totalCount === 0) {
       return;
     }
 
     // filter for collaborators who are admin or can write
+
     const assignees: any = (await fetchCollaborators(context, RepoAffiliation.Direct))
-      .filter((c) => (c.permissions.admin === true ||
-        c.permissions.push === true))
+      .filter((c) => c.permissions.admin === true)
       .map((u) => u.login);
 
     if (assignees.length === 0) {
       return;
     }
 
-    const promises = pulls.map(pr =>
+    // add assignees to the issue
+
+    const promises = response.data.items.map(i =>
       assignUsersToIssue(context, assignees, {
-        issue_number: pr.number,
+        issue_number: i.number,
         owner,
         repo,
       }));

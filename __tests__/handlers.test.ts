@@ -22,7 +22,7 @@ import { Context } from 'probot';
 import { fetchConfigFile } from '../src/libs/ghutils';
 import { issueCommentCreated, memberAddedOrEdited, pullRequestOpened, repositoryDeleted, repositoryScheduled } from '../src/libs/handlers';
 import { checkForStaleIssues, created } from '../src/libs/issue';
-import { addCollaboratorsToPullRequests, validatePullRequestIfRequired } from '../src/libs/pullrequest';
+import { addCollaboratorsToMyIssues, validatePullRequestIfRequired } from '../src/libs/pullrequest';
 import { fetchComplianceMetrics } from '../src/libs/reporting';
 import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
 import helper from './src/helper';
@@ -47,9 +47,9 @@ jest.mock('../src/libs/reporting', () => ({
 }));
 
 jest.mock('../src/libs/pullrequest', () => ({
-    addCollaboratorsToPullRequests: jest.fn(),
+    addCollaboratorsToMyIssues: jest.fn(),
     validatePullRequestIfRequired: jest.fn(),
-    requestUpdateForPullRequest: jest.fn(),
+    requestUpdateForMyIssues: jest.fn(),
 }));
 
 jest.mock('../src/libs/repository', () => ({
@@ -89,7 +89,7 @@ describe('GitHub event handlers', () => {
 
         await memberAddedOrEdited(context);
 
-        expect(addCollaboratorsToPullRequests).toBeCalled();
+        expect(addCollaboratorsToMyIssues).toBeCalled();
     });
 
     it('Member edited handler', async () => {
@@ -98,7 +98,7 @@ describe('GitHub event handlers', () => {
 
         await memberAddedOrEdited(context);
 
-        expect(addCollaboratorsToPullRequests).toBeCalled();
+        expect(addCollaboratorsToMyIssues).toBeCalled();
     });
 
     it('Pull request created from bad org rejected', async () => {
@@ -107,7 +107,7 @@ describe('GitHub event handlers', () => {
 
         await pullRequestOpened(context);
 
-        expect(addCollaboratorsToPullRequests).not.toBeCalled();
+        expect(addCollaboratorsToMyIssues).not.toBeCalled();
         expect(fetchConfigFile).not.toBeCalled();
         expect(validatePullRequestIfRequired).not.toBeCalled();
     });
@@ -119,7 +119,7 @@ describe('GitHub event handlers', () => {
 
         await pullRequestOpened(context);
 
-        expect(addCollaboratorsToPullRequests).toBeCalled();
+        expect(addCollaboratorsToMyIssues).toBeCalled();
         expect(fetchConfigFile).not.toBeCalled();
         expect(validatePullRequestIfRequired).not.toBeCalled();
     });
@@ -131,7 +131,7 @@ describe('GitHub event handlers', () => {
 
         await pullRequestOpened(context);
 
-        expect(addCollaboratorsToPullRequests).not.toBeCalled();
+        expect(addCollaboratorsToMyIssues).not.toBeCalled();
         expect(fetchConfigFile).toBeCalled();
         expect(validatePullRequestIfRequired).toBeCalled();
     });
@@ -147,7 +147,7 @@ describe('GitHub event handlers', () => {
 
         await pullRequestOpened(context);
 
-        expect(addCollaboratorsToPullRequests).not.toBeCalled();
+        expect(addCollaboratorsToMyIssues).not.toBeCalled();
         expect(fetchConfigFile).toBeCalled();
         expect(validatePullRequestIfRequired).not.toBeCalled();
     });
@@ -187,7 +187,7 @@ describe('GitHub event handlers', () => {
 
         await repositoryScheduled(context, {});
 
-        expect(addCollaboratorsToPullRequests).not.toBeCalled();
+        expect(addCollaboratorsToMyIssues).not.toBeCalled();
         expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
         expect(addLicenseIfRequired).not.toBeCalled();
@@ -203,7 +203,7 @@ describe('GitHub event handlers', () => {
 
         await repositoryScheduled(context, scheduler);
 
-        expect(addCollaboratorsToPullRequests).not.toBeCalled();
+        expect(addCollaboratorsToMyIssues).not.toBeCalled();
         expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
         expect(addLicenseIfRequired).not.toBeCalled();
@@ -219,7 +219,7 @@ describe('GitHub event handlers', () => {
 
         await repositoryScheduled(context, scheduler);
 
-        expect(addCollaboratorsToPullRequests).toBeCalled();
+        expect(addCollaboratorsToMyIssues).toBeCalled();
         expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();
@@ -240,7 +240,7 @@ describe('GitHub event handlers', () => {
 
         await repositoryScheduled(context, scheduler);
 
-        expect(addCollaboratorsToPullRequests).toBeCalled();
+        expect(addCollaboratorsToMyIssues).toBeCalled();
         expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();
@@ -264,7 +264,7 @@ describe('GitHub event handlers', () => {
 
         await repositoryScheduled(context, scheduler);
 
-        expect(addCollaboratorsToPullRequests).toBeCalled();
+        expect(addCollaboratorsToMyIssues).toBeCalled();
         expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();

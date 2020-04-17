@@ -10,5 +10,13 @@ Array [
       "repo": "hello6",
     },
   ],
+  Array [
+    Object {
+      "body": "Foo 210 bar",
+      "issue_number": 3,
+      "owner": "bcgov",
+      "repo": "hello6",
+    },
+  ],
 ]
 `;
