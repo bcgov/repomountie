@@ -1,18 +1,16 @@
 # TL;DR
 
-Topics greatly improve the discoverability of repos; please add the short code from the table below to the topic(s) of your repo so that ministries can use GitHub's search to find out what repos belong to them and other visitors can find useful content.
+Topics greatly improve the discoverability of repos; please add the short code from the table below to the topics of your repo so that ministries can use GitHub's search to find out what repos belong to them and other visitors can find useful content (and reuse it!).
 
 ### Why Topic
 
-In short order we'll add our 800th repo. This large number clearly demonstrates the success of using GitHub and our Open Source initiative. This huge success means its critical that we work to make our content as discoverable as possible. Through discoverability, we promote code reuse across a large decentralized organization like the Government of British Columbia.
+In short order we'll add our 800th repo. This large number clearly demonstrates the success of using GitHub and our Open Source initiative. This huge success means its critical that we work to make our content as discoverable as possible; Through discoverability, we promote code reuse across a large decentralized organization like the Government of British Columbia as well as allow ministries to find the repos they own.
 
 ### What to do
 
-Below is a table of abbreviation a.k.a short codes for each ministry; they're the ones used in all `@gov.bc.ca` email addresses. Please add the short codes of the ministry that "owns" **this** repo as a `topic`:
+Below is a table of abbreviation a.k.a short codes for each ministry; they're the ones used in all `@gov.bc.ca` email addresses. Please add the short codes of the ministry or organization that "owns" **this** repo as a `topic`.
 
-1. Go to the main page of your repo;
-2. In the upper-left you'll see a `mange topics` link (click or touch it);
-3. Type in the matching short code from the table below.
+![add a topic](https://raw.githubusercontent.com/bcgov/repomountie/master/images/AddTopicToRepo.gif)
 
 That's in, you're done!!!
 
