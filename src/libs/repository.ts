@@ -48,6 +48,8 @@ export const fixMinistryTopic = async (
     // Check if the repo already has an issue created by me
     // requesting topics be added.
 
+    // This query looks for `is:open` on purpose; if the issue is closed but
+    // the repo topics are not updated then it will re-create a new issue.
     const query = `repo:${owner}/${repo} is:open is:issue author:app/${BOT_NAME} "${ISSUE_TITLES.ADD_TOPICS}"`;
     const issuesResponse = await context.github.search.issuesAndPullRequests({
       order: 'desc',
