@@ -90,4 +90,31 @@ export const ACCESS_CONTROL = {
   allowedSsoClients: ['reggie-api'],
 };
 
-export const MINISTRY_SHORT_CODES = ['CITZ']
+export const MINISTRY_SHORT_CODES = [
+  'AEST',
+  'AGRI',
+  'ALC',
+  'AG',
+  'MCF',
+  'CITZ',
+  'DBC',
+  'EMBC',
+  'EAO',
+  'EDUC',
+  'EMPR',
+  'ENV',
+  'FIN',
+  'FLNR',
+  'HLTH',
+  'FLNR',
+  'JEDC',
+  'LBR',
+  'LDB',
+  'MMHA',
+  'MAH',
+  'BCPC',
+  'PSA',
+  'SDPR',
+  'TCA',
+  'TRAN',
+];
