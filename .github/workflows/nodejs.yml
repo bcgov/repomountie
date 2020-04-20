@@ -55,8 +55,8 @@ jobs:
         uses: redhat-developer/openshift-actions@v1.1
         with:
           version: "latest"
-          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-          parameters: '{"apitoken": "${{ secrets.API_TOKEN }}", "acceptUntrustedCerts": "true"}'
+          openshift_server_url: ${{ secrets.OpenShiftServerURL}}
+          parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
           cmd: |
             'version'
             'start-build repo-mountie-master-build --follow -n devhub-tools'
