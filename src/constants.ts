@@ -106,7 +106,7 @@ export const MINISTRY_SHORT_CODES = [
   'FIN',
   'FLNR',
   'HLTH',
-  'FLNR',
+  'IRR',
   'JEDC',
   'LBR',
   'LDB',
