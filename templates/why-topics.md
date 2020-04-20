@@ -47,7 +47,7 @@ Once topics are added, you can use them in GitHub's search. For example, enter s
 | FIN | Finance |
 | FLNR | Forests, Lands, Natural Resource Operations & Rural Development |
 | HLTH | Health |
-| FLNR | Indigenous Relations & Reconciliation |
+| IRR | Indigenous Relations & Reconciliation |
 | JEDC | Jobs, Economic Development & Competitiveness |
 | LBR | Labour Policy & Legislation |
 | LDB | BC Liquor Distribution Branch |
