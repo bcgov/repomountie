@@ -20,7 +20,7 @@ export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
 export const COMMENT_TRIGGER_WORD = 'help';
 
-export const BOT_NAME = 'bot-3kdjfksd';
+export const BOT_NAME = 'repo-mountie';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 
