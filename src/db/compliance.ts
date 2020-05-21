@@ -24,7 +24,7 @@ const ComplianceAuditSchema = new mongoose.Schema({
         type: String,
     },
     topics: [{
-        type: String
+        type: String,
     }],
     records: [{
         name: String,
