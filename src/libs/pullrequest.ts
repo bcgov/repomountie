@@ -94,9 +94,9 @@ export const addCollaboratorsToMyIssues = async (
 
   try {
     // filter for issues created by the bot that don't have any
-    // assignees
+    // assignees. Can add is:pr, is:issue to be more selective.
 
-    const query = `repo:${owner}/${repo} is:open is:pr no:assignee author:app/${BOT_NAME}`;
+    const query = `repo:${owner}/${repo} is:open no:assignee author:app/${BOT_NAME}`;
     const response = await context.github.search.issuesAndPullRequests({
       order: 'desc',
       per_page: 100,
@@ -112,12 +112,9 @@ export const addCollaboratorsToMyIssues = async (
     // filter for collaborators who are admin or can write
 
     const assignees: any = (await fetchCollaborators(context, RepoAffiliation.Direct))
-      .filter((c) => c.permissions.admin === true)
+      .filter((c) => (c.permissions.admin === true ||
+        c.permissions.push === true))
       .map((u) => u.login);
-
-    // Can use this filter if repos do not have `admin` users.
-    // .filter((c) => (c.permissions.admin === true ||
-    //   c.permissions.push === true))
 
     if (assignees.length === 0) {
       return;
