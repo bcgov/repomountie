@@ -55,7 +55,7 @@ describe('Utility functions', () => {
   it('The compliance status should be extracted', async () => {
     const data = Buffer.from(complianceResponse.data.content, 'base64').toString();
     const doc = yaml.safeLoad(data);
-    const mobj = extractComplianceStatus('blarb', 'blarb', doc);
+    const mobj = extractComplianceStatus('blarb', 'blarb', ['env'], doc);
 
     expect(mobj._id).not.toBeUndefined();
     // @ts-ignore
