@@ -4,7 +4,7 @@ Topics greatly improve the discoverability of repos; please add the short code f
 
 ### Why Topic
 
-In short order we'll add our 800th repo. This large number clearly demonstrates the success of using GitHub and our Open Source initiative. This huge success means its critical that we work to make our content as discoverable as possible; Through discoverability, we promote code reuse across a large decentralized organization like the Government of British Columbia as well as allow ministries to find the repos they own.
+In short order we'll add our 800th repo. This large number clearly demonstrates the success of using GitHub and our Open Source initiative. This huge success means it's critical that we work to make our content as discoverable as possible. Through discoverability, we promote code reuse across a large decentralized organization like the Government of British Columbia as well as allow ministries to find the repos they own.
 
 ### What to do
 
@@ -12,7 +12,7 @@ Below is a table of abbreviation a.k.a short codes for each ministry; they're th
 
 ![add a topic](https://raw.githubusercontent.com/bcgov/repomountie/master/images/AddTopicToRepo.gif)
 
-That's in, you're done!!!
+That's it, you're done!!!
 
 ### How to use
 
