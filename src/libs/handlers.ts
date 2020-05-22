@@ -142,7 +142,7 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
             requestUpdateForMyIssues(context, owner, repo),
             addLicenseIfRequired(context, scheduler),
             addSecurityComplianceInfoIfRequired(context, scheduler),
-            fetchComplianceMetrics(context),
+            fetchComplianceMetrics(context, owner, repo),
             fixMinistryTopic(context, owner, repo),
         ]);
     } catch (err) {

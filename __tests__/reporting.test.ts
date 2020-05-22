@@ -50,15 +50,19 @@ describe('Reporting', () => {
 
     it('Compliance metrics should be stored', async () => {
         context = new Context(repoScheduledEvent, github as any, {} as any);
+        const owner = 'bcgov';
+        const repo = 'hello1';
 
         const save = jest.fn();
         // @ts-ignore
         extractComplianceStatus.mockImplementation(() =>
             ({ save })
         );
+        github.repos.listTopics.mockReturnValueOnce(Promise.resolve({ data: { names: ['citz'] } }));
 
-        await fetchComplianceMetrics(context);
+        await fetchComplianceMetrics(context, owner, repo);
 
+        expect(github.repos.listTopics).toBeCalled();
         expect(fetchComplianceFile).toBeCalled();
         expect(extractComplianceStatus).toBeCalled();
         expect(save).toBeCalled();

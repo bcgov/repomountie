@@ -22,7 +22,7 @@
 
 'use strict';
 
-const passport = require.requireActual('passport');
+const passport = jest.requireActual('passport');
 
 function authenticate(strategy, options) {
   return (req, res, next) => {

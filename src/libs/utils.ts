@@ -81,7 +81,7 @@ export const loadTemplate = async (path: string): Promise<string> => {
  * @param {string} path The path to the template file
  * @returns {Promise<string>} Resolved with contents, rejected otherwise
  */
-export const extractComplianceStatus = (repoName: string, orgName: string, data: any) => {
+export const extractComplianceStatus = (repoName: string, orgName: string, topics: string[], data: any) => {
 
     const records = data.spec.map((s: any) => {
         return {
@@ -92,6 +92,7 @@ export const extractComplianceStatus = (repoName: string, orgName: string, data:
     });
 
     const ca = new ComplianceAudit({
+        topics,
         orgName,
         records,
         repoName,

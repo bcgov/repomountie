@@ -155,6 +155,15 @@ const merge = (compliance, meta): any[] => {
                     productLead: repodata.productLead,
                 }
             );
+        } else if (c.topics && c.topics.length > 0) {
+            merged.push(
+                {
+                    ...c,
+                    ministry: c.topics.pop(),
+                    ministryOrg: '',
+                    productLead: '',
+                }
+            );
         }
     });
 

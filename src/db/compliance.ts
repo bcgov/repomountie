@@ -23,13 +23,14 @@ const ComplianceAuditSchema = new mongoose.Schema({
         index: true,
         type: String,
     },
-    records: [
-        {
-            name: String,
-            status: String,
-            updatedAt: Date,
-        },
-    ],
+    topics: [{
+        type: String,
+    }],
+    records: [{
+        name: String,
+        status: String,
+        updatedAt: Date,
+    }],
     repoName: {
         index: true,
         type: String,
