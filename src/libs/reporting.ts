@@ -6,7 +6,7 @@ import { fetchComplianceFile } from './ghutils';
 import { extractComplianceStatus } from './utils';
 
 export const fetchComplianceMetrics = async (
-    context: Context, owner: string, repo: string,
+    context: Context, owner: string, repo: string
 ): Promise<void> => {
     // this block of code is for reporting purposes only.
     try {

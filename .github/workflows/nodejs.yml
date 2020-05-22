@@ -60,4 +60,3 @@ jobs:
           cmd: |
             'version'
             'start-build repo-mountie-master-build --follow -n devhub-tools'
-            'status'
