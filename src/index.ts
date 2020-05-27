@@ -21,7 +21,7 @@ import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { SCHEDULER_DELAY } from './constants';
 import { connect } from './db';
-import { issueCommentCreated, memberAddedOrEdited, pullRequestOpened, repositoryDeleted, repositoryScheduled } from './libs/handlers';
+import { issueCommentCreated, memberAddedOrEdited, pullRequestOpened, repositoryCreated, repositoryDeleted, repositoryScheduled } from './libs/handlers';
 import { routes } from './libs/routes';
 
 process.env.TZ = 'UTC';
@@ -52,6 +52,7 @@ export = async (app: Application) => {
 
   app.on('schedule.repository', async (context: Context) =>
     await repositoryScheduled(context, scheduler));
+  app.on('repository.created', repositoryCreated);
   app.on('pull_request.opened', pullRequestOpened);
   app.on('issue_comment.created', issueCommentCreated);
   app.on('repository.deleted', async (context: Context) =>
