@@ -26,7 +26,7 @@ import { fetchConfigFile } from './ghutils';
 import { checkForStaleIssues, created } from './issue';
 import { addCollaboratorsToMyIssues, requestUpdateForMyIssues, validatePullRequestIfRequired } from './pullrequest';
 import { fetchComplianceMetrics } from './reporting';
-import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from './repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired } from './repository';
 
 export const memberAddedOrEdited = async (context: Context): Promise<void> => {
     const owner = context.payload.organization.login;
@@ -135,15 +135,16 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
 
     try {
         // These are all independent func. Rather than call them each in a
-        // try/catch I'm bundling them.
+        // try/catch I'm bundling them. If a repo is created without a
+        // README etc then it will not have a master branch and the PRs for
+        // licensing and compliance cannot be created; this is why these
+        // two functions are below and not in `repositoryCreated`.
         await Promise.all([
+            addLicenseIfRequired(context, owner, repo),
+            addSecurityComplianceInfoIfRequired(context, owner, repo),
             addCollaboratorsToMyIssues(context, owner, repo),
-            fixDeprecatedComplianceStatus(context, owner, repo),
             requestUpdateForMyIssues(context, owner, repo),
-            addLicenseIfRequired(context, scheduler),
-            addSecurityComplianceInfoIfRequired(context, scheduler),
             fetchComplianceMetrics(context, owner, repo),
-            // fixMinistryTopic(context, owner, repo),
         ]);
     } catch (err) {
         const message = `Unable to complete all housekeeping tasks, repo is ${repo}`;
@@ -161,6 +162,33 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
         }
     } catch (err) {
         const message = `Unable to process repository ${repo}`;
+        logger.error(`${message}, error = ${err.message}`);
+    }
+}
+
+export const repositoryCreated = async (context: Context): Promise<void> => {
+    logger.info(`Processing ${context.payload.repository.name}`);
+
+    const owner = context.payload.repository.owner.login;
+    const repo = context.payload.repository.name;
+
+    if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
+        logger.info(
+            `Skipping repository ${repo} because its not part of an allowed installation`
+        );
+        return;
+    }
+
+    try {
+        // These are all independent func. Rather than call them
+        // each in a try/catch I'm bundling them.
+        await Promise.all([
+            // addLicenseIfRequired(context, owner, repo),
+            // addSecurityComplianceInfoIfRequired(context, owner, repo),
+            addMinistryTopicIfRequired(context, owner, repo),
+        ]);
+    } catch (err) {
+        const message = `Unable to complete all housekeeping tasks, repo is ${repo}`;
         logger.error(`${message}, error = ${err.message}`);
     }
 }

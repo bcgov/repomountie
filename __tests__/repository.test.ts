@@ -21,7 +21,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus, fixMinistryTopic } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -73,29 +73,35 @@ describe('Repository management', () => {
 
     it('Adding a license should resolve', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.repository.owner.login;
+        const repo = context.payload.repository.name;
 
         // @ts-ignore
         addFileViaPullRequest.mockImplementation(() =>
             Promise.resolve());
-        await expect(addLicenseIfRequired(context)).resolves.toBe(undefined);
+        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(undefined);
     });
 
     it('Adding a license should fail because ref missing', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.repository.owner.login;
+        const repo = context.payload.repository.name;
 
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(false);
-        await expect(addLicenseIfRequired(context)).resolves.toBe(undefined);
+        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(undefined);
     });
 
     it('Adding a license should fail because pr exists', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.repository.owner.login;
+        const repo = context.payload.repository.name;
 
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
         // @ts-ignore
         hasPullRequestWithTitle.mockReturnValueOnce(true);
-        await expect(addLicenseIfRequired(context)).resolves.toBe(undefined);
+        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(undefined);
     });
 
     it('Adding a license should fail because add file failed', async () => {
@@ -103,6 +109,8 @@ describe('Repository management', () => {
         aRepoScheduleEvent.payload.repository.license = null;
 
         context = new Context(aRepoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.repository.owner.login;
+        const repo = context.payload.repository.name;
 
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
@@ -113,37 +121,45 @@ describe('Repository management', () => {
             throw new Error();
         });
 
-        await expect(addLicenseIfRequired(context)).rejects.toThrow();
+        await expect(addLicenseIfRequired(context, owner, repo)).rejects.toThrow();
     });
 
     it('Adding a compliance file should resolve', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.installation.account.login;
+        const repo = context.payload.repository.name;
 
-        await expect(addSecurityComplianceInfoIfRequired(context)).resolves.toBe(undefined);
+        await expect(addSecurityComplianceInfoIfRequired(context, owner, repo)).resolves.toBe(undefined);
     });
 
     it('Adding a compliance file should fail because ref missing', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.installation.account.login;
+        const repo = context.payload.repository.name;
 
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(false);
 
-        await expect(addSecurityComplianceInfoIfRequired(context)).resolves.toBe(undefined);
+        await expect(addSecurityComplianceInfoIfRequired(context, owner, repo)).resolves.toBe(undefined);
     });
 
     it('Adding a compliance file should fail because pr exists', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.installation.account.login;
+        const repo = context.payload.repository.name;
 
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
         // @ts-ignore
         hasPullRequestWithTitle.mockReturnValueOnce(true);
 
-        await expect(addSecurityComplianceInfoIfRequired(context)).resolves.toBe(undefined);
+        await expect(addSecurityComplianceInfoIfRequired(context, owner, repo)).resolves.toBe(undefined);
     });
 
     it('Adding a compliance file should fail because add file failed', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.installation.account.login;
+        const repo = context.payload.repository.name;
 
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true);
@@ -156,7 +172,7 @@ describe('Repository management', () => {
         // @ts-ignore
         loadTemplate.mockReturnValue('bla [TODAY] bla');
 
-        await expect(addSecurityComplianceInfoIfRequired(context)).rejects.toThrow();
+        await expect(addSecurityComplianceInfoIfRequired(context, owner, repo)).rejects.toThrow();
     });
 
     it('Updating a compliance file should succeed', async () => {
@@ -260,7 +276,7 @@ describe('Repository management', () => {
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
         github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
 
-        await fixMinistryTopic(context, owner, repo);
+        await addMinistryTopicIfRequired(context, owner, repo);
 
         expect(github.repos.listTopics).toBeCalled();
         expect(github.search.issuesAndPullRequests).not.toBeCalled();
@@ -278,7 +294,7 @@ describe('Repository management', () => {
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
         github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
 
-        await fixMinistryTopic(context, owner, repo);
+        await addMinistryTopicIfRequired(context, owner, repo);
 
         expect(github.repos.listTopics).toBeCalled();
         expect(github.search.issuesAndPullRequests).toBeCalled();
@@ -299,7 +315,7 @@ describe('Repository management', () => {
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(aRepoResponse));
         github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
 
-        await fixMinistryTopic(context, owner, repo);
+        await addMinistryTopicIfRequired(context, owner, repo);
 
         expect(github.repos.listTopics).toBeCalled();
         expect(github.search.issuesAndPullRequests).toBeCalled();

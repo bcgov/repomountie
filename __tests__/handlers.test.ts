@@ -20,11 +20,11 @@ import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
 import { fetchConfigFile } from '../src/libs/ghutils';
-import { issueCommentCreated, memberAddedOrEdited, pullRequestOpened, repositoryDeleted, repositoryScheduled } from '../src/libs/handlers';
+import { issueCommentCreated, memberAddedOrEdited, pullRequestOpened, repositoryCreated, repositoryDeleted, repositoryScheduled } from '../src/libs/handlers';
 import { checkForStaleIssues, created } from '../src/libs/issue';
 import { addCollaboratorsToMyIssues, validatePullRequestIfRequired } from '../src/libs/pullrequest';
 import { fetchComplianceMetrics } from '../src/libs/reporting';
-import { addLicenseIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/member-added-event.json');
@@ -42,6 +42,9 @@ const repoScheduledEvent = JSON.parse(fs.readFileSync(p3, 'utf8'));
 const p4 = path.join(__dirname, 'fixtures/repo-deleted-event.json');
 const repoDeletedEvent = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
+const p5 = path.join(__dirname, 'fixtures/repo-created-event.json');
+const repoCreatedEvent = JSON.parse(fs.readFileSync(p5, 'utf8'));
+
 jest.mock('../src/libs/reporting', () => ({
     fetchComplianceMetrics: jest.fn(),
 }));
@@ -56,6 +59,7 @@ jest.mock('../src/libs/repository', () => ({
     addSecurityComplianceInfoIfRequired: jest.fn(),
     addLicenseIfRequired: jest.fn(),
     fixDeprecatedComplianceStatus: jest.fn(),
+    addMinistryTopicIfRequired: jest.fn(),
 }));
 
 jest.mock('../src/libs/issue', () => ({
@@ -68,15 +72,10 @@ jest.mock('../src/libs/ghutils', () => ({
 }));
 
 describe('GitHub event handlers', () => {
-    let context
     const { github } = helper;
     const scheduler = {
         stop: jest.fn(),
     };
-
-    beforeEach(() => {
-        context = undefined;
-    });
 
     afterEach(() => {
         jest.clearAllMocks();
@@ -84,8 +83,9 @@ describe('GitHub event handlers', () => {
     });
 
     it('Member added handler', async () => {
-        context = new Context(memberAddedEvent, github as any, {} as any);
-        context.payload.organization.login = 'bcgov';
+        const event = JSON.parse(JSON.stringify(memberAddedEvent));
+        event.payload.organization.login = 'bcgov';
+        const context = new Context(event, github as any, {} as any);
 
         await memberAddedOrEdited(context);
 
@@ -93,8 +93,9 @@ describe('GitHub event handlers', () => {
     });
 
     it('Member edited handler', async () => {
-        context = new Context(memberAddedEvent, github as any, {} as any);
-        context.payload.organization.login = 'bcgov';
+        const event = JSON.parse(JSON.stringify(memberAddedEvent));
+        event.payload.organization.login = 'bcgov';
+        const context = new Context(event, github as any, {} as any);
 
         await memberAddedOrEdited(context);
 
@@ -102,8 +103,9 @@ describe('GitHub event handlers', () => {
     });
 
     it('Pull request created from bad org rejected', async () => {
-        context = new Context(issueOpenedEvent, github as any, {} as any);
-        context.payload.organization.login = 'fakeOrg';
+        const event = JSON.parse(JSON.stringify(issueOpenedEvent));
+        event.payload.organization.login = 'fakeOrg';
+        const context = new Context(event, github as any, {} as any);
 
         await pullRequestOpened(context);
 
@@ -113,9 +115,10 @@ describe('GitHub event handlers', () => {
     });
 
     it('Pull request created by Bot is processed', async () => {
-        context = new Context(issueOpenedEvent, github as any, {} as any);
-        context.payload.sender.type = 'Bot';
-        context.payload.organization.login = 'bcgov';
+        const event = JSON.parse(JSON.stringify(issueOpenedEvent));
+        event.payload.organization.login = 'bcgov';
+        event.payload.sender.type = 'Bot';
+        const context = new Context(event, github as any, {} as any);
 
         await pullRequestOpened(context);
 
@@ -125,9 +128,10 @@ describe('GitHub event handlers', () => {
     });
 
     it('Pull request from repo with config processed', async () => {
-        context = new Context(issueOpenedEvent, github as any, {} as any);
-        context.payload.sender.type = 'User';
-        context.payload.organization.login = 'bcgov';
+        const event = JSON.parse(JSON.stringify(issueOpenedEvent));
+        event.payload.organization.login = 'bcgov';
+        event.payload.sender.type = 'User';
+        const context = new Context(event, github as any, {} as any);
 
         await pullRequestOpened(context);
 
@@ -137,13 +141,15 @@ describe('GitHub event handlers', () => {
     });
 
     it('Pull request from repo without config skipped', async () => {
+        const event = JSON.parse(JSON.stringify(issueOpenedEvent));
+        event.payload.organization.login = 'bcgov';
+        event.payload.sender.type = 'User';
+        const context = new Context(event, github as any, {} as any);
+
         // @ts-ignore
         fetchConfigFile.mockImplementationOnce(() => {
             throw new Error();
         });
-        context = new Context(issueOpenedEvent, github as any, {} as any);
-        context.payload.sender.type = 'User';
-        context.payload.organization.login = 'bcgov';
 
         await pullRequestOpened(context);
 
@@ -153,8 +159,10 @@ describe('GitHub event handlers', () => {
     });
 
     it('Comment created from bad org rejected', async () => {
-        context = new Context(issueCommentCreatedEvent, github as any, {} as any);
-        context.payload.organization.login = 'fakeOrg';
+        const event = JSON.parse(JSON.stringify(issueCommentCreatedEvent));
+        event.payload.organization.login = 'fakeOrg';
+        event.payload.sender.type = 'User';
+        const context = new Context(event, github as any, {} as any);
 
         await issueCommentCreated(context);
 
@@ -162,9 +170,10 @@ describe('GitHub event handlers', () => {
     });
 
     it('Comment created by Bot is ignored', async () => {
-        context = new Context(issueCommentCreatedEvent, github as any, {} as any);
-        context.payload.sender.type = 'Bot';
-        context.payload.organization.login = 'bcgov';
+        const event = JSON.parse(JSON.stringify(issueCommentCreatedEvent));
+        event.payload.organization.login = 'bcgov';
+        event.payload.sender.type = 'Bot';
+        const context = new Context(event, github as any, {} as any);
 
         await issueCommentCreated(context);
 
@@ -172,9 +181,10 @@ describe('GitHub event handlers', () => {
     });
 
     it('Comment created by User is processed', async () => {
-        context = new Context(issueCommentCreatedEvent, github as any, {} as any);
-        context.payload.sender.type = 'User';
-        context.payload.organization.login = 'bcgov';
+        const event = JSON.parse(JSON.stringify(issueCommentCreatedEvent));
+        event.payload.organization.login = 'bcgov';
+        event.payload.sender.type = 'User';
+        const context = new Context(event, github as any, {} as any);
 
         await issueCommentCreated(context);
 
@@ -182,11 +192,13 @@ describe('GitHub event handlers', () => {
     });
 
     it('Scheduled repos from bad org rejected', async () => {
-        context = new Context(repoScheduledEvent, github as any, {} as any);
-        context.payload.installation.account.login = 'fakeOrg';
+        const event = JSON.parse(JSON.stringify(repoScheduledEvent));
+        event.payload.installation.account.login = 'fakeOrg';
+        const context = new Context(event, github as any, {} as any);
 
         await repositoryScheduled(context, {});
 
+        expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).not.toBeCalled();
         expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
@@ -197,12 +209,14 @@ describe('GitHub event handlers', () => {
     });
 
     it('Scheduled repos that are archived are rejected', async () => {
-        context = new Context(repoScheduledEvent, github as any, {} as any);
-        context.payload.installation.account.login = 'bcgov';
-        context.payload.repository.archived = true;
+        const event = JSON.parse(JSON.stringify(repoScheduledEvent));
+        event.payload.installation.account.login = 'bcgov';
+        event.payload.repository.archived = true;
+        const context = new Context(event, github as any, {} as any);
 
         await repositoryScheduled(context, scheduler);
 
+        expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).not.toBeCalled();
         expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
@@ -213,12 +227,14 @@ describe('GitHub event handlers', () => {
     });
 
     it('Scheduled repos without compliance file have one added', async () => {
-        context = new Context(repoScheduledEvent, github as any, {} as any);
-        context.payload.installation.account.login = 'bcgov';
-        context.payload.repository.archived = false;
+        const event = JSON.parse(JSON.stringify(repoScheduledEvent));
+        event.payload.installation.account.login = 'bcgov';
+        event.payload.repository.archived = false;
+        const context = new Context(event, github as any, {} as any);
 
         await repositoryScheduled(context, scheduler);
 
+        expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).toBeCalled();
         expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
@@ -229,9 +245,10 @@ describe('GitHub event handlers', () => {
     });
 
     it('Scheduled repos with compliance file have it skipped', async () => {
-        context = new Context(repoScheduledEvent, github as any, {} as any);
-        context.payload.installation.account.login = 'bcgov';
-        context.payload.repository.archived = false;
+        const event = JSON.parse(JSON.stringify(repoScheduledEvent));
+        event.payload.installation.account.login = 'bcgov';
+        event.payload.repository.archived = false;
+        const context = new Context(event, github as any, {} as any);
 
         // @ts-ignore
         // extractComplianceStatus.mockReturnValue({
@@ -240,6 +257,7 @@ describe('GitHub event handlers', () => {
 
         await repositoryScheduled(context, scheduler);
 
+        expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).toBeCalled();
         expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
@@ -250,20 +268,19 @@ describe('GitHub event handlers', () => {
     });
 
     it('Scheduled repos without config file skip cultural policy', async () => {
-        context = new Context(repoScheduledEvent, github as any, {} as any);
-        context.payload.installation.account.login = 'bcgov';
-        context.payload.repository.archived = false;
+        const event = JSON.parse(JSON.stringify(repoScheduledEvent));
+        event.payload.installation.account.login = 'bcgov';
+        event.payload.repository.archived = false;
+        const context = new Context(event, github as any, {} as any);
+
         // @ts-ignore
         fetchConfigFile.mockImplementationOnce(() => {
             throw new Error();
         });
-        // // @ts-ignore
-        // extractComplianceStatus.mockReturnValue({
-        //     save: () => { },
-        // });
 
         await repositoryScheduled(context, scheduler);
 
+        expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).toBeCalled();
         expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
@@ -274,10 +291,46 @@ describe('GitHub event handlers', () => {
     });
 
     it('Deleted repositories are unscheduled', async () => {
-        context = new Context(repoDeletedEvent, github as any, {} as any);
+        const event = JSON.parse(JSON.stringify(repoDeletedEvent));
+        event.payload.organization.login = 'bcgov';
+        const context = new Context(event, github as any, {} as any);
 
         await repositoryDeleted(context, scheduler);
 
         expect(scheduler.stop).toBeCalled();
+    });
+
+    it('Created repos have topics issue added', async () => {
+        const event = JSON.parse(JSON.stringify(repoCreatedEvent));
+        const context = new Context(event, github as any, {} as any);
+
+        await repositoryCreated(context);
+
+        expect(addMinistryTopicIfRequired).toBeCalled();
+        expect(addCollaboratorsToMyIssues).not.toBeCalled();
+        expect(fetchComplianceMetrics).not.toBeCalled();
+        expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
+        expect(addLicenseIfRequired).not.toBeCalled();
+        expect(fetchConfigFile).not.toBeCalled();
+        expect(checkForStaleIssues).not.toBeCalled();
+        expect(scheduler.stop).not.toBeCalled();
+    });
+
+    it('Created repos from the wrong org are skipped', async () => {
+        const event = JSON.parse(JSON.stringify(repoCreatedEvent));
+        event.payload.repository.owner.login = 'bacon';
+
+        const context = new Context(event, github as any, {} as any);
+
+        await repositoryCreated(context);
+
+        expect(addMinistryTopicIfRequired).not.toBeCalled();
+        expect(addCollaboratorsToMyIssues).not.toBeCalled();
+        expect(fetchComplianceMetrics).not.toBeCalled();
+        expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
+        expect(addLicenseIfRequired).not.toBeCalled();
+        expect(fetchConfigFile).not.toBeCalled();
+        expect(checkForStaleIssues).not.toBeCalled();
+        expect(scheduler.stop).not.toBeCalled();
     });
 });

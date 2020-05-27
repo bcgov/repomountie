@@ -25,11 +25,15 @@ import { BOT_NAME, BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, ISSUE_TITLES, M
 import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
-export const fixMinistryTopic = async (
+export const addMinistryTopicIfRequired = async (
   context: Context, owner: string, repo: string
 ) => {
 
   try {
+
+    if (!context.payload.repository.has_issues) {
+      return;
+    }
 
     // Check if the repo has suitable topics.
 
@@ -134,10 +138,9 @@ export const fixDeprecatedComplianceStatus = async (
   }
 };
 
-export const addSecurityComplianceInfoIfRequired = async (context: Context, scheduler: any = undefined) => {
-
-  const owner = context.payload.installation.account.login;
-  const repo = context.payload.repository.name;
+export const addSecurityComplianceInfoIfRequired = async (
+  context: Context, owner: string, repo: string
+) => {
 
   try {
     if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
@@ -176,14 +179,13 @@ export const addSecurityComplianceInfoIfRequired = async (context: Context, sche
   }
 };
 
-export const addLicenseIfRequired = async (context: Context, scheduler: any = undefined) => {
+export const addLicenseIfRequired = async (
+  context: Context, owner: string, repo: string
+) => {
   if (context.payload.repository.license) {
     // we have a license already
     return;
   }
-
-  const owner = context.payload.installation.account.login;
-  const repo = context.payload.repository.name;
 
   try {
     if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
