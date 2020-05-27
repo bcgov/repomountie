@@ -118,7 +118,6 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
     const repo = context.payload.repository.name;
 
     if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
-        console.log('******************************* xx');
         logger.info(
             `Skipping scheduled repository ${
             repo
@@ -126,8 +125,6 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
         );
         return;
     }
-
-    console.log('******************************* yyy');
 
     if (context.payload.repository.archived) {
         logger.warn(`The repo ${repo} is archived. Skipping.`);
