@@ -114,7 +114,9 @@ export const MINISTRY_SHORT_CODES = [
   'MAH',
   'BCPC',
   'PSA',
+  'PSSG',
   'SDPR',
+  'STAT',
   'TCA',
   'TRAN',
 ];
