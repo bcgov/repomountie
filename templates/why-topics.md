@@ -54,7 +54,8 @@ Once topics are added, you can use them in GitHub's search. For example, enter s
 | MMHA | Mental Health & Addictions |
 | MAH | Municipal Affairs & Housing |
 | BCPC | Pension Corporation |
-| PSA | Public Safety & Solicitor General & Emergency B.C. |
+| PSA | Public Service Agency |
+| PSSG | Public Safety and Solicitor General |
 | SDPR | Social Development & Poverty Reduction |
 | TCA | Tourism, Arts & Culture |
 | TRAN | Transportation & Infrastructure |
