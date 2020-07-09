@@ -10,7 +10,7 @@ During your team scrum, technical meetings, documentation, the code you write, e
 
 For the curious mind, the Public Service Agency (PSA) has published a guide describing how [Words Matter](https://www2.gov.bc.ca/assets/gov/careers/all-employees/working-with-others/words-matter.pdf) in our daily communication. Its an insightful read and a good reminder to be curious and open minded.
 
-What about the master branch?
+## What about the master branch?
 
 The word "master" is not inherently bad or non-inclusive. For example people get a masters degree; become a master of their craft; or master a skill. It's generally when the word "master" is used along side the word "slave" that it becomes non-inclusive.
 
