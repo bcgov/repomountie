@@ -26,7 +26,7 @@ import { fetchConfigFile } from './ghutils';
 import { checkForStaleIssues, created } from './issue';
 import { addCollaboratorsToMyIssues, requestUpdateForMyIssues, validatePullRequestIfRequired } from './pullrequest';
 import { fetchComplianceMetrics } from './reporting';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired } from './repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire } from './repository';
 
 export const memberAddedOrEdited = async (context: Context): Promise<void> => {
     const owner = context.payload.organization.login;
@@ -186,6 +186,7 @@ export const repositoryCreated = async (context: Context): Promise<void> => {
             // addLicenseIfRequired(context, owner, repo),
             // addSecurityComplianceInfoIfRequired(context, owner, repo),
             addMinistryTopicIfRequired(context, owner, repo),
+            addWordsMatterIfRequire(context, owner, repo),
         ]);
     } catch (err) {
         const message = `Unable to complete all housekeeping tasks, repo is ${repo}`;
