@@ -12,7 +12,7 @@ For the curious mind, the Public Service Agency (PSA) has published a guide desc
 
 ## What about the `master` branch?
 
-The word master is not inherently bad or non-inclusive. For example people get a masters degree; become a master of their craft; or master a skill. Its generally when the word master is used along side the word slave that it becomes non-inclusive.
+The word "master" is not inherently bad or non-inclusive. For example people get a masters degree; become a master of their craft; or master a skill. Its generally when the word master is used along side the word slave that it becomes non-inclusive.
 
 Some teams choose to use the word `main` for the default branch of a repo as apposed to the more commonly used `master` branch. While its not required or recommended your team is empowered to do what works for them. If you do rename the `master` branch consider using `main` so that we have consistency among the repos within our organization. 
 
@@ -26,3 +26,7 @@ Some teams choose to use the word `main` for the default branch of a repo as app
 | Grandfathered  | => | Legacy status |
 | Sanity check   | => | Quick check; Confidence check; etc |
 | Dummy value    | => | Placeholder value; Sample value; etc |
+
+### Pro Tip 🤓
+
+This list is not comprehensive. If you're aware of other outdated nomenclature please create an issue (PR preferred) with your suggestion.
