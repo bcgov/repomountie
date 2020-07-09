@@ -1,16 +1,20 @@
 ## TL;DR 🏎️
 
-Teams are encouraged to favour modern inclusive phrasing for both in their communication as well as in any source checked into their repositories. You will find a table at the end of this text with preferred phrasing to socialize with your team.
+Teams are encouraged to favour modern inclusive phrasing both in their communication as well as in any source checked into their repositories. You will find a table at the end of this text with preferred phrasing to socialize with your team.
 
-## What up?
+## Words Matter
 
-Aligning t
+We're aligning our development community to favour inclusive phrasing for common technical expressions. There is a table below that outline the phrases that are being deprecated along with the preferred alternatives.
 
-## What to do
+During your team scrum, technical meetings, documentation, the code you write, etc use the inclusive phrasing from the table below. That's is - it really is that easy.
 
-## How to help
+For the curious mind, the Public Service Agency (PSA) has published a guide describing how [Words Matter](https://www2.gov.bc.ca/assets/gov/careers/all-employees/working-with-others/words-matter.pdf) in our daily communication. Its an inciteful read and a good reminder to be curious and open minded.
 
-## XX 123
+## What about the `master` branch?
+
+The word master is not inherently bad or non-inclusive. For example people get a masters degree; become a master of their craft; or master a skill. Its generally when the word master is used along side the word slave that it becomes non-inclusive.
+
+Some teams choose to use the word `main` for the default branch of a repo as apposed to the more commonly used `master` branch. While its not required or recommended your team is empowered to do what works for them. If you do rename the `master` branch consider using `main` so that we have consistency among the repos within our organization. 
 
 ## Preferred Phrasing
 
@@ -20,5 +24,5 @@ Aligning t
 | Blacklist      | => | Denylist |
 | Master / Slave | => | Leader / Follower; Primary / Standby; etc |
 | Grandfathered  | => | Legacy status |
-| Sanity check   | => | Quick check; Confidence check; etc | =>|
-| Dummy value    | => | Placeholder value; Sample value; etc | =>|
+| Sanity check   | => | Quick check; Confidence check; etc |
+| Dummy value    | => | Placeholder value; Sample value; etc |
