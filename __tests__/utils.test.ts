@@ -19,7 +19,7 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
-import { extractComplianceStatus, extractMessage, loadTemplate } from '../src/libs/utils';
+import { extractComplianceStatus, extractMessage, isJSON, loadTemplate } from '../src/libs/utils';
 
 const p1 = path.join(__dirname, 'fixtures/repo-get-content-compliance.json');
 const complianceResponse = JSON.parse(fs.readFileSync(p1, 'utf8'));
@@ -46,9 +46,9 @@ describe('Utility functions', () => {
     await expect(loadTemplate('no-file')).rejects.toThrow(Error);
   });
 
-  it('API error message extracted from Error message', async () => {
+  it('API error message extracted from Error message', () => {
     const err = new Error('{"message": "Hello World"}');
-    const message = await extractMessage(err);
+    const message = extractMessage(err);
     expect(message).toEqual('Hello World');
   });
 
@@ -60,5 +60,31 @@ describe('Utility functions', () => {
     expect(mobj._id).not.toBeUndefined();
     // @ts-ignore
     expect(mobj.records).not.toBeUndefined();
+  });
+
+  it('A string response is in JSON fromat', () => {
+    const result = isJSON(JSON.stringify({ animal: 'cat' }));
+
+    expect(result).toBeTruthy();
+  });
+
+  it('A string response is not in JSON format', () => {
+    const result = isJSON('Hello World');
+
+    expect(result).not.toBeTruthy();
+  });
+
+  it('A string response is extracted', () => {
+    const error = new Error('A Message');
+    const result = extractMessage(error);
+
+    expect(result).toMatchSnapshot();
+  });
+
+  it('A JSON response is extracted', () => {
+    const error = new Error(JSON.stringify({ message: 'A Message' }));
+    const result = extractMessage(error);
+
+    expect(result).toMatchSnapshot();
   });
 });
