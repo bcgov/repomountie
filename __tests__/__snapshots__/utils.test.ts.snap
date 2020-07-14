@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Utility functions A JSON response is extracted 1`] = `"A Message"`;
+
+exports[`Utility functions A string response is extracted 1`] = `"A Message"`;

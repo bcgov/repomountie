@@ -43,18 +43,14 @@ export const isJSON = (aString: string): boolean => {
  * @param {Error} error The error from which to extract the message
  * @returns Undefined if unparsable, a resolved promise containing the results otherwise
  */
-export const extractMessage = async (error: Error): Promise<string> => {
-    try {
-        if (isJSON(error.message)) {
-            const data = JSON.parse(error.message);
-            return data.message;
-        }
+export const extractMessage = (error: Error): string => {
 
-        return error.message;
-    } catch (err) {
-        const message = 'Unable to extract message from error';
-        return message;
+    if (isJSON(error.message)) {
+        const data = JSON.parse(error.message);
+        return data.message;
     }
+
+    return error.message;
 };
 
 /**

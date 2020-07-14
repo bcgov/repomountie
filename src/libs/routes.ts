@@ -27,6 +27,7 @@ export const routes = (app: Application) => {
 
   // This middleware will get called before each route.
   exp.use(async (req, res, next) => {
+    // @ts-ignore
     req.app = app;
     next();
   });

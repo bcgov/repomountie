@@ -20,7 +20,7 @@ export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
 export const COMMENT_TRIGGER_WORD = 'help';
 
-export const BOT_NAME = 'repo-mountie';
+export const BOT_NAME = 'bot-3kdjfksd';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 
@@ -45,6 +45,7 @@ export const ISSUE_TITLES = {
   ADD_COMPLIANCE: 'Add missing compliance audit file',
   ADD_LICENSE: 'Add missing license',
   RENAME_STATUS: 'Rename PIA and STRA status from exempt',
+  WORDS_MATTER: 'Lets use common phrasing',
 };
 
 export const BRANCHES = {
@@ -73,6 +74,7 @@ export const TEXT_FILES = {
   WHY_LICENSE: 'templates/why-license.md',
   WHY_RENAME_STATUS: 'templates/why-rename-status.md',
   WHY_TOPICS: 'templates/why-topics.md',
+  WORDS_MATTER: 'templates/words-matter.md',
 };
 
 export const COMMANDS = {

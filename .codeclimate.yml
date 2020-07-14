@@ -1,3 +1,14 @@
+version: "2"
+checks:
+  argument-count:
+    config:
+      threshold: 6
+  file-lines:
+    config:
+      threshold: 512
+  method-lines:
+    config:
+      threshold: 32
 exclude_patterns:
   - "__tests__/"
   - "__mocks__/"
@@ -7,4 +18,3 @@ exclude_patterns:
   - "script/"
   - "**/vendor/"
   - "**/*.d.ts"
-method-lines: 32

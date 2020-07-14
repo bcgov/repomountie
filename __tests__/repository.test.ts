@@ -21,7 +21,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, fixDeprecatedComplianceStatus } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, fixDeprecatedComplianceStatus } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -42,6 +42,10 @@ const repoScheduleEvent = JSON.parse(fs.readFileSync(p5, 'utf8'));
 
 const p6 = path.join(__dirname, 'fixtures/repo-get-topics.json');
 const repoGetTopics = JSON.parse(fs.readFileSync(p6, 'utf8'));
+
+const p7 = path.join(__dirname, 'fixtures/repo-created-event.json');
+const repoCreated = JSON.parse(fs.readFileSync(p7, 'utf8'));
+
 
 jest.mock('../src/libs/ghutils', () => ({
     addFileViaPullRequest: jest.fn(),
@@ -318,6 +322,48 @@ describe('Repository management', () => {
         await addMinistryTopicIfRequired(context, owner, repo);
 
         expect(github.repos.listTopics).toBeCalled();
+        expect(github.search.issuesAndPullRequests).toBeCalled();
+        expect(loadTemplate).toBeCalled();
+        expect(github.issues.create).toBeCalled();
+    });
+
+    it('A Repo with issues disabled is skipped', async () => {
+        const owner = 'bcgov';
+        const repo = 'hello5';
+        const aRepoCreated = JSON.parse(JSON.stringify(repoCreated));
+        aRepoCreated.payload.repository.has_issues = false;
+
+        context = new Context(aRepoCreated, github as any, {} as any);
+
+        // const aRepoResponse = JSON.parse(JSON.stringify(issuesAndPulls));
+        // aRepoResponse.data.items = [];
+        // aRepoResponse.data.total_count = 0;
+
+        // github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(aRepoResponse));
+
+        await addWordsMatterIfRequire(context, owner, repo);
+
+        expect(github.search.issuesAndPullRequests).not.toBeCalled();
+        expect(loadTemplate).not.toBeCalled();
+        expect(github.issues.create).not.toBeCalled();
+    });
+
+    it('A Repo without any issue has words matter issue created', async () => {
+        const owner = 'bcgov';
+        const repo = 'hello5';
+        const aRepoCreated = JSON.parse(JSON.stringify(repoCreated));
+        aRepoCreated.payload.repository.has_issues = true;
+
+        context = new Context(aRepoCreated, github as any, {} as any);
+
+        const aRepoResponse = JSON.parse(JSON.stringify(issuesAndPulls));
+        aRepoResponse.data.items = [];
+        aRepoResponse.data.total_count = 0;
+
+        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(aRepoResponse));
+
+        await addWordsMatterIfRequire(context, owner, repo);
+
         expect(github.search.issuesAndPullRequests).toBeCalled();
         expect(loadTemplate).toBeCalled();
         expect(github.issues.create).toBeCalled();

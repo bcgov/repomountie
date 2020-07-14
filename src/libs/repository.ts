@@ -25,6 +25,56 @@ import { BOT_NAME, BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, ISSUE_TITLES, M
 import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
+export const addWordsMatterIfRequire = async (
+  context: Context, owner: string, repo: string
+) => {
+  try {
+
+    if (!context.payload.repository.has_issues) {
+      return;
+    }
+
+    // Check if the repo already has an issue created by me
+    // about words matter.
+
+    // This query looks for `is:open` on purpose; if the issue is closed but
+    // the repo topics are not updated then it will re-create a new issue.
+    const query = `repo:${owner}/${repo} is:open is:issue author:app/${BOT_NAME} "${ISSUE_TITLES.WORDS_MATTER}"`;
+    const issuesResponse = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
+    });
+    const totalCount = issuesResponse.data.total_count ? issuesResponse.data.total_count : 0;
+
+    if (totalCount > 0) {
+      return;
+    }
+
+    // Create an issue requesting that the proper topics are
+    // added to the repo.
+
+    const body: string = await loadTemplate(TEXT_FILES.WORDS_MATTER);
+
+    await context.github.issues.create({
+      body,
+      owner,
+      repo,
+      title: ISSUE_TITLES.WORDS_MATTER,
+    });
+  } catch (err) {
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(`Error adding topic issue to ${context.payload.repository.name}`);
+    } else {
+      logger.error(err.message);
+    }
+
+    throw err;
+  }
+};
+
 export const addMinistryTopicIfRequired = async (
   context: Context, owner: string, repo: string
 ) => {
