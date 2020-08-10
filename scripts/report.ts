@@ -6,11 +6,20 @@ import moment from 'moment';
 import { COMMIT_FILE_NAMES, MINISTRY_SHORT_CODES } from '../src/constants';
 
 const org = 'bcgov';
+const outDir = 'report';
 const token = process.env.GITHUB_TOKEN;
+
+if (!token) {
+  logger.error('You must set a github token to use this script');
+  logger.error('export GITHUB_TOKEN=<YOUR_TOKEN_HERE>');
+
+  process.exit(1);
+}
 
 const fetchAllRepos = async (
   octokit: any, owner: string, recordsPerPage: number = 100, startingPage: number = 1
 ): Promise<any[]> => {
+
   try {
     let more = false;
     let repos: any[] = [];
@@ -45,6 +54,7 @@ const fetchAllRepos = async (
 const fetchFileContent = async (
   octokit: any, owner: string, repo: string, path: string
 ): Promise<Buffer | undefined> => {
+
   try {
     const response = await octokit.repos.getContents(
       {
@@ -115,6 +125,18 @@ const formatAsCSV = (records: any[]): string[] => {
   return data;
 };
 
+const writeOutReport = (data: any) => {
+
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir);
+  }
+
+  Object.keys(data).forEach((k) => {
+    const temp = formatAsCSV(data[k]);
+    fs.writeFileSync(`./${outDir}/${k}.csv`, temp.join('\n'));
+  });
+};
+
 const main = async () => {
   const data = {};
   const stats = {
@@ -170,18 +192,13 @@ const main = async () => {
     });
   }
 
-  Object.keys(data).forEach((k) => {
-    const blarb = formatAsCSV(data[k]);
-    fs.writeFileSync(`./data/${k}.csv`, blarb.join('\n'));
-  });
-
+  writeOutReport(data);
 
   logger.info('Statistics')
   logger.info(`* ${repos.length} repos were processed for ${org}.`);
-  logger.info(`* ${stats.missingComplianceFile} repos missing a compliance file.`)
-  logger.info(`* ${stats.missingMinistryCode} repos missing a ministry code.`)
-  logger.info(`* ${stats.hasManyMinistryCode} repos have multiple a ministry codes.`)
-
+  logger.info(`* ${stats.missingComplianceFile} repos missing a compliance file.`);
+  logger.info(`* ${stats.missingMinistryCode} repos missing a ministry code.`);
+  logger.info(`* ${stats.hasManyMinistryCode} repos have multiple a ministry codes.`);
 }
 
 main();
