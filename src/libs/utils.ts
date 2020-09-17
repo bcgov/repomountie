@@ -18,7 +18,6 @@
 
 import fs from 'fs';
 import util from 'util';
-import { ComplianceAudit } from '../db';
 
 /**
  * Check if a string is valid JSON
@@ -69,30 +68,4 @@ export const loadTemplate = async (path: string): Promise<string> => {
         const message = `Unable to load template ${path}`;
         throw new Error(`${message}, error = ${err.message}`);
     }
-};
-
-/**
- * Load a template file file and return the contents.
- *
- * @param {string} path The path to the template file
- * @returns {Promise<string>} Resolved with contents, rejected otherwise
- */
-export const extractComplianceStatus = (repoName: string, orgName: string, topics: string[], data: any) => {
-
-    const records = data.spec.map((s: any) => {
-        return {
-            name: s.name,
-            status: s.status,
-            updatedAt: s['last-updated'],
-        };
-    });
-
-    const ca = new ComplianceAudit({
-        topics,
-        orgName,
-        records,
-        repoName,
-    });
-
-    return ca;
 };

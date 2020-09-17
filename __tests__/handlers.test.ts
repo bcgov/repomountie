@@ -242,11 +242,6 @@ describe('GitHub event handlers', () => {
         event.payload.repository.archived = false;
         const context = new Context(event, github as any, {} as any);
 
-        // @ts-ignore
-        // extractComplianceStatus.mockReturnValue({
-        //     save: () => { console.log('x'); },
-        // });
-
         await repositoryScheduled(context, scheduler);
 
         expect(addMinistryTopicIfRequired).not.toBeCalled();
