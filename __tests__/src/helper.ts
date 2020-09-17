@@ -17,12 +17,6 @@
 //
 
 
-jest.mock('mongoose');
-
-jest.mock('../../src/db', () => ({
-    cleanup: jest.fn(),
-    connect: jest.fn(),
-}));
 
 // nock('https://api.github.com')
 //     .get('/app/installations')
