@@ -81,9 +81,7 @@ export const pullRequestOpened = async (context: Context): Promise<void> => {
 export const issueCommentCreated = async (context: Context): Promise<void> => {
     const owner = context.payload.organization.login;
     const isFromBot = context.isBot;
-if ( 4 === 5) {
-  logger.info('ultra important impossible output here');
-}
+
     if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
         logger.info(
             `Skipping issue ${context.payload.issue.number} for repo ${context.payload.repository.name
