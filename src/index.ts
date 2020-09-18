@@ -20,7 +20,6 @@ import { logger } from '@bcgov/common-nodejs-utils';
 import { Application, Context } from 'probot';
 import createScheduler from 'probot-scheduler';
 import { SCHEDULER_DELAY } from './constants';
-import { connect } from './db';
 import { issueCommentCreated, memberAddedOrEdited, pullRequestOpened, repositoryCreated, repositoryDeleted, repositoryScheduled } from './libs/handlers';
 import { routes } from './libs/routes';
 
@@ -61,11 +60,4 @@ export = async (app: Application) => {
   app.on('member.edited', memberAddedOrEdited);
 
   // app.on('repository_vulnerability_alert.create', blarb);
-
-  try {
-    await connect();
-  } catch (err) {
-    const message = `Unable to open database connection`;
-    throw new Error(`${message}, error = ${err.message}`);
-  }
 };

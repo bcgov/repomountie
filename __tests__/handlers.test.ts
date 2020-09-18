@@ -23,7 +23,6 @@ import { fetchConfigFile } from '../src/libs/ghutils';
 import { issueCommentCreated, memberAddedOrEdited, pullRequestOpened, repositoryCreated, repositoryDeleted, repositoryScheduled } from '../src/libs/handlers';
 import { checkForStaleIssues, created } from '../src/libs/issue';
 import { addCollaboratorsToMyIssues, validatePullRequestIfRequired } from '../src/libs/pullrequest';
-import { fetchComplianceMetrics } from '../src/libs/reporting';
 import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired } from '../src/libs/repository';
 import helper from './src/helper';
 
@@ -44,10 +43,6 @@ const repoDeletedEvent = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
 const p5 = path.join(__dirname, 'fixtures/repo-created-event.json');
 const repoCreatedEvent = JSON.parse(fs.readFileSync(p5, 'utf8'));
-
-jest.mock('../src/libs/reporting', () => ({
-    fetchComplianceMetrics: jest.fn(),
-}));
 
 jest.mock('../src/libs/pullrequest', () => ({
     addCollaboratorsToMyIssues: jest.fn(),
@@ -200,7 +195,6 @@ describe('GitHub event handlers', () => {
 
         expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).not.toBeCalled();
-        expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
         expect(addLicenseIfRequired).not.toBeCalled();
         expect(fetchConfigFile).not.toBeCalled();
@@ -218,7 +212,6 @@ describe('GitHub event handlers', () => {
 
         expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).not.toBeCalled();
-        expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
         expect(addLicenseIfRequired).not.toBeCalled();
         expect(fetchConfigFile).not.toBeCalled();
@@ -236,7 +229,6 @@ describe('GitHub event handlers', () => {
 
         expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).toBeCalled();
-        expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();
         expect(fetchConfigFile).toBeCalled();
@@ -250,16 +242,10 @@ describe('GitHub event handlers', () => {
         event.payload.repository.archived = false;
         const context = new Context(event, github as any, {} as any);
 
-        // @ts-ignore
-        // extractComplianceStatus.mockReturnValue({
-        //     save: () => { console.log('x'); },
-        // });
-
         await repositoryScheduled(context, scheduler);
 
         expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).toBeCalled();
-        expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();
         expect(fetchConfigFile).toBeCalled();
@@ -282,7 +268,6 @@ describe('GitHub event handlers', () => {
 
         expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).toBeCalled();
-        expect(fetchComplianceMetrics).toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).toBeCalled();
         expect(addLicenseIfRequired).toBeCalled();
         expect(fetchConfigFile).toBeCalled();
@@ -308,7 +293,6 @@ describe('GitHub event handlers', () => {
 
         expect(addMinistryTopicIfRequired).toBeCalled();
         expect(addCollaboratorsToMyIssues).not.toBeCalled();
-        expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
         expect(addLicenseIfRequired).not.toBeCalled();
         expect(fetchConfigFile).not.toBeCalled();
@@ -326,7 +310,6 @@ describe('GitHub event handlers', () => {
 
         expect(addMinistryTopicIfRequired).not.toBeCalled();
         expect(addCollaboratorsToMyIssues).not.toBeCalled();
-        expect(fetchComplianceMetrics).not.toBeCalled();
         expect(addSecurityComplianceInfoIfRequired).not.toBeCalled();
         expect(addLicenseIfRequired).not.toBeCalled();
         expect(fetchConfigFile).not.toBeCalled();

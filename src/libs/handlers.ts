@@ -25,7 +25,6 @@ import { ACCESS_CONTROL } from '../constants';
 import { fetchConfigFile } from './ghutils';
 import { checkForStaleIssues, created } from './issue';
 import { addCollaboratorsToMyIssues, requestUpdateForMyIssues, validatePullRequestIfRequired } from './pullrequest';
-import { fetchComplianceMetrics } from './reporting';
 import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire } from './repository';
 
 export const memberAddedOrEdited = async (context: Context): Promise<void> => {
@@ -47,8 +46,7 @@ export const pullRequestOpened = async (context: Context): Promise<void> => {
 
     if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
         logger.info(
-            `Skipping PR ${context.payload.pull_request.number} for repo ${
-            context.payload.repository.name
+            `Skipping PR ${context.payload.pull_request.number} for repo ${context.payload.repository.name
             } because its not from an allowed installation`
         );
 
@@ -67,8 +65,7 @@ export const pullRequestOpened = async (context: Context): Promise<void> => {
     }
 
     logger.info(
-        `Processing PR ${context.payload.pull_request.number} for repo ${
-        context.payload.repository.name
+        `Processing PR ${context.payload.pull_request.number} for repo ${context.payload.repository.name
         }`
     );
 
@@ -87,8 +84,7 @@ export const issueCommentCreated = async (context: Context): Promise<void> => {
 
     if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
         logger.info(
-            `Skipping issue ${context.payload.issue.number} for repo ${
-            context.payload.repository.name
+            `Skipping issue ${context.payload.issue.number} for repo ${context.payload.repository.name
             } because its not from an allowed installation`
         );
 
@@ -119,8 +115,7 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
 
     if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
         logger.info(
-            `Skipping scheduled repository ${
-            repo
+            `Skipping scheduled repository ${repo
             } because its not part of an allowed installation`
         );
         return;
@@ -144,7 +139,6 @@ export const repositoryScheduled = async (context: Context, scheduler: any): Pro
             addSecurityComplianceInfoIfRequired(context, owner, repo),
             addCollaboratorsToMyIssues(context, owner, repo),
             requestUpdateForMyIssues(context, owner, repo),
-            fetchComplianceMetrics(context, owner, repo),
         ]);
     } catch (err) {
         const message = `Unable to complete all housekeeping tasks, repo is ${repo}`;

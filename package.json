@@ -15,7 +15,7 @@
   "scripts": {
     "build": "NODE_ENV=production gulp",
     "dev": "nodemon --watch src --inspect=5858 -e ts,tsx --exec node -r ts-node/register ./src/main.ts",
-    "start": "probot run ./build/index.js",
+    "start": "probot run ./build/src/index.js",
     "report": "ts-node scripts/report.ts",
     "test:lint": "NODE_ENV=test tslint src/**/*.ts",
     "test": "NODE_ENV=test jest __tests__",
@@ -27,7 +27,6 @@
     "dotenv": "^8.0.0",
     "js-yaml": "^3.14.0",
     "lodash": "^4.17.19",
-    "mongoose": "^5.9.22",
     "nconf": "^0.10.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
