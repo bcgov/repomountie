@@ -34,10 +34,10 @@ export const COMMIT_FILE_NAMES = {
 };
 
 export const COMMIT_MESSAGES = {
-  ADD_COMPLIANCE: 'Add compliance audit file',
-  ADD_LICENSE: 'Add Apache License 2.0',
-  UPDATE_COMPLIANCE: 'Updating compliance audit file',
-  CHANGE_STATUS: 'Rename PIA and STRA status',
+  ADD_COMPLIANCE: 'Add compliance audit file\n Signed-off-by: repomountie pathfinder@gov.bc.ca',
+  ADD_LICENSE: 'Add Apache License 2.0\n Signed-off-by: repomountie pathfinder@gov.bc.ca',
+  UPDATE_COMPLIANCE: 'Updating compliance audit file\n Signed-off-by: repomountie pathfinder@gov.bc.ca',
+  CHANGE_STATUS: 'Rename PIA and STRA status\n Signed-off-by: repomountie pathfinder@gov.bc.ca',
 };
 
 export const ISSUE_TITLES = {
