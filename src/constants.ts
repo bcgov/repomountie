@@ -20,7 +20,7 @@ export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
 
 export const COMMENT_TRIGGER_WORD = 'help';
 
-export const BOT_NAME = 'bot-3kdjfksd';
+export const BOT_NAME = 'repo-mountie';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 
@@ -33,11 +33,13 @@ export const COMMIT_FILE_NAMES = {
   LICENSE: 'LICENSE',
 };
 
+const COMMIT_SIGN_OFF = `Signed-off-by: ${BOT_NAME} <pathfinder@gov.bc.ca>`;
+
 export const COMMIT_MESSAGES = {
-  ADD_COMPLIANCE: 'Add compliance audit file',
-  ADD_LICENSE: 'Add Apache License 2.0',
-  UPDATE_COMPLIANCE: 'Updating compliance audit file',
-  CHANGE_STATUS: 'Rename PIA and STRA status',
+  ADD_COMPLIANCE: `Add compliance audit file\n${COMMIT_SIGN_OFF}`,
+  ADD_LICENSE: `Add Apache License 2.0\n${COMMIT_SIGN_OFF}`,
+  UPDATE_COMPLIANCE: `Updating compliance audit file\n${COMMIT_SIGN_OFF}`,
+  CHANGE_STATUS: `Rename PIA and STRA status\n${COMMIT_SIGN_OFF}`,
 };
 
 export const ISSUE_TITLES = {
