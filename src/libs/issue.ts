@@ -50,13 +50,18 @@ export const created = async (context: Context) => {
 
 // TODO:(jl) Should this should be moved to repo because its processing
 // all the issues in a repo.
-export const checkForStaleIssues = async (context: Context, config: RepoMountieConfig) => {
+export const checkForStaleIssues = async (
+  context: Context,
+  config: RepoMountieConfig
+) => {
   if (!config.staleIssue) {
     return;
   }
 
-  const aDate = new Date(Date.now() - (config.staleIssue.maxDaysOld * 24 * 60 * 60 * 1000));
-  const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
+  const aDate = new Date(
+    Date.now() - config.staleIssue.maxDaysOld * 24 * 60 * 60 * 1000
+  );
+  const timestamp = aDate.toISOString().replace(/\.\d{3}\w$/, '');
   const owner = context.payload.repository.owner.login;
   const repo = context.payload.repository.name;
   const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
@@ -68,7 +73,9 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
       q: query,
       sort: 'updated',
     });
-    const totalCount = response.data.total_count ? response.data.total_count : 0;
+    const totalCount = response.data.total_count
+      ? response.data.total_count
+      : 0;
     const items = response.data.items ? response.data.items : [];
 
     if (totalCount === 0) {
@@ -76,13 +83,19 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
     }
 
     const regex = /\[MAX_DAYS_OLD\]/gi;
-    const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_ISSUE_COMMENT);
-    const body = rawMessageBody
-      .replace(regex, `${config.staleIssue.maxDaysOld}`);
+    const rawMessageBody: string = await loadTemplate(
+      TEXT_FILES.STALE_ISSUE_COMMENT
+    );
+    const body = rawMessageBody.replace(
+      regex,
+      `${config.staleIssue.maxDaysOld}`
+    );
 
     const labels: string[] = [];
-    if (config.staleIssue.applyLabel &&
-      (await labelExists(context, config.staleIssue.applyLabel))) {
+    if (
+      config.staleIssue.applyLabel &&
+      (await labelExists(context, config.staleIssue.applyLabel))
+    ) {
       labels.push(config.staleIssue.applyLabel);
     }
 
@@ -91,9 +104,15 @@ export const checkForStaleIssues = async (context: Context, config: RepoMountieC
       // deprecation warning. I'm leaving it for now to see if they fix it in a near-term release.
       labels.concat(item.labels.map((l) => l.name));
       return [
-        context.github.issues.createComment(context.issue({ body, issue_number: item.number })),
-        context.github.issues.addLabels(context.issue({ issue_number: item.number, labels })),
-        context.github.issues.update(context.issue({ state: 'closed', issue_number: item.number })),
+        context.github.issues.createComment(
+          context.issue({ body, issue_number: item.number })
+        ),
+        context.github.issues.addLabels(
+          context.issue({ issue_number: item.number, labels })
+        ),
+        context.github.issues.update(
+          context.issue({ state: 'closed', issue_number: item.number })
+        ),
       ];
     });
 

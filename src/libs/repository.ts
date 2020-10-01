@@ -21,15 +21,31 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
-import { BOT_NAME, BRANCHES, COMMIT_FILE_NAMES, COMMIT_MESSAGES, ISSUE_TITLES, MINISTRY_SHORT_CODES, TEMPLATES, TEXT_FILES } from '../constants';
-import { addFileViaPullRequest, checkIfFileExists, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from './ghutils';
+import {
+  BOT_NAME,
+  BRANCHES,
+  COMMIT_FILE_NAMES,
+  COMMIT_MESSAGES,
+  ISSUE_TITLES,
+  MINISTRY_SHORT_CODES,
+  TEMPLATES,
+  TEXT_FILES,
+} from '../constants';
+import {
+  addFileViaPullRequest,
+  checkIfFileExists,
+  checkIfRefExists,
+  fetchFileContent,
+  hasPullRequestWithTitle,
+} from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
 export const addWordsMatterIfRequire = async (
-  context: Context, owner: string, repo: string
+  context: Context,
+  owner: string,
+  repo: string
 ) => {
   try {
-
     if (!context.payload.repository.has_issues) {
       return;
     }
@@ -46,7 +62,9 @@ export const addWordsMatterIfRequire = async (
       q: query,
       sort: 'updated',
     });
-    const totalCount = issuesResponse.data.total_count ? issuesResponse.data.total_count : 0;
+    const totalCount = issuesResponse.data.total_count
+      ? issuesResponse.data.total_count
+      : 0;
 
     if (totalCount > 0) {
       return;
@@ -66,7 +84,9 @@ export const addWordsMatterIfRequire = async (
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
-      logger.error(`Error adding topic issue to ${context.payload.repository.name}`);
+      logger.error(
+        `Error adding topic issue to ${context.payload.repository.name}`
+      );
     } else {
       logger.error(err.message);
     }
@@ -76,11 +96,11 @@ export const addWordsMatterIfRequire = async (
 };
 
 export const addMinistryTopicIfRequired = async (
-  context: Context, owner: string, repo: string
+  context: Context,
+  owner: string,
+  repo: string
 ) => {
-
   try {
-
     if (!context.payload.repository.has_issues) {
       return;
     }
@@ -92,10 +112,17 @@ export const addMinistryTopicIfRequired = async (
       repo,
     });
 
-    const topics = listTopicsResponse.data.names ? listTopicsResponse.data.names : [];
+    const topics = listTopicsResponse.data.names
+      ? listTopicsResponse.data.names
+      : [];
 
-    if (topics.length !== 0 && topics.some(r => MINISTRY_SHORT_CODES.includes(r.toUpperCase()))) {
-      logger.info(`The repo ${context.payload.repository.name} has matching topics `);
+    if (
+      topics.length !== 0 &&
+      topics.some((r) => MINISTRY_SHORT_CODES.includes(r.toUpperCase()))
+    ) {
+      logger.info(
+        `The repo ${context.payload.repository.name} has matching topics `
+      );
       return;
     }
 
@@ -111,7 +138,9 @@ export const addMinistryTopicIfRequired = async (
       q: query,
       sort: 'updated',
     });
-    const totalCount = issuesResponse.data.total_count ? issuesResponse.data.total_count : 0;
+    const totalCount = issuesResponse.data.total_count
+      ? issuesResponse.data.total_count
+      : 0;
 
     if (totalCount > 0) {
       return;
@@ -131,7 +160,9 @@ export const addMinistryTopicIfRequired = async (
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
-      logger.error(`Error adding topic issue to ${context.payload.repository.name}`);
+      logger.error(
+        `Error adding topic issue to ${context.payload.repository.name}`
+      );
     } else {
       logger.error(err.message);
     }
@@ -141,25 +172,39 @@ export const addMinistryTopicIfRequired = async (
 };
 
 export const fixDeprecatedComplianceStatus = async (
-  context: Context, owner: string, repo: string
+  context: Context,
+  owner: string,
+  repo: string
 ) => {
   try {
-    if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
-      logger.info(`This repo has no main branch ${context.payload.repository.name}`);
+    if (
+      !(await checkIfRefExists(
+        context,
+        context.payload.repository.default_branch
+      ))
+    ) {
+      logger.info(
+        `This repo has no main branch ${context.payload.repository.name}`
+      );
       return;
     }
 
-    if ((await checkIfRefExists(context, BRANCHES.RENAME_STATUS))) {
-      logger.info(`This repo already has this branch ${context.payload.repository.name}`);
+    if (await checkIfRefExists(context, BRANCHES.RENAME_STATUS)) {
+      logger.info(
+        `This repo already has this branch ${context.payload.repository.name}`
+      );
       return;
     }
 
     // will throw if the file does not exists
-    const data: any = await fetchFileContent(context, COMMIT_FILE_NAMES.COMPLIANCE);
+    const data: any = await fetchFileContent(
+      context,
+      COMMIT_FILE_NAMES.COMPLIANCE
+    );
     const doc = yaml.safeLoad(Buffer.from(data.content, 'base64').toString());
     let didUpdate = false;
 
-    doc.spec.forEach(item => {
+    doc.spec.forEach((item) => {
       if (item.status === 'exempt') {
         item.status = 'not-required';
         item['last-updated'] = new Date(Date.now()).toISOString();
@@ -172,16 +217,28 @@ export const fixDeprecatedComplianceStatus = async (
     }
 
     // Add the updated file via a PR
-    const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_RENAME_STATUS);
+    const prMessageBody: string = await loadTemplate(
+      TEXT_FILES.WHY_RENAME_STATUS
+    );
 
-    await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.CHANGE_STATUS,
-      ISSUE_TITLES.RENAME_STATUS, prMessageBody, BRANCHES.RENAME_STATUS,
-      COMMIT_FILE_NAMES.COMPLIANCE, yaml.safeDump(doc), data.sha);
-
+    await addFileViaPullRequest(
+      context,
+      owner,
+      repo,
+      COMMIT_MESSAGES.CHANGE_STATUS,
+      ISSUE_TITLES.RENAME_STATUS,
+      prMessageBody,
+      BRANCHES.RENAME_STATUS,
+      COMMIT_FILE_NAMES.COMPLIANCE,
+      yaml.safeDump(doc),
+      data.sha
+    );
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
-      logger.error(`Unable to update compliance file ${context.payload.repository.name}`);
+      logger.error(
+        `Unable to update compliance file ${context.payload.repository.name}`
+      );
     } else {
       logger.error(err.message);
     }
@@ -189,22 +246,32 @@ export const fixDeprecatedComplianceStatus = async (
 };
 
 export const addSecurityComplianceInfoIfRequired = async (
-  context: Context, owner: string, repo: string
+  context: Context,
+  owner: string,
+  repo: string
 ) => {
-
   try {
-    if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
-      logger.info(`This repo has no main branch ${context.payload.repository.name}`);
+    if (
+      !(await checkIfRefExists(
+        context,
+        context.payload.repository.default_branch
+      ))
+    ) {
+      logger.info(
+        `This repo has no main branch ${context.payload.repository.name}`
+      );
       return;
     }
 
-    if ((await hasPullRequestWithTitle(context, ISSUE_TITLES.ADD_COMPLIANCE))) {
+    if (await hasPullRequestWithTitle(context, ISSUE_TITLES.ADD_COMPLIANCE)) {
       logger.info(`Compliance PR exists in ${context.payload.repository.name}`);
       return;
     }
 
-    if ((await checkIfFileExists(context, COMMIT_FILE_NAMES.COMPLIANCE))) {
-      logger.info(`Compliance file exists in ${context.payload.repository.name}`);
+    if (await checkIfFileExists(context, COMMIT_FILE_NAMES.COMPLIANCE)) {
+      logger.info(
+        `Compliance file exists in ${context.payload.repository.name}`
+      );
       return;
     }
 
@@ -214,13 +281,23 @@ export const addSecurityComplianceInfoIfRequired = async (
       .split('[TODAY]')
       .join(new Date().toISOString());
 
-    await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.ADD_COMPLIANCE,
-      ISSUE_TITLES.ADD_COMPLIANCE, prMessageBody, BRANCHES.ADD_COMPLIANCE,
-      COMMIT_FILE_NAMES.COMPLIANCE, data);
+    await addFileViaPullRequest(
+      context,
+      owner,
+      repo,
+      COMMIT_MESSAGES.ADD_COMPLIANCE,
+      ISSUE_TITLES.ADD_COMPLIANCE,
+      prMessageBody,
+      BRANCHES.ADD_COMPLIANCE,
+      COMMIT_FILE_NAMES.COMPLIANCE,
+      data
+    );
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
-      logger.error(`Error adding compliance to ${context.payload.repository.name}`);
+      logger.error(
+        `Error adding compliance to ${context.payload.repository.name}`
+      );
     } else {
       logger.error(err.message);
     }
@@ -230,7 +307,9 @@ export const addSecurityComplianceInfoIfRequired = async (
 };
 
 export const addLicenseIfRequired = async (
-  context: Context, owner: string, repo: string
+  context: Context,
+  owner: string,
+  repo: string
 ) => {
   if (context.payload.repository.license) {
     // we have a license already
@@ -238,12 +317,19 @@ export const addLicenseIfRequired = async (
   }
 
   try {
-    if (!(await checkIfRefExists(context, context.payload.repository.default_branch))) {
-      logger.info(`This repo has no main branch ${context.payload.repository.name}`);
+    if (
+      !(await checkIfRefExists(
+        context,
+        context.payload.repository.default_branch
+      ))
+    ) {
+      logger.info(
+        `This repo has no main branch ${context.payload.repository.name}`
+      );
       return;
     }
 
-    if ((await hasPullRequestWithTitle(context, ISSUE_TITLES.ADD_LICENSE))) {
+    if (await hasPullRequestWithTitle(context, ISSUE_TITLES.ADD_LICENSE)) {
       logger.info(`Licencing PR exists in ${context.payload.repository.name}`);
       return;
     }
@@ -252,13 +338,23 @@ export const addLicenseIfRequired = async (
     const prMessageBody: string = await loadTemplate(TEXT_FILES.WHY_LICENSE);
     const licenseData: string = await loadTemplate(TEMPLATES.LICENSE);
 
-    await addFileViaPullRequest(context, owner, repo, COMMIT_MESSAGES.ADD_LICENSE,
-      ISSUE_TITLES.ADD_LICENSE, prMessageBody, BRANCHES.ADD_LICENSE,
-      COMMIT_FILE_NAMES.LICENSE, licenseData);
+    await addFileViaPullRequest(
+      context,
+      owner,
+      repo,
+      COMMIT_MESSAGES.ADD_LICENSE,
+      ISSUE_TITLES.ADD_LICENSE,
+      prMessageBody,
+      BRANCHES.ADD_LICENSE,
+      COMMIT_FILE_NAMES.LICENSE,
+      licenseData
+    );
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
-      logger.error(`Unable to add license to ${context.payload.repository.name}`);
+      logger.error(
+        `Unable to add license to ${context.payload.repository.name}`
+      );
     } else {
       logger.error(err.message);
     }
