@@ -33,7 +33,7 @@ objects:
   - apiVersion: v1
     kind: Route
     metadata:
-      name: github-bot
+      name: repomountie
       labels:
         app: repomountie
     spec:
@@ -44,25 +44,25 @@ objects:
         termination: edge
       to:
         kind: Service
-        name: github-bot
+        name: repomountie
         weight: 100
   - apiVersion: v1
     # Using the kind `DeploymentConfig` will allow a deployment to trigger
     # based on an image change event. Not supported with kind `Deployment`.
     kind: DeploymentConfig
     metadata:
-      name: github-bot
+      name: repomountie
       labels:
         app: repomountie
     spec:
       # selector:
       #   matchLabels:
-      #     role: github-bot
+      #     role: repomountie
       template:
         metadata:
           labels:
             app: repomountie
-            role: github-bot
+            role: bot
         spec:
           terminationGracePeriodSeconds: 10
           containers:
@@ -119,12 +119,12 @@ objects:
   - apiVersion: v1
     kind: Service
     metadata:
-      name: github-bot
+      name: repomountie
       labels:
         app: repomountie
     spec:
       selector:
-        role: github-bot
+        app: repomountie
       ports:
         - name: https
           port: 443
