@@ -22,7 +22,11 @@ import { Context } from 'probot';
 import config from '../config';
 import { BOT_NAME, COMMANDS, TEXT_FILES } from '../constants';
 import { RepoAffiliation } from './enums';
-import { assignUsersToIssue, fetchCollaborators, RepoMountieConfig } from './ghutils';
+import {
+  assignUsersToIssue,
+  fetchCollaborators,
+  RepoMountieConfig,
+} from './ghutils';
 import { loadTemplate } from './utils';
 
 /**
@@ -37,11 +41,13 @@ import { loadTemplate } from './utils';
  * @returns A void promise, rejection for failure
  */
 export const requestUpdateForMyIssues = async (
-  context: Context, owner: string, repo: string): Promise<void> => {
-
+  context: Context,
+  owner: string,
+  repo: string
+): Promise<void> => {
   const maxDaysOld = config.get('staleIssueMaxDaysOld');
-  const aDate = new Date(Date.now() - (maxDaysOld * 24 * 60 * 60 * 1000));
-  const timestamp = (aDate).toISOString().replace(/\.\d{3}\w$/, '');
+  const aDate = new Date(Date.now() - maxDaysOld * 24 * 60 * 60 * 1000);
+  const timestamp = aDate.toISOString().replace(/\.\d{3}\w$/, '');
   const query = `repo:${owner}/${repo} is:open updated:<${timestamp} author:app/${BOT_NAME}`;
 
   try {
@@ -56,13 +62,14 @@ export const requestUpdateForMyIssues = async (
       return;
     }
 
-    const rawMessageBody: string = await loadTemplate(TEXT_FILES.STALE_PR_COMMENT);
+    const rawMessageBody: string = await loadTemplate(
+      TEXT_FILES.STALE_PR_COMMENT
+    );
     const regex = /\[DAYS_OLD\]/gi;
-    const promises = response.data.items.map(i => {
+    const promises = response.data.items.map((i) => {
       const now = moment(Date.now());
       const diffInDays = now.diff(moment(i.updated_at), 'days');
-      const body = rawMessageBody
-        .replace(regex, `${diffInDays}`);
+      const body = rawMessageBody.replace(regex, `${diffInDays}`);
 
       context.github.issues.createComment({
         issue_number: i.number,
@@ -90,8 +97,10 @@ export const requestUpdateForMyIssues = async (
  * @returns True if the PR should be ignored, False otherwise
  */
 export const addCollaboratorsToMyIssues = async (
-  context: Context, owner: string, repo: string) => {
-
+  context: Context,
+  owner: string,
+  repo: string
+) => {
   try {
     // filter for issues created by the bot that don't have any
     // assignees. Can add is:pr, is:issue to be more selective.
@@ -103,7 +112,9 @@ export const addCollaboratorsToMyIssues = async (
       q: query,
       sort: 'updated',
     });
-    const totalCount = response.data.total_count ? response.data.total_count : 0;
+    const totalCount = response.data.total_count
+      ? response.data.total_count
+      : 0;
 
     if (totalCount === 0) {
       return;
@@ -111,9 +122,12 @@ export const addCollaboratorsToMyIssues = async (
 
     // filter for collaborators who are admin or can write
 
-    const assignees: any = (await fetchCollaborators(context, RepoAffiliation.Direct))
-      .filter((c) => (c.permissions.admin === true ||
-        c.permissions.push === true))
+    const assignees: any = (
+      await fetchCollaborators(context, RepoAffiliation.Direct)
+    )
+      .filter(
+        (c) => c.permissions.admin === true || c.permissions.push === true
+      )
       .map((u) => u.login);
 
     if (assignees.length === 0) {
@@ -122,19 +136,20 @@ export const addCollaboratorsToMyIssues = async (
 
     // add assignees to the issue
 
-    const promises = response.data.items.map(i =>
+    const promises = response.data.items.map((i) =>
       assignUsersToIssue(context, assignees, {
         issue_number: i.number,
         owner,
         repo,
-      }));
+      })
+    );
 
     await Promise.all(promises);
   } catch (err) {
     const message = `Unable to assign users to PR`;
     logger.error(`${message}, error = ${err.message}`);
   }
-}
+};
 
 /**
  * Check to see if a pull request (PR) contains the command for ignore.
@@ -171,12 +186,19 @@ export const extractCommands = (body: string): any[] => {
  * @param {RepoMountieConfig} config The repo config file
  * @returns True if the length is valid, False otherwise
  */
-export const isValidPullRequestLength = (context: Context, rmConfig: RepoMountieConfig): boolean => {
+export const isValidPullRequestLength = (
+  context: Context,
+  rmConfig: RepoMountieConfig
+): boolean => {
   const commands = extractCommands(context.payload.pull_request.body);
   const linesChanged =
-    context.payload.pull_request.additions + context.payload.pull_request.deletions;
+    context.payload.pull_request.additions +
+    context.payload.pull_request.deletions;
 
-  if (shouldIgnoredLengthCheck(commands) || linesChanged <= rmConfig.pullRequest.maxLinesChanged) {
+  if (
+    shouldIgnoredLengthCheck(commands) ||
+    linesChanged <= rmConfig.pullRequest.maxLinesChanged
+  ) {
     return true;
   }
 
@@ -187,7 +209,10 @@ export const isValidPullRequestLength = (context: Context, rmConfig: RepoMountie
  * Validate the PR against codified cultural policies
  * @param {Context} context The event context context
  */
-export const validatePullRequestIfRequired = async (context: Context, rmConfig: RepoMountieConfig) => {
+export const validatePullRequestIfRequired = async (
+  context: Context,
+  rmConfig: RepoMountieConfig
+) => {
   if (isValidPullRequestLength(context, rmConfig)) {
     return;
   }
@@ -198,7 +223,9 @@ export const validatePullRequestIfRequired = async (context: Context, rmConfig: 
       .replace('[USER_NAME]', context.payload.pull_request.user.login)
       .replace('[MAX_LINES]', `${rmConfig.pullRequest.maxLinesChanged}`);
 
-    await context.github.issues.createComment(context.issue({ body: messageBody }));
+    await context.github.issues.createComment(
+      context.issue({ body: messageBody })
+    );
   } catch (err) {
     const message = 'Unable to validate pull request.';
     logger.error(`${message}, error = ${err.message}`);

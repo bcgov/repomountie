@@ -18,7 +18,7 @@
 // Created by Jason Leach on 2018-10-15.
 //
 
-import express from 'express'; // tslint:disable-line
+import express from "express"; // tslint:disable-line
 import { Application } from 'probot';
 import { authmware } from './authmware';
 

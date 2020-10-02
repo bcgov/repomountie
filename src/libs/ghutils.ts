@@ -49,7 +49,10 @@ export interface RepoMountieConfig {
  * @param {string} ref The ref to be looked up
  * @returns A boolean of true if the ref exists, false otherwise
  */
-export const checkIfRefExists = async (context: Context, ref = context.payload.repository.default_branch): Promise<boolean> => {
+export const checkIfRefExists = async (
+  context: Context,
+  ref = context.payload.repository.default_branch
+): Promise<boolean> => {
   try {
     // If the repo does *not* have a master branch then we don't want to add one.
     // The dev team may be doing this off-line and when they go to push master it
@@ -77,7 +80,11 @@ export const checkIfRefExists = async (context: Context, ref = context.payload.r
  * @param {string} ref The name of the branch (Default: master)
  * @returns A true if the file exists, false otherwise.
  */
-export const checkIfFileExists = async (context, fileName, ref = 'master'): Promise<boolean> => {
+export const checkIfFileExists = async (
+  context,
+  fileName,
+  ref = 'master'
+): Promise<boolean> => {
   try {
     await fetchFileContent(context, fileName, ref);
     return true;
@@ -96,7 +103,9 @@ export const checkIfFileExists = async (context, fileName, ref = 'master'): Prom
  * @returns A resolved promise with the `data`, thrown error otherwise.
  */
 export const fetchContentsForFile = async (
-  context, fileName, ref = context.payload.repository.default_branch
+  context,
+  fileName,
+  ref = context.payload.repository.default_branch
 ): Promise<any> => {
   try {
     const commits = await context.github.repos.listCommits(
@@ -108,9 +117,14 @@ export const fetchContentsForFile = async (
 
     // Not sure if GH returns the results in sorted order.
     // Descending; newest commits are first.
-    const lastCommit = commits.data.sort((a, b) => {
-      return (new Date(b.commit.committer.date)).getTime() - (new Date(a.commit.committer.date)).getTime();
-    }).shift();
+    const lastCommit = commits.data
+      .sort((a, b) => {
+        return (
+          new Date(b.commit.committer.date).getTime() -
+          new Date(a.commit.committer.date).getTime()
+        );
+      })
+      .shift();
 
     if (!lastCommit) {
       logger.info('Unable to find last commit.');
@@ -150,7 +164,9 @@ export const fetchContentsForFile = async (
  * @returns A string containing the file data
  */
 export const fetchFileContent = async (
-  context, fileName, ref = context.payload.repository.default_branch
+  context,
+  fileName,
+  ref = context.payload.repository.default_branch
 ): Promise<string> => {
   try {
     const response = await context.github.repos.getContents(
@@ -182,9 +198,14 @@ export const fetchFileContent = async (
  * @param {Context} context The event context context
  * @returns A `Promise` containing a `RepoCompliance` object
  */
-export const fetchComplianceFile = async (context: Context): Promise<RepoCompliance> => {
+export const fetchComplianceFile = async (
+  context: Context
+): Promise<RepoCompliance> => {
   try {
-    const data: any = await fetchFileContent(context, COMMIT_FILE_NAMES.COMPLIANCE);
+    const data: any = await fetchFileContent(
+      context,
+      COMMIT_FILE_NAMES.COMPLIANCE
+    );
     const fileContentAsString = Buffer.from(data.content, 'base64').toString();
 
     return yaml.safeLoad(fileContentAsString);
@@ -203,7 +224,9 @@ export const fetchComplianceFile = async (context: Context): Promise<RepoComplia
  * @param {Context} context The event context context
  * @returns A `Promise` containing a `RepoMountieConfig` object
  */
-export const fetchConfigFile = async (context: Context): Promise<RepoMountieConfig> => {
+export const fetchConfigFile = async (
+  context: Context
+): Promise<RepoMountieConfig> => {
   try {
     const data: any = await fetchFileContent(context, REPO_CONFIG_FILE);
     const fileContentAsString = Buffer.from(data.content, 'base64').toString();
@@ -225,10 +248,13 @@ export const fetchConfigFile = async (context: Context): Promise<RepoMountieConf
  * @returns `true` if the label exists, false otherwise.
  */
 export const labelExists = async (
-  context: Context, labelName: string
+  context: Context,
+  labelName: string
 ): Promise<boolean> => {
   try {
-    const result = await context.github.issues.listLabelsForRepo(context.issue());
+    const result = await context.github.issues.listLabelsForRepo(
+      context.issue()
+    );
     if (!result.data) {
       return false;
     }
@@ -259,51 +285,54 @@ export const labelExists = async (
  * @param {string} fileSHA Required if the file already exists.
  */
 export const addFileViaPullRequest = async (
-  context: Context, owner: string, repo: string, commitMessage: string,
-  prTitle: string, prBody: string, srcBranchName: string, fileName: string,
-  fileData: string, fileSHA: string = ''
+  context: Context,
+  owner: string,
+  repo: string,
+  commitMessage: string,
+  prTitle: string,
+  prBody: string,
+  srcBranchName: string,
+  fileName: string,
+  fileData: string,
+  fileSHA: string = ''
 ) => {
   try {
     const params = { owner, repo };
 
     // If we don't have a main branch we won't have anywhere
     // to merge the PR.
-    const mainbr = await context.github.git.getRef(
-      { ...params, ref: `heads/${context.payload.repository.default_branch}` }
-    );
+    const mainbr = await context.github.git.getRef({
+      ...params,
+      ref: `heads/${context.payload.repository.default_branch}`,
+    });
 
     // Create a branch to commit to commit the license file
-    await context.github.git.createRef(
-      {
-        ...params,
-        ref: `refs/heads/${srcBranchName}`,
-        sha: mainbr.data.object.sha, // where we fork from
-      }
-    );
+    await context.github.git.createRef({
+      ...params,
+      ref: `refs/heads/${srcBranchName}`,
+      sha: mainbr.data.object.sha, // where we fork from
+    });
 
     const aParams: any = fileSHA !== '' ? { ...params, sha: fileSHA } : params;
 
     // Add the file to the new branch
-    await context.github.repos.createOrUpdateFile(
-      {
-        ...aParams,
-        branch: srcBranchName,
-        content: Buffer.from(fileData).toString('base64'),
-        message: commitMessage,
-        path: fileName,
-      });
+    await context.github.repos.createOrUpdateFile({
+      ...aParams,
+      branch: srcBranchName,
+      content: Buffer.from(fileData).toString('base64'),
+      message: commitMessage,
+      path: fileName,
+    });
 
     // Create a PR to merge the licence ref into master
-    await context.github.pulls.create(
-      {
-        ...params,
-        base: context.payload.repository.default_branch,
-        body: prBody,
-        head: srcBranchName,
-        maintainer_can_modify: true, // maintainers can edit this PR
-        title: prTitle,
-      }
-    );
+    await context.github.pulls.create({
+      ...params,
+      base: context.payload.repository.default_branch,
+      body: prBody,
+      head: srcBranchName,
+      maintainer_can_modify: true, // maintainers can edit this PR
+      title: prTitle,
+    });
   } catch (err) {
     const message = `Unable to add ${fileName} file to ${context.payload.repository.name}`;
     logger.error(`${message}, error = ${err.message}`);
@@ -313,7 +342,9 @@ export const addFileViaPullRequest = async (
 };
 
 export const fetchCollaborators = async (
-  context: Context, affiliation: RepoAffiliation = RepoAffiliation.All): Promise<any[]> => {
+  context: Context,
+  affiliation: RepoAffiliation = RepoAffiliation.All
+): Promise<any[]> => {
   try {
     const results: any = await context.github.repos.listCollaborators(
       context.repo({
@@ -335,7 +366,8 @@ export const fetchCollaborators = async (
 };
 
 export const fetchPullRequests = async (
-  context: Context, state: PullState = PullState.All
+  context: Context,
+  state: PullState = PullState.All
 ): Promise<any[]> => {
   try {
     const results: any = await context.github.pulls.list(
@@ -366,7 +398,9 @@ export const fetchPullRequests = async (
  * @returns `true` if if a PR exists, false otherwise.
  */
 export const hasPullRequestWithTitle = async (
-  context: Context, title: string, state: PullState = PullState.All
+  context: Context,
+  title: string,
+  state: PullState = PullState.All
 ): Promise<boolean> => {
   try {
     const results = await fetchPullRequests(context, state);
@@ -390,10 +424,14 @@ export const hasPullRequestWithTitle = async (
  * @param assignees An `Array` of users to assign to the issue
  */
 export const assignUsersToIssue = async (
-  context: Context, assignees: string[], params: any = undefined
+  context: Context,
+  assignees: string[],
+  params: any = undefined
 ) => {
   try {
-    const aParams: any = params ? { ...params, assignees } : context.issue({ assignees })
+    const aParams: any = params
+      ? { ...params, assignees }
+      : context.issue({ assignees });
     await context.github.issues.addAssignees(aParams);
   } catch (err) {
     const message = 'Unable to assign user to issue.';
@@ -411,7 +449,10 @@ export const assignUsersToIssue = async (
  * @param {string} userID The GitHub ID of the user
  * @returns True if the user is a member, false otherwise
  */
-export const isOrgMember = async (context: Context, userID: string): Promise<boolean> => {
+export const isOrgMember = async (
+  context: Context,
+  userID: string
+): Promise<boolean> => {
   try {
     const response = await context.github.orgs.checkMembership({
       org: context.payload.organization.login,

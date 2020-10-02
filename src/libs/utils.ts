@@ -27,12 +27,12 @@ import util from 'util';
  * @returns A boolean of true if the string can be parsed, false otherwise.
  */
 export const isJSON = (aString: string): boolean => {
-    try {
-        JSON.parse(aString);
-        return true;
-    } catch (err) {
-        return false;
-    }
+  try {
+    JSON.parse(aString);
+    return true;
+  } catch (err) {
+    return false;
+  }
 };
 /**
  * Extract and return and API response message
@@ -43,13 +43,12 @@ export const isJSON = (aString: string): boolean => {
  * @returns Undefined if unparsable, a resolved promise containing the results otherwise
  */
 export const extractMessage = (error: Error): string => {
+  if (isJSON(error.message)) {
+    const data = JSON.parse(error.message);
+    return data.message;
+  }
 
-    if (isJSON(error.message)) {
-        const data = JSON.parse(error.message);
-        return data.message;
-    }
-
-    return error.message;
+  return error.message;
 };
 
 /**
@@ -59,13 +58,13 @@ export const extractMessage = (error: Error): string => {
  * @returns {Promise<string>} Resolved with contents, rejected otherwise
  */
 export const loadTemplate = async (path: string): Promise<string> => {
-    const access = util.promisify(fs.access);
-    const read = util.promisify(fs.readFile);
-    try {
-        await access(path, fs.constants.R_OK);
-        return read(path, 'utf8');
-    } catch (err) {
-        const message = `Unable to load template ${path}`;
-        throw new Error(`${message}, error = ${err.message}`);
-    }
+  const access = util.promisify(fs.access);
+  const read = util.promisify(fs.readFile);
+  try {
+    await access(path, fs.constants.R_OK);
+    return read(path, 'utf8');
+  } catch (err) {
+    const message = `Unable to load template ${path}`;
+    throw new Error(`${message}, error = ${err.message}`);
+  }
 };

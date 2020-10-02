@@ -39,18 +39,27 @@ interface JwtStrategyConfig {
 export const isAuthorized = (jwtPayload) => {
   // jwtPayload.azp - The client ID
   // jwtPayload.preferred_username - The preferred user name
-  if (jwtPayload && jwtPayload.azp && ACCESS_CONTROL.allowedSsoClients.includes(jwtPayload.azp)) {
+  if (
+    jwtPayload &&
+    jwtPayload.azp &&
+    ACCESS_CONTROL.allowedSsoClients.includes(jwtPayload.azp)
+  ) {
     return true;
   }
 
   return false;
 };
 
-export const verify = (req: any, jwtPayload: any, done: (err: any, user: any) => void) => {
+export const verify = (
+  req: any,
+  jwtPayload: any,
+  done: (err: any, user: any) => void
+) => {
   // At this point we know the JWT is from our server and is valid.
   if (jwtPayload) {
     if (!isAuthorized(jwtPayload)) {
-      const message = 'This JWT does not have the proper role to use this service';
+      const message =
+        'This JWT does not have the proper role to use this service';
       logger.error(message);
 
       // Returning an `Error` as the first parameter to `done` does not have a meaningful
@@ -72,7 +81,9 @@ export const authmware = async (app) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  const { certificate, algorithm } = await getJwtCertificate(config.get('sso:certsUrl'));
+  const { certificate, algorithm } = await getJwtCertificate(
+    config.get('sso:certsUrl')
+  );
   const opts: JwtStrategyConfig = {
     algorithms: [algorithm],
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
