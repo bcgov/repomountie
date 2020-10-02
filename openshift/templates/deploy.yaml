@@ -31,17 +31,6 @@ objects:
       private-key: ${PRIVATE_KEY}
     type: Opaque
   - apiVersion: v1
-    kind: Secret
-    metadata:
-      labels:
-        app: repomountie
-      name: mongodb-creds
-    stringData:
-      admin-password: ${MONGODB_ADMIN_PASSWORD}
-      username: ${MONGODB_USER}
-      password: ${MONGODB_PASSWORD}
-    type: Opaque
-  - apiVersion: v1
     kind: Route
     metadata:
       name: github-bot
@@ -101,20 +90,6 @@ objects:
                   value: "8080"
                 - name: NODE_ENV
                   value: production
-                - name: MONGODB_ADDR
-                  value: "mongodb:27017"
-                - name: MONGODB_USER
-                  valueFrom:
-                    secretKeyRef:
-                      key: username
-                      name: mongodb-creds
-                - name: MONGODB_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: password
-                      name: mongodb-creds
-                - name: MONGODB_DATABASE
-                  value: ${MONGODB_DATABASE}
               resources:
                 limits:
                   cpu: 500m
@@ -154,84 +129,6 @@ objects:
         - name: https
           port: 443
           targetPort: 8080
-  - apiVersion: v1
-    kind: DeploymentConfig
-    metadata:
-      name: mongodb
-      labels:
-        app: repomountie
-    spec:
-      # selector:
-      #   matchLabels:
-      #     role: mongodb
-      template:
-        metadata:
-          labels:
-            app: repomountie
-            role: mongodb
-        spec:
-          containers:
-            - name: server
-              image: registry.redhat.io/rhscl/mongodb-36-rhel7:latest
-              ports:
-                - containerPort: 27017
-              volumeMounts:
-                - name: mongodb-vol
-                  mountPath: "/var/lib/mongodb/data"
-              env:
-                - name: MONGODB_ADMIN_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: admin-password
-                      name: mongodb-creds
-                - name: MONGODB_USER
-                  valueFrom:
-                    secretKeyRef:
-                      key: username
-                      name: mongodb-creds
-                - name: MONGODB_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: password
-                      name: mongodb-creds
-                - name: MONGODB_DATABASE
-                  value: "${MONGODB_DATABASE}"
-              resources:
-                requests:
-                  cpu: 20m
-                  memory: 192Mi
-                limits:
-                  cpu: 60m
-                  memory: 256Mi
-          volumes:
-            - name: mongodb-vol
-              persistentVolumeClaim:
-                claimName: mongodb-data
-  - apiVersion: v1
-    kind: Service
-    metadata:
-      name: mongodb
-      labels:
-        app: repomountie
-    spec:
-      selector:
-        role: mongodb
-      ports:
-        - name: mongo
-          port: 27017
-          targetPort: 27017
-  - apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      name: mongodb-data
-      labels:
-        app: repomountie
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: ${VOLUME_CAPACITY}
 parameters:
   - name: APP_ID
     description: |
@@ -250,36 +147,7 @@ parameters:
       This is the GitHub App private PGP key generated and provided by
       GitHub when creating the application.
     required: true
-  - name: MONGODB_ADMIN_PASSWORD
-    description: |
-      The mongo DB admin account password.
-    from: "[a-zA-Z0-9]{16}"
-    generate: expression
-    required: true
-  - name: MONGODB_USER
-    description: |
-      The mongo client account name used by the bot to access
-      this service.
-    value: "app_bot"
-    required: true
-  - name: MONGODB_PASSWORD
-    description: |
-      The mongo client account password used by the bot to access
-      this service.
-    from: "[a-zA-Z0-9]{16}"
-    generate: expression
-    required: true
-  - name: MONGODB_DATABASE
-    description: |
-      The name of the mongo database.
-    value: "repomountie"
-    required: true
   - name: REPOMOUNTIE_IMAGE_TAG
     description: |
       The tag used to deploy the repomountie component.
-    required: true
-  - name: VOLUME_CAPACITY
-    description: |
-      The volume size for the mongodb persistent storage.
-    from: "[0-9]{3}Gi"
     required: true
