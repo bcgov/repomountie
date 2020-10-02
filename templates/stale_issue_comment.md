@@ -3,3 +3,5 @@ Its often hard for people to acknowledge that some things are just not that impo
 ### Pro Tip
 
 - If you're sad and want to re-open this issue you'll have another [MAX_DAYS_OLD] days to address it.
+
+- Or, if you want me to ignore this issue and never close it again, add the label "neverstale".

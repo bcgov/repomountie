@@ -64,7 +64,7 @@ export const checkForStaleIssues = async (
   const timestamp = aDate.toISOString().replace(/\.\d{3}\w$/, '');
   const owner = context.payload.repository.owner.login;
   const repo = context.payload.repository.name;
-  const query = `repo:${owner}/${repo} is:open updated:<${timestamp}`;
+  const query = `repo:${owner}/${repo} is:open updated:<${timestamp} -label:neverstale`;
 
   try {
     const response = await context.github.search.issuesAndPullRequests({
