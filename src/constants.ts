@@ -36,10 +36,10 @@ export const COMMIT_FILE_NAMES = {
 const COMMIT_SIGN_OFF = `Signed-off-by: ${BOT_NAME} <pathfinder@gov.bc.ca>`;
 
 export const COMMIT_MESSAGES = {
-  ADD_COMPLIANCE: `Add compliance audit file\n${COMMIT_SIGN_OFF}`,
-  ADD_LICENSE: `Add Apache License 2.0\n${COMMIT_SIGN_OFF}`,
-  UPDATE_COMPLIANCE: `Updating compliance audit file\n${COMMIT_SIGN_OFF}`,
-  CHANGE_STATUS: `Rename PIA and STRA status\n${COMMIT_SIGN_OFF}`,
+  ADD_COMPLIANCE: `Add compliance audit file\n\n${COMMIT_SIGN_OFF}`,
+  ADD_LICENSE: `Add Apache License 2.0\n\n${COMMIT_SIGN_OFF}`,
+  UPDATE_COMPLIANCE: `Updating compliance audit file\n\n${COMMIT_SIGN_OFF}`,
+  CHANGE_STATUS: `Rename PIA and STRA status\n\n${COMMIT_SIGN_OFF}`,
 };
 
 export const ISSUE_TITLES = {
