@@ -50,6 +50,7 @@ export const ISSUE_TITLES = {
   ADD_LICENSE: 'Add missing license',
   RENAME_STATUS: 'Rename PIA and STRA status from exempt',
   WORDS_MATTER: 'Lets use common phrasing',
+  STATE_BADGES: 'Add project state badge',
 };
 
 export const BRANCHES = {
