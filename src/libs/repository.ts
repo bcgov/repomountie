@@ -31,14 +31,14 @@ import {
   REGEXP,
   REPO_README,
   TEMPLATES,
-  TEXT_FILES
+  TEXT_FILES,
 } from '../constants';
 import {
   addFileViaPullRequest,
   checkIfFileExists,
   checkIfRefExists,
   fetchFileContent,
-  hasPullRequestWithTitle
+  hasPullRequestWithTitle,
 } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
@@ -366,15 +366,16 @@ export const addLicenseIfRequired = async (
 };
 
 export const checkStatusBadge = async (
-  context: Context, owner: string, repo: string
+  context: Context,
+  owner: string,
+  repo: string
 ) => {
-  const readmeContent = await fetchFileContent(
-    context,
-    REPO_README
-  );
+  const readmeContent = await fetchFileContent(context, REPO_README);
 
-  if (!(readmeContent)) {
-    logger.info(`README file does not exist in ${context.payload.repository.name}`);
+  if (!readmeContent) {
+    logger.info(
+      `README file does not exist in ${context.payload.repository.name}`
+    );
     return;
   }
 
@@ -393,5 +394,4 @@ export const checkStatusBadge = async (
     repo,
     title: ISSUE_TITLES.STATE_BADGES,
   });
-
-}
+};
