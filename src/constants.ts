@@ -77,6 +77,7 @@ export const TEXT_FILES = {
   WHY_RENAME_STATUS: 'templates/why-rename-status.md',
   WHY_TOPICS: 'templates/why-topics.md',
   WORDS_MATTER: 'templates/words-matter.md',
+  STATE_BADGES: 'templates/state-badges.md'
 };
 
 export const COMMANDS = {

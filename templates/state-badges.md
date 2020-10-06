@@ -1,0 +1,1 @@
+Hello, it looks like the readme doesn't have project state badges. Please check out [STATE_BADGE_URL] for more information on project state badges.
