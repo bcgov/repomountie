@@ -372,17 +372,19 @@ export const checkStatusBadge = async (
     context,
     REPO_README
   );
-  if (!(await checkIfFileExists(context, REPO_README))) {
+
+  if (!(readmeContent)) {
     logger.info(`README file does not exist in ${context.payload.repository.name}`);
     return;
   }
+
   const re = new RegExp(REGEXP.state_badge);
   if (re.test(readmeContent)) {
     return;
   }
+
   // Create an issue requesting that a project state badge is
   // added to the repo.
-
   const body: string = await loadTemplate(TEXT_FILES.STATE_BADGES);
 
   await context.github.issues.create({
