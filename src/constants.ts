@@ -80,7 +80,7 @@ export const TEXT_FILES = {
   WHY_RENAME_STATUS: 'templates/why-rename-status.md',
   WHY_TOPICS: 'templates/why-topics.md',
   WORDS_MATTER: 'templates/words-matter.md',
-  STATE_BADGES: 'templates/state-badges.md'
+  STATE_BADGES: 'templates/state-badges.md',
 };
 
 export const COMMANDS = {
@@ -92,6 +92,8 @@ export const REGEXP = {
   compliance:
     '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|not-required)',
   help: '@repo-mountie\\s+help',
+  // prettier-ignore
+  // tslint:disable-next-line
   state_badge: 'https:\/\/img.shields.io\/badge\/Lifecycle-(Inspiration-007EC6|Exploration-339999|Delivery-97ca00|Dormant-%23ff7f2a|Retired-d45500)',
 };
 
