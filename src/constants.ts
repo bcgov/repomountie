@@ -24,6 +24,8 @@ export const BOT_NAME = 'repo-mountie';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 
+export const REPO_README = 'README.md';
+
 export const HELP_DESK = {
   SUPPORT_USERS: ['jleach'],
 };
@@ -89,6 +91,7 @@ export const REGEXP = {
   compliance:
     '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|not-required)',
   help: '@repo-mountie\\s+help',
+  state_badge: 'https:\/\/img.shields.io\/badge\/Lifecycle-(Inspiration-007EC6|Exploration-339999|Delivery-97ca00|Dormant-%23ff7f2a|Retired-d45500)',
 };
 
 export const ACCESS_CONTROL = {
