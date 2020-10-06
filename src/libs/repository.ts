@@ -28,15 +28,17 @@ import {
   COMMIT_MESSAGES,
   ISSUE_TITLES,
   MINISTRY_SHORT_CODES,
+  REGEXP,
+  REPO_README,
   TEMPLATES,
-  TEXT_FILES,
+  TEXT_FILES
 } from '../constants';
 import {
   addFileViaPullRequest,
   checkIfFileExists,
   checkIfRefExists,
   fetchFileContent,
-  hasPullRequestWithTitle,
+  hasPullRequestWithTitle
 } from './ghutils';
 import { extractMessage, loadTemplate } from './utils';
 
@@ -362,3 +364,32 @@ export const addLicenseIfRequired = async (
     throw err;
   }
 };
+
+export const checkStatusBadge = async (
+  context: Context, owner: string, repo: string
+) => {
+  const readmeContent = await fetchFileContent(
+    context,
+    REPO_README
+  );
+  if (!(await checkIfFileExists(context, REPO_README))) {
+    logger.info(`README file does not exist in ${context.payload.repository.name}`);
+    return;
+  }
+  const re = new RegExp(REGEXP.state_badge);
+  if (re.test(readmeContent)) {
+    return;
+  }
+  // Create an issue requesting that a project state badge is
+  // added to the repo.
+
+  const body: string = await loadTemplate(TEXT_FILES.STATE_BADGES);
+
+  await context.github.issues.create({
+    body,
+    owner,
+    repo,
+    title: ISSUE_TITLES.STATE_BADGES,
+  });
+
+}
