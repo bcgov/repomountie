@@ -384,4 +384,19 @@ describe('Repository management', () => {
         expect(github.issues.create).not.toBeCalled();
     });
 
+    it('A repo without a project state badge has project state badge issue created', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.installation.account.login;
+        const repo = context.payload.repository.name;
+
+        // @ts-ignore
+        fetchFileContent.mockReturnValueOnce(`Here's a random badge that is not a project badge. https://img.shields.io/badge/Lifecycle-Testing-007EC6`);
+
+        await checkStatusBadge(context, owner, repo);
+
+        expect(fetchFileContent).toBeCalled();
+        expect(loadTemplate).toBeCalled();
+        expect(github.issues.create).toBeCalled();
+    });
+
 });
