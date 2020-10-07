@@ -388,6 +388,7 @@ export const requestStatusBadgeIfRequired = async (
       return;
     }
 
+    // Check if README has project badges
     const re = new RegExp(REGEXP.state_badge);
     if (re.test(readmeContent)) {
       return;
@@ -412,7 +413,6 @@ export const requestStatusBadgeIfRequired = async (
     } else {
       logger.error(err.message);
     }
-
     throw err;
   }
 };
