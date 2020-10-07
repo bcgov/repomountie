@@ -370,28 +370,41 @@ export const checkStatusBadge = async (
   owner: string,
   repo: string
 ) => {
-  const readmeContent = await fetchFileContent(context, REPO_README);
+  try {
+    const readmeContent = await fetchFileContent(context, REPO_README);
 
-  if (!readmeContent) {
-    logger.info(
-      `README file does not exist in ${context.payload.repository.name}`
-    );
-    return;
+    if (!readmeContent) {
+      logger.info(
+        `README file does not exist in ${context.payload.repository.name}`
+      );
+      return;
+    }
+
+    const re = new RegExp(REGEXP.state_badge);
+    if (re.test(readmeContent)) {
+      return;
+    }
+
+    // Create an issue requesting that a project state badge is
+    // added to the repo.
+    const body: string = await loadTemplate(TEXT_FILES.STATE_BADGES);
+
+    await context.github.issues.create({
+      body,
+      owner,
+      repo,
+      title: ISSUE_TITLES.STATE_BADGES,
+    });
+  } catch (err) {
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(
+        `Unable to check project status badge in ${context.payload.repository.name}`
+      );
+    } else {
+      logger.error(err.message);
+    }
+
+    throw err;
   }
-
-  const re = new RegExp(REGEXP.state_badge);
-  if (re.test(readmeContent)) {
-    return;
-  }
-
-  // Create an issue requesting that a project state badge is
-  // added to the repo.
-  const body: string = await loadTemplate(TEXT_FILES.STATE_BADGES);
-
-  await context.github.issues.create({
-    body,
-    owner,
-    repo,
-    title: ISSUE_TITLES.STATE_BADGES,
-  });
 };
