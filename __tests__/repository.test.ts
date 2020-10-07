@@ -21,7 +21,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, checkStatusBadge, fixDeprecatedComplianceStatus } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, fixDeprecatedComplianceStatus, requestStatusBadgeIfRequired } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -377,7 +377,7 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(`Here's a project badge. https://img.shields.io/badge/Lifecycle-Inspiration-007EC6`);
 
-        await checkStatusBadge(context, owner, repo);
+        await requestStatusBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
         expect(loadTemplate).not.toBeCalled();
@@ -392,7 +392,7 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(`Here's a random badge that is not a project badge. https://img.shields.io/badge/Lifecycle-Testing-007EC6`);
 
-        await checkStatusBadge(context, owner, repo);
+        await requestStatusBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
         expect(loadTemplate).toBeCalled();
@@ -407,7 +407,7 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(0);
 
-        await checkStatusBadge(context, owner, repo);
+        await requestStatusBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
         expect(loadTemplate).not.toBeCalled();
