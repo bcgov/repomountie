@@ -365,7 +365,15 @@ export const addLicenseIfRequired = async (
   }
 };
 
-export const checkStatusBadge = async (
+/**
+ * If a repo doesn't have a project state badge,
+ * create an issue requesting that a project state badge is
+ * added to the repo.
+ * @param context The event context context
+ * @param owner The organization name
+ * @param repo The repo name
+ */
+export const requestStatusBadgeIfRequired = async (
   context: Context,
   owner: string,
   repo: string
