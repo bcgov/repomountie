@@ -399,4 +399,18 @@ describe('Repository management', () => {
         expect(github.issues.create).toBeCalled();
     });
 
+    it('A repo without a README.md should not have a project state badge issue created', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.installation.account.login;
+        const repo = context.payload.repository.name;
+
+        // @ts-ignore
+        fetchFileContent.mockReturnValueOnce(0);
+
+        await checkStatusBadge(context, owner, repo);
+
+        expect(fetchFileContent).toBeCalled();
+        expect(loadTemplate).not.toBeCalled();
+        expect(github.issues.create).not.toBeCalled();
+    });
 });
