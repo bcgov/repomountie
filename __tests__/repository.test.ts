@@ -21,7 +21,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, fixDeprecatedComplianceStatus } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, checkStatusBadge, fixDeprecatedComplianceStatus } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -368,4 +368,20 @@ describe('Repository management', () => {
         expect(loadTemplate).toBeCalled();
         expect(github.issues.create).toBeCalled();
     });
+
+    it('A repo with a project state badge should not have a project state badge issue created', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.installation.account.login;
+        const repo = context.payload.repository.name;
+
+        // @ts-ignore
+        fetchFileContent.mockReturnValueOnce(`Here's a project badge. https://img.shields.io/badge/Lifecycle-Inspiration-007EC6`);
+
+        await checkStatusBadge(context, owner, repo);
+
+        expect(fetchFileContent).toBeCalled();
+        expect(loadTemplate).not.toBeCalled();
+        expect(github.issues.create).not.toBeCalled();
+    });
+
 });
