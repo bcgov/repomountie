@@ -375,7 +375,7 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(`Here's a project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC60`);
+        fetchFileContent.mockReturnValue(`Here's a project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)`);
 
         await requestStatusBadgeIfRequired(context, owner, repo);
 
@@ -405,7 +405,7 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(0);
+        fetchFileContent.mockReturnValueOnce(undefined);
 
         await requestStatusBadgeIfRequired(context, owner, repo);
 
