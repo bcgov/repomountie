@@ -94,7 +94,7 @@ export const REGEXP = {
   help: '@repo-mountie\\s+help',
   // prettier-ignore
   // tslint:disable-next-line
-  state_badge: 'https:\/\/img.shields.io\/badge\/Lifecycle-(Inspiration-007EC6|Exploration-339999|Delivery-97ca00|Dormant-%23ff7f2a|Retired-d45500)',
+  state_badge: '![img](https:\/\/img.shields.io\/badge\/Lifecycle-(Inspiration-007EC6|Exploration-339999|Delivery-97ca00|Dormant-%23ff7f2a|Retired-d45500))',
 };
 
 export const ACCESS_CONTROL = {
