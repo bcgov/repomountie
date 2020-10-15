@@ -375,7 +375,7 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(`Here's a project badge. https://img.shields.io/badge/Lifecycle-Inspiration-007EC6`);
+        fetchFileContent.mockReturnValueOnce(`Here's a project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC60`);
 
         await requestStatusBadgeIfRequired(context, owner, repo);
 
@@ -384,13 +384,13 @@ describe('Repository management', () => {
         expect(github.issues.create).not.toBeCalled();
     });
 
-    it('A repo without a project state badge has project state badge issue created', async () => {
+    it('A repo with an invalid project state badge has project state badge issue created', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(`Here's a random badge that is not a project badge. https://img.shields.io/badge/Lifecycle-Testing-007EC6`);
+        fetchFileContent.mockReturnValueOnce(`Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)`);
 
         await requestStatusBadgeIfRequired(context, owner, repo);
 
