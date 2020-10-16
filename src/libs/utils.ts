@@ -68,20 +68,3 @@ export const loadTemplate = async (path: string): Promise<string> => {
     throw new Error(`${message}, error = ${err.message}`);
   }
 };
-
-/**
- *
- * @param {string} reg Regular expression to be used
- * @param {string} teststring String to be tested against
- * @returns True if there is a match, false otherwise
- */
-export const testRegex = async (
-  reg: string,
-  teststring: string
-): Promise<boolean> => {
-  const re = new RegExp(reg);
-  if (re.test(teststring)) {
-    return true;
-  }
-  return false;
-};
