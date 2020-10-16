@@ -21,7 +21,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, fixDeprecatedComplianceStatus, requestStatusBadgeIfRequired } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, fixDeprecatedComplianceStatus, requestStatusBadgeIfRequired, doesContentHaveStateBadge } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -378,7 +378,7 @@ describe('Repository management', () => {
         fetchFileContent.mockReturnValue(`Here's a project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)`);
 
         await requestStatusBadgeIfRequired(context, owner, repo);
-
+    
         expect(fetchFileContent).toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(github.issues.create).not.toBeCalled();
@@ -412,5 +412,15 @@ describe('Repository management', () => {
         expect(fetchFileContent).toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(github.issues.create).not.toBeCalled();
+    });
+
+});
+
+describe('doesContentHaveStateBadge', () => {
+    it('Returns true when the string is ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)', () => {
+        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)')).toBe(true);
+    });
+    it('Returns false when the string is ![img](https://img.shields.io/badge/Lifecycle-test-007EC6)', () => {
+        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-test-007EC6)')).toBe(false);
     });
 });
