@@ -369,17 +369,34 @@ describe('Repository management', () => {
         expect(github.issues.create).toBeCalled();
     });
 
-    it('A repo with a project state badge should not have a project state badge issue created', async () => {
+    it('A repo with a valid project state badge should not have a project state badge issue created', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValue(`Here's a project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)`);
+        fetchFileContent.mockReturnValueOnce(`Here's a valid project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)`);
 
         await requestStatusBadgeIfRequired(context, owner, repo);
     
         expect(fetchFileContent).toBeCalled();
+        expect(loadTemplate).not.toBeCalled();
+        expect(github.issues.create).not.toBeCalled();
+    });
+
+    it('A repo with an open project state badge issue should not have another project state badge issue created', async () => {
+        context = new Context(repoScheduleEvent, github as any, {} as any);
+        const owner = context.payload.installation.account.login;
+        const repo = context.payload.repository.name;
+
+        // @ts-ignore
+        fetchFileContent.mockReturnValueOnce(`Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)`);
+        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+
+        await requestStatusBadgeIfRequired(context, owner, repo);
+    
+        expect(fetchFileContent).toBeCalled();
+        expect(github.search.issuesAndPullRequests).toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(github.issues.create).not.toBeCalled();
     });
