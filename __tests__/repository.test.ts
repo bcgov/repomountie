@@ -382,6 +382,7 @@ describe('Repository management', () => {
         await requestStatusBadgeIfRequired(context, owner, repo);
     
         expect(fetchFileContent).toBeCalled();
+        expect(github.search.issuesAndPullRequests).not.toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(github.issues.create).not.toBeCalled();
     });
@@ -415,6 +416,7 @@ describe('Repository management', () => {
         await requestStatusBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
+        expect(github.search.issuesAndPullRequests).toBeCalled();
         expect(loadTemplate).toBeCalled();
         expect(github.issues.create).toBeCalled();
     });
@@ -430,6 +432,7 @@ describe('Repository management', () => {
         await requestStatusBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
+        expect(github.search.issuesAndPullRequests).not.toBeCalled();
         expect(loadTemplate).not.toBeCalled();
         expect(github.issues.create).not.toBeCalled();
     });
