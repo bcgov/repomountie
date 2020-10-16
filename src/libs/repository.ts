@@ -405,6 +405,23 @@ export const requestStatusBadgeIfRequired = async (
       return;
     }
 
+    // If there is an open project state badge issue,
+    // do not create another project state badge issue.
+    const query = `repo:${owner}/${repo} is:open is:issue author:app/${BOT_NAME} "${ISSUE_TITLES.STATE_BADGES}"`;
+    const issuesResponse = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
+    });
+    const totalCount = issuesResponse.data.total_count
+      ? issuesResponse.data.total_count
+      : 0;
+
+    if (totalCount > 0) {
+      return;
+    }
+
     // Create an issue requesting that a project state badge is
     // added to the repo.
     const body: string = await loadTemplate(TEXT_FILES.STATE_BADGES);
