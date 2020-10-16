@@ -366,6 +366,17 @@ export const addLicenseIfRequired = async (
 };
 
 /**
+ *
+ * @param {string} reg Regular expression to be used
+ * @param {string} teststring String to be tested against
+ * @returns True if there is a match, false otherwise
+ */
+export const doesContentHaveStateBadge = (teststring: string): boolean => {
+  const re = new RegExp(REGEXP.state_badge);
+  return re.test(teststring);
+};
+
+/**
  * If a repo doesn't have a project state badge,
  * create an issue requesting that a project state badge is
  * added to the repo.
@@ -389,8 +400,8 @@ export const requestStatusBadgeIfRequired = async (
     }
 
     // Check if README has project badges
-    const re = new RegExp(REGEXP.state_badge);
-    if (re.test(readmeContent)) {
+    const re = await doesContentHaveStateBadge(readmeContent);
+    if (re) {
       return;
     }
 
