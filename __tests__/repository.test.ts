@@ -46,6 +46,8 @@ const repoGetTopics = JSON.parse(fs.readFileSync(p6, 'utf8'));
 const p7 = path.join(__dirname, 'fixtures/repo-created-event.json');
 const repoCreated = JSON.parse(fs.readFileSync(p7, 'utf8'));
 
+const p8 = path.join(__dirname, 'fixtures/issues-and-pulls-empty.json');
+const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p8, 'utf8'));
 
 jest.mock('../src/libs/ghutils', () => ({
     addFileViaPullRequest: jest.fn(),
@@ -408,6 +410,7 @@ describe('Repository management', () => {
 
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(`Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)`);
+        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
 
         await requestStatusBadgeIfRequired(context, owner, repo);
 
