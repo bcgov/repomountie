@@ -49,6 +49,9 @@ const repoCreated = JSON.parse(fs.readFileSync(p7, 'utf8'));
 const p8 = path.join(__dirname, 'fixtures/issues-and-pulls-empty.json');
 const issuesAndPullsEmpty = JSON.parse(fs.readFileSync(p8, 'utf8'));
 
+const p9 = path.join(__dirname, 'fixtures/repo-get-content-readme.json');
+const readmeResponse = JSON.parse(fs.readFileSync(p9, 'utf8'));
+
 jest.mock('../src/libs/ghutils', () => ({
     addFileViaPullRequest: jest.fn(),
     checkIfRefExists: jest.fn().mockReturnValueOnce(Promise.resolve(true)),
