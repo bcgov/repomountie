@@ -167,7 +167,9 @@ export const fetchFileContent = async (
   context,
   fileName,
   ref = context.payload.repository.default_branch
-): Promise<string> => {
+): Promise<{
+  content: string;
+}> => {
   try {
     const response = await context.github.repos.getContents(
       context.repo({
