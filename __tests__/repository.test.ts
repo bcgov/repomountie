@@ -21,7 +21,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, fixDeprecatedComplianceStatus, requestStatusBadgeIfRequired, doesContentHaveStateBadge } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, doesContentHaveStateBadge, fixDeprecatedComplianceStatus, requestStatusBadgeIfRequired } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -66,6 +66,7 @@ jest.mock('../src/libs/utils', () => ({
     loadTemplate: jest.fn(),
     extractMessage: jest.fn(),
 }));
+
 
 describe('Repository management', () => {
     let context;
@@ -379,11 +380,13 @@ describe('Repository management', () => {
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
 
+        const myReadmeResponse = JSON.parse(JSON.stringify(readmeResponse));
+        myReadmeResponse.data.content = `Here's a valid project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)`;
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(`Here's a valid project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)`);
+        fetchFileContent.mockReturnValueOnce(Promise.resolve(myReadmeResponse.data));
 
         await requestStatusBadgeIfRequired(context, owner, repo);
-    
+
         expect(fetchFileContent).toBeCalled();
         expect(github.search.issuesAndPullRequests).not.toBeCalled();
         expect(loadTemplate).not.toBeCalled();
@@ -396,11 +399,12 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(`Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)`);
+        fetchFileContent.mockReturnValueOnce(readmeResponse.data);
+
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
 
         await requestStatusBadgeIfRequired(context, owner, repo);
-    
+
         expect(fetchFileContent).toBeCalled();
         expect(github.search.issuesAndPullRequests).toBeCalled();
         expect(loadTemplate).not.toBeCalled();
@@ -413,9 +417,8 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(`Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)`);
+        fetchFileContent.mockReturnValueOnce(readmeResponse.data);
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
-
         await requestStatusBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
