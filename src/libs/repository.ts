@@ -390,9 +390,9 @@ export const requestStatusBadgeIfRequired = async (
   repo: string
 ) => {
   try {
-    const readmeContent = await fetchFileContent(context, REPO_README);
+    const readmeData = await fetchFileContent(context, REPO_README);
 
-    if (!readmeContent) {
+    if (!readmeData) {
       logger.info(
         `README file does not exist in ${context.payload.repository.name}`
       );
@@ -400,7 +400,7 @@ export const requestStatusBadgeIfRequired = async (
     }
 
     // Check if README has project badges
-    const re = await doesContentHaveStateBadge(readmeContent);
+    const re = await doesContentHaveStateBadge(readmeData.content);
     if (re) {
       return;
     }
