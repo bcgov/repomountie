@@ -400,7 +400,7 @@ export const requestStatusBadgeIfRequired = async (
     }
 
     // Check if README has project badges
-    const re = await doesContentHaveStateBadge(readmeData.content);
+    const re = doesContentHaveStateBadge(readmeData.content);
     if (re) {
       return;
     }
