@@ -399,7 +399,7 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(readmeResponse.data);
+        fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
 
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
 
@@ -417,7 +417,7 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(readmeResponse.data);
+        fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
         await requestStatusBadgeIfRequired(context, owner, repo);
 
