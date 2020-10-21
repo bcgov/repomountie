@@ -455,5 +455,6 @@ describe('doesContentHaveStateBadge', () => {
     });
     it('Invalid state badges should return false', () => {
         expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-test-007EC6)')).toBe(false);
+        expect(doesContentHaveStateBadge('https://img.shields.io/badge/Lifecycle-Maturing-007EC6)')).toBe(false);
     });
 });
