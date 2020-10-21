@@ -381,7 +381,7 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         const myReadmeResponse = JSON.parse(JSON.stringify(readmeResponse));
-        myReadmeResponse.data.content = `Here's a valid project badge. ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)`;
+        myReadmeResponse.data.content = `Here's a valid project badge. ![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)`;
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(Promise.resolve(myReadmeResponse.data));
 
@@ -446,10 +446,14 @@ describe('Repository management', () => {
 });
 
 describe('doesContentHaveStateBadge', () => {
-    it('Returns true when the string is ![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)', () => {
-        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Inspiration-007EC6)')).toBe(true);
+    it('Valid state badges should return true', () => {
+        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)')).toBe(true);
+        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)')).toBe(true);
+        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Stable-97ca00)')).toBe(true);
+        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)')).toBe(true);
+        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)')).toBe(true);
     });
-    it('Returns false when the string is ![img](https://img.shields.io/badge/Lifecycle-test-007EC6)', () => {
+    it('Invalid state badges should return false', () => {
         expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-test-007EC6)')).toBe(false);
     });
 });
