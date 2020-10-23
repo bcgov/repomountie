@@ -1,1 +1,1 @@
-Hello, it looks like the readme for this project doesn't have project state badges. Please check out [Project State Badges](https://github.com/bcgov/repomountie/blob/master/doc/reporting.md) for more information.
+Hello, it looks like the readme for this project doesn't have project state badges. Please check out [Project State Badges](https://github.com/bcgov/repomountie/blob/master/doc/state-badges.md) for more information.
