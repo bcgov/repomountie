@@ -381,7 +381,7 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         const myReadmeResponse = JSON.parse(JSON.stringify(readmeResponse));
-        myReadmeResponse.data.content = `Here's a valid project badge. ![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)`;
+        myReadmeResponse.data.content = `Here's a valid project badge. [![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)`;
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(Promise.resolve(myReadmeResponse.data));
 
@@ -447,14 +447,14 @@ describe('Repository management', () => {
 
 describe('doesContentHaveStateBadge', () => {
     it('Valid state badges should return true', () => {
-        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)')).toBe(true);
-        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)')).toBe(true);
-        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Stable-97ca00)')).toBe(true);
-        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)')).toBe(true);
-        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)')).toBe(true);
+        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Stable-97ca00)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
     });
     it('Invalid state badges should return false', () => {
-        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-test-007EC6)')).toBe(false);
-        expect(doesContentHaveStateBadge('https://img.shields.io/badge/Lifecycle-Maturing-007EC6)')).toBe(false);
+        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)')).toBe(false);
+        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Invalid-339999)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(false);
     });
 });
