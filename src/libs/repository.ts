@@ -371,14 +371,14 @@ export const addLicenseIfRequired = async (
  * @param {string} teststring String to be tested against
  * @returns True if there is a match, false otherwise
  */
-export const doesContentHaveStateBadge = (teststring: string): boolean => {
-  const re = new RegExp(REGEXP.state_badge);
+export const doesContentHaveLifecycleBadge = (teststring: string): boolean => {
+  const re = new RegExp(REGEXP.lifecycle_badge);
   return re.test(teststring);
 };
 
 /**
- * If a repo doesn't have a project state badge,
- * create an issue requesting that a project state badge is
+ * If a repo doesn't have a project lifecycle badge,
+ * create an issue requesting that a project lifecycle badge is
  * added to the repo.
  * @param context The event context context
  * @param owner The organization name
@@ -400,14 +400,14 @@ export const requestStatusBadgeIfRequired = async (
     }
 
     // Check if README has project badges
-    const re = doesContentHaveStateBadge(readmeData.content);
+    const re = doesContentHaveLifecycleBadge(readmeData.content);
     if (re) {
       return;
     }
 
-    // If there is an open project state badge issue,
-    // do not create another project state badge issue.
-    const query = `repo:${owner}/${repo} is:open is:issue author:app/${BOT_NAME} "${ISSUE_TITLES.STATE_BADGES}"`;
+    // If there is an open project lifecycle badge issue,
+    // do not create another project lifecycle badge issue.
+    const query = `repo:${owner}/${repo} is:open is:issue author:app/${BOT_NAME} "${ISSUE_TITLES.LIFECYCLE_BADGES}"`;
     const issuesResponse = await context.github.search.issuesAndPullRequests({
       order: 'desc',
       per_page: 100,
@@ -422,15 +422,15 @@ export const requestStatusBadgeIfRequired = async (
       return;
     }
 
-    // Create an issue requesting that a project state badge is
+    // Create an issue requesting that a project lifecycle badge is
     // added to the repo.
-    const body: string = await loadTemplate(TEXT_FILES.STATE_BADGES);
+    const body: string = await loadTemplate(TEXT_FILES.LIFECYCLE_BADGES);
 
     await context.github.issues.create({
       body,
       owner,
       repo,
-      title: ISSUE_TITLES.STATE_BADGES,
+      title: ISSUE_TITLES.LIFECYCLE_BADGES,
     });
   } catch (err) {
     const message = extractMessage(err);
