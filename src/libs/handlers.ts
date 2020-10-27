@@ -34,7 +34,7 @@ import {
   addMinistryTopicIfRequired,
   addSecurityComplianceInfoIfRequired,
   addWordsMatterIfRequire,
-  requestStatusBadgeIfRequired,
+  requestLifecycleBadgeIfRequired,
 } from './repository';
 
 export const memberAddedOrEdited = async (context: Context): Promise<void> => {
@@ -154,7 +154,7 @@ export const repositoryScheduled = async (
       addSecurityComplianceInfoIfRequired(context, owner, repo),
       addCollaboratorsToMyIssues(context, owner, repo),
       requestUpdateForMyIssues(context, owner, repo),
-      requestStatusBadgeIfRequired(context, owner, repo),
+      requestLifecycleBadgeIfRequired(context, owner, repo),
     ]);
   } catch (err) {
     const message = `Unable to complete all housekeeping tasks, repo is ${repo}`;
