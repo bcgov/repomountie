@@ -50,7 +50,7 @@ export const ISSUE_TITLES = {
   ADD_LICENSE: 'Add missing license',
   RENAME_STATUS: 'Rename PIA and STRA status from exempt',
   WORDS_MATTER: 'Lets use common phrasing',
-  STATE_BADGES: 'Add project state badge',
+  LIFECYCLE_BADGES: 'Add project lifecycle badge',
 };
 
 export const BRANCHES = {
@@ -80,7 +80,7 @@ export const TEXT_FILES = {
   WHY_RENAME_STATUS: 'templates/why-rename-status.md',
   WHY_TOPICS: 'templates/why-topics.md',
   WORDS_MATTER: 'templates/words-matter.md',
-  STATE_BADGES: 'templates/state-badges.md',
+  LIFECYCLE_BADGES: 'templates/lifecycle-badges.md',
 };
 
 export const COMMANDS = {
@@ -94,7 +94,7 @@ export const REGEXP = {
   help: '@repo-mountie\\s+help',
   // prettier-ignore
   // tslint:disable-next-line
-  state_badge: '\\[\\!\\[img\\]\\(https://img\\.shields\\.io/badge/Lifecycle-(Maturing-007EC6|Experimental-339999|Stable-97ca00|Dormant-%23ff7f2a|Retired-d45500)\\)\\]\\(https://github\\.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges\\.md\\)',
+  lifecycle_badge: '\\[\\!\\[img\\]\\(https://img\\.shields\\.io/badge/Lifecycle-(Maturing-007EC6|Experimental-339999|Stable-97ca00|Dormant-%23ff7f2a|Retired-d45500)\\)\\]\\(https://github\\.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/lifecycle-badges\\.md\\)',
 };
 
 export const ACCESS_CONTROL = {
