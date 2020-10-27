@@ -384,7 +384,7 @@ export const doesContentHaveLifecycleBadge = (teststring: string): boolean => {
  * @param owner The organization name
  * @param repo The repo name
  */
-export const requestStatusBadgeIfRequired = async (
+export const requestLifecycleBadgeIfRequired = async (
   context: Context,
   owner: string,
   repo: string
@@ -436,7 +436,7 @@ export const requestStatusBadgeIfRequired = async (
     const message = extractMessage(err);
     if (message) {
       logger.error(
-        `Unable to check project status badge in ${context.payload.repository.name}`
+        `Unable to check project lifecycle badge in ${context.payload.repository.name}`
       );
     } else {
       logger.error(err.message);
