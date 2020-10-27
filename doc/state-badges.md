@@ -1,10 +1,10 @@
-## Project State Badges
+## Project Lifecycle Badges
 
 A project state badge should be included in the readme and will indicate what stage in its lifecycle a project is currently in. These badges allow readers to quickly determine what state the project is in, and whether they should investigate further into learning more about the project.
 
 ## Usage
 
-Repo-mountie will only recognize project state badges if they are used with the **provided image URLs**. Please use the URLs provided, **not** the images.
+Repo-mountie will only recognize project lifecycle badges if they are used with the **provided image URLs**. Please use the URLs provided, **not** the images.
 
 [![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md) - ```[![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)```\
 The project is in the very early stages of development. The codebase will be changing frequently.
