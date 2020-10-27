@@ -21,7 +21,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, doesContentHaveLifecycleBadge, fixDeprecatedComplianceStatus, requestStatusBadgeIfRequired } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, doesContentHaveLifecycleBadge, fixDeprecatedComplianceStatus, requestLifecycleBadgeIfRequired } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -385,7 +385,7 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(Promise.resolve(myReadmeResponse.data));
 
-        await requestStatusBadgeIfRequired(context, owner, repo);
+        await requestLifecycleBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
         expect(github.search.issuesAndPullRequests).not.toBeCalled();
@@ -403,7 +403,7 @@ describe('Repository management', () => {
 
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
 
-        await requestStatusBadgeIfRequired(context, owner, repo);
+        await requestLifecycleBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
         expect(github.search.issuesAndPullRequests).toBeCalled();
@@ -419,7 +419,7 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
         github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
-        await requestStatusBadgeIfRequired(context, owner, repo);
+        await requestLifecycleBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
         expect(github.search.issuesAndPullRequests).toBeCalled();
@@ -435,7 +435,7 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(undefined);
 
-        await requestStatusBadgeIfRequired(context, owner, repo);
+        await requestLifecycleBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
         expect(github.search.issuesAndPullRequests).not.toBeCalled();
