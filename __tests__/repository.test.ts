@@ -21,7 +21,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
 import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, doesContentHaveStateBadge, fixDeprecatedComplianceStatus, requestStatusBadgeIfRequired } from '../src/libs/repository';
+import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, doesContentHaveLifecycleBadge, fixDeprecatedComplianceStatus, requestStatusBadgeIfRequired } from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -375,7 +375,7 @@ describe('Repository management', () => {
         expect(github.issues.create).toBeCalled();
     });
 
-    it('A repo with a valid project state badge should not have a project state badge issue created', async () => {
+    it('A repo with a valid project lifecycle badge should not have a project lifecycle badge issue created', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
@@ -393,7 +393,7 @@ describe('Repository management', () => {
         expect(github.issues.create).not.toBeCalled();
     });
 
-    it('A repo with an open project state badge issue should not have another project state badge issue created', async () => {
+    it('A repo with an open project lifecycle badge issue should not have another project lifecycle badge issue created', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
@@ -411,7 +411,7 @@ describe('Repository management', () => {
         expect(github.issues.create).not.toBeCalled();
     });
 
-    it('A repo with an invalid project state badge has project state badge issue created', async () => {
+    it('A repo with an invalid project lifecycle badge has project lifecycle badge issue created', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
@@ -427,7 +427,7 @@ describe('Repository management', () => {
         expect(github.issues.create).toBeCalled();
     });
 
-    it('A repo without a README.md should not have a project state badge issue created', async () => {
+    it('A repo without a README.md should not have a project lifecycle badge issue created', async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
@@ -445,16 +445,16 @@ describe('Repository management', () => {
 
 });
 
-describe('doesContentHaveStateBadge', () => {
-    it('Valid state badges should return true', () => {
-        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
-        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
-        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Stable-97ca00)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
-        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
-        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+describe('doesContentHaveLifecycleBadge', () => {
+    it('Valid lifecycle badges should return true', () => {
+        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Stable-97ca00)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
+        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(true);
     });
-    it('Invalid state badges should return false', () => {
-        expect(doesContentHaveStateBadge('![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)')).toBe(false);
-        expect(doesContentHaveStateBadge('[![img](https://img.shields.io/badge/Lifecycle-Invalid-339999)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(false);
+    it('Invalid lifecycle badges should return false', () => {
+        expect(doesContentHaveLifecycleBadge('![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)')).toBe(false);
+        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Invalid-339999)](https://github.com/bcgov/repomountie/blob/8b2ebdc9756819625a56f7a426c29f99b777ab1d/doc/state-badges.md)')).toBe(false);
     });
 });
