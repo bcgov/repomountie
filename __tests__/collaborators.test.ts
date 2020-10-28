@@ -19,7 +19,11 @@
 import fs from 'fs';
 import path from 'path';
 import { Context } from 'probot';
-import { assignUsersToIssue, fetchCollaborators, fetchPullRequests } from '../src/libs/ghutils';
+import {
+  assignUsersToIssue,
+  fetchCollaborators,
+  fetchPullRequests,
+} from '../src/libs/ghutils';
 import { addCollaboratorsToMyIssues } from '../src/libs/pullrequest';
 import helper from './src/helper';
 
@@ -36,81 +40,84 @@ const p4 = path.join(__dirname, 'fixtures/issues-and-pulls.json');
 const issuesAndPulls = JSON.parse(fs.readFileSync(p4, 'utf8'));
 
 jest.mock('../src/libs/ghutils', () => ({
-    fetchPullRequests: jest.fn(),
-    fetchCollaborators: jest.fn(),
-    assignUsersToIssue: jest.fn(),
+  fetchPullRequests: jest.fn(),
+  fetchCollaborators: jest.fn(),
+  assignUsersToIssue: jest.fn(),
 }));
 
 describe('Collaborator assignment to PR', () => {
-    let context;
-    const { github } = helper;
-    const owner = 'bcgov';
-    const repo = 'hello5';
+  let context;
+  const { github } = helper;
+  const owner = 'bcgov';
+  const repo = 'hello5';
 
-    beforeEach(() => {
-        context = new Context(memberAddedEvent, github as any, {} as any);
-        context.payload.organization = {
-            login: 'bcgov',
-        };
+  beforeEach(() => {
+    context = new Context(memberAddedEvent, github as any, {} as any);
+    context.payload.organization = {
+      login: 'bcgov',
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
+  it('Collaborators are assigned to two open PRs', async () => {
+    // @ts-ignore
+    github.search.issuesAndPullRequests.mockReturnValueOnce(
+      Promise.resolve(issuesAndPulls)
+    );
+
+    // @ts-ignore
+    fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
+
+    await addCollaboratorsToMyIssues(context, owner, repo);
+
+    expect(assignUsersToIssue).toBeCalledTimes(2);
+  });
+
+  it('A repo with no collaborators is skipped', async () => {
+    // @ts-ignore
+    fetchPullRequests.mockReturnValue(Promise.resolve(allOpenPulls));
+    // @ts-ignore
+    fetchCollaborators.mockReturnValue(Promise.resolve([]));
+
+    await addCollaboratorsToMyIssues(context, owner, repo);
+
+    expect(assignUsersToIssue).not.toBeCalled();
+  });
+
+  it('A repo with no PRs is skipped', async () => {
+    // @ts-ignore
+    fetchPullRequests.mockReturnValue(Promise.resolve([]));
+    // @ts-ignore
+    fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
+
+    await addCollaboratorsToMyIssues(context, owner, repo);
+
+    expect(assignUsersToIssue).not.toBeCalled();
+  });
+
+  it('A repo mismatched collaborator permissions is skipped', async () => {
+    const collabs = collaborators.map((p) => {
+      return {
+        ...p,
+        permissions: {
+          admin: false,
+          push: false,
+          pull: true,
+        },
+      };
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
-        jest.resetAllMocks();
-    });
+    // @ts-ignore
+    fetchPullRequests.mockReturnValue(Promise.resolve(allOpenPulls));
+    // @ts-ignore
+    fetchCollaborators.mockReturnValue(Promise.resolve(collabs));
 
-    it('Collaborators are assigned to two open PRs', async () => {
-        // @ts-ignore
-        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+    await addCollaboratorsToMyIssues(context, owner, repo);
 
-        // @ts-ignore
-        fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
-
-        await addCollaboratorsToMyIssues(context, owner, repo);
-
-        expect(assignUsersToIssue).toBeCalledTimes(2);
-    });
-
-    it('A repo with no collaborators is skipped', async () => {
-        // @ts-ignore
-        fetchPullRequests.mockReturnValue(Promise.resolve(allOpenPulls));
-        // @ts-ignore
-        fetchCollaborators.mockReturnValue(Promise.resolve([]));
-
-        await addCollaboratorsToMyIssues(context, owner, repo);
-
-        expect(assignUsersToIssue).not.toBeCalled();
-    });
-
-    it('A repo with no PRs is skipped', async () => {
-        // @ts-ignore
-        fetchPullRequests.mockReturnValue(Promise.resolve([]));
-        // @ts-ignore
-        fetchCollaborators.mockReturnValue(Promise.resolve(collaborators));
-
-        await addCollaboratorsToMyIssues(context, owner, repo);
-
-        expect(assignUsersToIssue).not.toBeCalled();
-    });
-
-    it('A repo mismatched collaborator permissions is skipped', async () => {
-        const collabs = collaborators.map(p => {
-            return {
-                ...p, permissions: {
-                    admin: false,
-                    push: false,
-                    pull: true,
-                },
-            };
-        });
-
-        // @ts-ignore
-        fetchPullRequests.mockReturnValue(Promise.resolve(allOpenPulls));
-        // @ts-ignore
-        fetchCollaborators.mockReturnValue(Promise.resolve(collabs));
-
-        await addCollaboratorsToMyIssues(context, owner, repo);
-
-        expect(assignUsersToIssue).not.toBeCalled();
-    });
+    expect(assignUsersToIssue).not.toBeCalled();
+  });
 });

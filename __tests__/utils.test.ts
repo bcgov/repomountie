@@ -18,11 +18,9 @@
 
 import { extractMessage, isJSON, loadTemplate } from '../src/libs/utils';
 
-
 jest.mock('fs');
 
 describe('Utility functions', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
     jest.resetAllMocks();

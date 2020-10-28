@@ -26,7 +26,9 @@ import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
 const p0 = path.join(__dirname, 'fixtures/issue_comment-event.json');
-const unassignedIssueCommentCreatedEvent = JSON.parse(fs.readFileSync(p0, 'utf8'));
+const unassignedIssueCommentCreatedEvent = JSON.parse(
+  fs.readFileSync(p0, 'utf8')
+);
 
 const p1 = path.join(__dirname, 'fixtures/rmconfig.json');
 const config = JSON.parse(fs.readFileSync(p1, 'utf8'));
@@ -54,7 +56,7 @@ jest.mock('../src/libs/robo', () => ({
 }));
 
 describe('Issues (and PRs)', () => {
-  let context
+  let context;
   const { github } = helper;
 
   beforeEach(() => {
@@ -67,7 +69,11 @@ describe('Issues (and PRs)', () => {
   });
 
   it('Comments from non-members are ignored', async () => {
-    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context = new Context(
+      unassignedIssueCommentCreatedEvent,
+      github as any,
+      {} as any
+    );
     // @ts-ignore
     isOrgMember.mockReturnValueOnce(Promise.resolve(false));
 
@@ -78,7 +84,11 @@ describe('Issues (and PRs)', () => {
   });
 
   it('Comments without commands are skipped', async () => {
-    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context = new Context(
+      unassignedIssueCommentCreatedEvent,
+      github as any,
+      {} as any
+    );
     context.payload.comment.body = 'I\'m a teapot';
 
     // @ts-ignore
@@ -91,7 +101,11 @@ describe('Issues (and PRs)', () => {
   });
 
   it('Comments with commands are processed', async () => {
-    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context = new Context(
+      unassignedIssueCommentCreatedEvent,
+      github as any,
+      {} as any
+    );
     context.payload.comment.body = '@repo-mountie help\n';
 
     // @ts-ignore
@@ -106,7 +120,11 @@ describe('Issues (and PRs)', () => {
   // TODO:(jl) Should be moved to repo?
 
   it('Repos configured to ignore stale issues ignored', async () => {
-    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context = new Context(
+      unassignedIssueCommentCreatedEvent,
+      github as any,
+      {} as any
+    );
 
     const myConfig = JSON.parse(JSON.stringify(config));
     delete myConfig.staleIssue;
@@ -123,9 +141,15 @@ describe('Issues (and PRs)', () => {
   });
 
   it('Repos without applicable stale label ok', async () => {
-    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context = new Context(
+      unassignedIssueCommentCreatedEvent,
+      github as any,
+      {} as any
+    );
     // @ts-ignore
-    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+    github.search.issuesAndPullRequests.mockReturnValueOnce(
+      Promise.resolve(issuesAndPulls)
+    );
     // @ts-ignore
     loadTemplate.mockReturnValueOnce(Promise.resolve(tempate));
 
@@ -144,9 +168,15 @@ describe('Issues (and PRs)', () => {
   });
 
   it('Repos with stale issues are commented, labeled and closed', async () => {
-    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context = new Context(
+      unassignedIssueCommentCreatedEvent,
+      github as any,
+      {} as any
+    );
     // @ts-ignore
-    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+    github.search.issuesAndPullRequests.mockReturnValueOnce(
+      Promise.resolve(issuesAndPulls)
+    );
     // @ts-ignore
     loadTemplate.mockReturnValueOnce(Promise.resolve(tempate));
 
@@ -162,9 +192,15 @@ describe('Issues (and PRs)', () => {
   });
 
   it('Repos without stale issues ignored', async () => {
-    context = new Context(unassignedIssueCommentCreatedEvent, github as any, {} as any);
+    context = new Context(
+      unassignedIssueCommentCreatedEvent,
+      github as any,
+      {} as any
+    );
     // @ts-ignore
-    github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
+    github.search.issuesAndPullRequests.mockReturnValueOnce(
+      Promise.resolve(issuesAndPullsEmpty)
+    );
 
     await checkForStaleIssues(context, config);
 
