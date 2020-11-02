@@ -16,8 +16,6 @@
 // Created by Jason Leach on 2020-02-26.
 //
 
-
-
 // nock('https://api.github.com')
 //     .get('/app/installations')
 //     .query({ per_page: 100 })
@@ -31,56 +29,56 @@
 let github;
 
 github = {
-    paginate: jest.fn().mockReturnValue([]),
-    apps: {
-        listRepos: {
-            endpoint: {
-                merge: jest.fn(),
-            },
-        },
+  paginate: jest.fn().mockReturnValue([]),
+  apps: {
+    listRepos: {
+      endpoint: {
+        merge: jest.fn(),
+      },
     },
-    git: {
-        createRef: jest.fn(),
-        getRef: jest.fn(),
-    },
-    gitdata: {
-        createRef: jest.fn(),
-        getRef: jest.fn(),
-    },
-    issues: {
-        addAssignees: jest.fn(),
-        addLabels: jest.fn(),
-        createComment: jest.fn(),
-        listLabelsForRepo: jest.fn(),
-        update: jest.fn(),
-        create: jest.fn(),
-    },
-    orgs: {
-        checkMembership: jest.fn(),
-    },
-    pullRequests: {
-        create: jest.fn(),
-        getAll: jest.fn(),
-        list: jest.fn(),
-    },
-    pulls: {
-        create: jest.fn(),
-        getAll: jest.fn(),
-        list: jest.fn(),
-    },
-    repos: {
-        createFile: jest.fn(),
-        createOrUpdateFile: jest.fn(),
-        getContents: jest.fn(),
-        listCollaborators: jest.fn(),
-        listCommits: jest.fn(),
-        listTopics: jest.fn(),
-    },
-    search: {
-        issuesAndPullRequests: jest.fn(),
-    },
+  },
+  git: {
+    createRef: jest.fn(),
+    getRef: jest.fn(),
+  },
+  gitdata: {
+    createRef: jest.fn(),
+    getRef: jest.fn(),
+  },
+  issues: {
+    addAssignees: jest.fn(),
+    addLabels: jest.fn(),
+    createComment: jest.fn(),
+    listLabelsForRepo: jest.fn(),
+    update: jest.fn(),
+    create: jest.fn(),
+  },
+  orgs: {
+    checkMembership: jest.fn(),
+  },
+  pullRequests: {
+    create: jest.fn(),
+    getAll: jest.fn(),
+    list: jest.fn(),
+  },
+  pulls: {
+    create: jest.fn(),
+    getAll: jest.fn(),
+    list: jest.fn(),
+  },
+  repos: {
+    createFile: jest.fn(),
+    createOrUpdateFile: jest.fn(),
+    getContents: jest.fn(),
+    listCollaborators: jest.fn(),
+    listCommits: jest.fn(),
+    listTopics: jest.fn(),
+  },
+  search: {
+    issuesAndPullRequests: jest.fn(),
+  },
 };
 
 export default {
-    github,
+  github,
 };
