@@ -54,7 +54,7 @@
     "supertest": "^4.0.2",
     "ts-jest": "^26.1.1",
     "ts-node": "^8.10.2",
-    "tslint": "^6.1.2",
+    "tslint": "^6.1.3",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.9.6",
@@ -69,6 +69,10 @@
     "./src/**/*.ts": [
       "npx prettier ./src/**/*.ts --write",
       "tslint ./src/**/*.ts --fix"
+    ],
+    "./__tests__/**/*.ts": [
+      "npx prettier ./__tests__/**/*.ts --write",
+      "tslint ./__tests__/**/*.ts --fix"
     ]
   },
   "engines": {

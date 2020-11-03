@@ -28,7 +28,10 @@ import { isAuthorized } from '../src/libs/authmware';
 const path2 = path.join(__dirname, 'fixtures/jwt-decoded-sa-20181107.json');
 const saOk = JSON.parse(fs.readFileSync(path2, 'utf8'));
 
-const path3 = path.join(__dirname, 'fixtures/jwt-decoded-sa-badid-20181107.json');
+const path3 = path.join(
+  __dirname,
+  'fixtures/jwt-decoded-sa-badid-20181107.json'
+);
 const saBadId = JSON.parse(fs.readFileSync(path3, 'utf8'));
 
 describe('Authentication tests', () => {
