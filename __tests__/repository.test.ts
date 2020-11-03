@@ -20,8 +20,21 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
 import { Context } from 'probot';
-import { addFileViaPullRequest, checkIfRefExists, fetchFileContent, hasPullRequestWithTitle } from '../src/libs/ghutils';
-import { addLicenseIfRequired, addMinistryTopicIfRequired, addSecurityComplianceInfoIfRequired, addWordsMatterIfRequire, doesContentHaveLifecycleBadge, fixDeprecatedComplianceStatus, requestLifecycleBadgeIfRequired } from '../src/libs/repository';
+import {
+    addFileViaPullRequest,
+    checkIfRefExists,
+    fetchFileContent,
+    hasPullRequestWithTitle
+} from '../src/libs/ghutils';
+import {
+    addLicenseIfRequired,
+    addMinistryTopicIfRequired,
+    addSecurityComplianceInfoIfRequired,
+    addWordsMatterIfRequire,
+    doesContentHaveLifecycleBadge,
+    fixDeprecatedComplianceStatus,
+    requestLifecycleBadgeIfRequired
+} from '../src/libs/repository';
 import { loadTemplate } from '../src/libs/utils';
 import helper from './src/helper';
 
@@ -56,7 +69,9 @@ jest.mock('../src/libs/ghutils', () => ({
     addFileViaPullRequest: jest.fn(),
     checkIfRefExists: jest.fn().mockReturnValueOnce(Promise.resolve(true)),
     extractMessage: jest.fn().mockReturnValue('Hello Message'),
-    hasPullRequestWithTitle: jest.fn().mockReturnValueOnce(Promise.resolve(false)),
+    hasPullRequestWithTitle: jest
+        .fn()
+        .mockReturnValueOnce(Promise.resolve(false)),
     loadTemplate: jest.fn().mockReturnValue('Hello'),
     fetchFileContent: jest.fn(),
     checkIfFileExists: jest.fn(),
@@ -66,7 +81,6 @@ jest.mock('../src/libs/utils', () => ({
     loadTemplate: jest.fn(),
     extractMessage: jest.fn(),
 }));
-
 
 describe('Repository management', () => {
     let context;
@@ -87,9 +101,10 @@ describe('Repository management', () => {
         const repo = context.payload.repository.name;
 
         // @ts-ignore
-        addFileViaPullRequest.mockImplementation(() =>
-            Promise.resolve());
-        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(undefined);
+        addFileViaPullRequest.mockImplementation(() => Promise.resolve());
+        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(
+            undefined
+        );
     });
 
     it('Adding a license should fail because ref missing', async () => {
@@ -99,7 +114,9 @@ describe('Repository management', () => {
 
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(false);
-        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(undefined);
+        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(
+            undefined
+        );
     });
 
     it('Adding a license should fail because pr exists', async () => {
@@ -111,7 +128,9 @@ describe('Repository management', () => {
         checkIfRefExists.mockReturnValueOnce(true);
         // @ts-ignore
         hasPullRequestWithTitle.mockReturnValueOnce(true);
-        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(undefined);
+        await expect(addLicenseIfRequired(context, owner, repo)).resolves.toBe(
+            undefined
+        );
     });
 
     it('Adding a license should fail because add file failed', async () => {
@@ -139,7 +158,9 @@ describe('Repository management', () => {
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
 
-        await expect(addSecurityComplianceInfoIfRequired(context, owner, repo)).resolves.toBe(undefined);
+        await expect(
+            addSecurityComplianceInfoIfRequired(context, owner, repo)
+        ).resolves.toBe(undefined);
     });
 
     it('Adding a compliance file should fail because ref missing', async () => {
@@ -150,7 +171,9 @@ describe('Repository management', () => {
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(false);
 
-        await expect(addSecurityComplianceInfoIfRequired(context, owner, repo)).resolves.toBe(undefined);
+        await expect(
+            addSecurityComplianceInfoIfRequired(context, owner, repo)
+        ).resolves.toBe(undefined);
     });
 
     it('Adding a compliance file should fail because pr exists', async () => {
@@ -163,7 +186,9 @@ describe('Repository management', () => {
         // @ts-ignore
         hasPullRequestWithTitle.mockReturnValueOnce(true);
 
-        await expect(addSecurityComplianceInfoIfRequired(context, owner, repo)).resolves.toBe(undefined);
+        await expect(
+            addSecurityComplianceInfoIfRequired(context, owner, repo)
+        ).resolves.toBe(undefined);
     });
 
     it('Adding a compliance file should fail because add file failed', async () => {
@@ -182,7 +207,9 @@ describe('Repository management', () => {
         // @ts-ignore
         loadTemplate.mockReturnValue('bla [TODAY] bla');
 
-        await expect(addSecurityComplianceInfoIfRequired(context, owner, repo)).rejects.toThrow();
+        await expect(
+            addSecurityComplianceInfoIfRequired(context, owner, repo)
+        ).rejects.toThrow();
     });
 
     it('Updating a compliance file should succeed', async () => {
@@ -190,7 +217,7 @@ describe('Repository management', () => {
         const owner = 'bcgov';
         const repo = 'hello5';
 
-        doc.spec.forEach(s => {
+        doc.spec.forEach((s) => {
             s.status = 'exempt';
         });
 
@@ -202,7 +229,7 @@ describe('Repository management', () => {
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true).mockReturnValueOnce(false);
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(myComplianceResponse.data)
+        fetchFileContent.mockReturnValueOnce(myComplianceResponse.data);
         // @ts-ignore
         loadTemplate.mockReturnValueOnce('bla [TODAY] bla');
 
@@ -220,7 +247,7 @@ describe('Repository management', () => {
         const repo = 'hello5';
 
         const aDoc = yaml.safeLoad(yaml.safeDump(doc));
-        aDoc.spec.forEach(s => {
+        aDoc.spec.forEach((s) => {
             s.status = 'completed';
         });
 
@@ -232,7 +259,7 @@ describe('Repository management', () => {
         // @ts-ignore
         checkIfRefExists.mockReturnValueOnce(true).mockReturnValueOnce(false);
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(myComplianceResponse.data)
+        fetchFileContent.mockReturnValueOnce(myComplianceResponse.data);
         // @ts-ignore
         loadTemplate.mockReturnValueOnce('bla [TODAY] bla');
 
@@ -283,8 +310,12 @@ describe('Repository management', () => {
         const aTopicsResponse = JSON.parse(JSON.stringify(repoGetTopics));
         aTopicsResponse.data.names = ['CITZ'];
 
-        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
-        github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
+        github.search.issuesAndPullRequests.mockReturnValueOnce(
+            Promise.resolve(issuesAndPulls)
+        );
+        github.repos.listTopics.mockReturnValueOnce(
+            Promise.resolve(aTopicsResponse)
+        );
 
         await addMinistryTopicIfRequired(context, owner, repo);
 
@@ -301,8 +332,12 @@ describe('Repository management', () => {
         const aTopicsResponse = JSON.parse(JSON.stringify(repoGetTopics));
         aTopicsResponse.data.names = ['cat'];
 
-        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
-        github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
+        github.search.issuesAndPullRequests.mockReturnValueOnce(
+            Promise.resolve(issuesAndPulls)
+        );
+        github.repos.listTopics.mockReturnValueOnce(
+            Promise.resolve(aTopicsResponse)
+        );
 
         await addMinistryTopicIfRequired(context, owner, repo);
 
@@ -322,8 +357,12 @@ describe('Repository management', () => {
         aRepoResponse.data.items = [];
         aRepoResponse.data.total_count = 0;
 
-        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(aRepoResponse));
-        github.repos.listTopics.mockReturnValueOnce(Promise.resolve(aTopicsResponse));
+        github.search.issuesAndPullRequests.mockReturnValueOnce(
+            Promise.resolve(aRepoResponse)
+        );
+        github.repos.listTopics.mockReturnValueOnce(
+            Promise.resolve(aTopicsResponse)
+        );
 
         await addMinistryTopicIfRequired(context, owner, repo);
 
@@ -366,7 +405,9 @@ describe('Repository management', () => {
         aRepoResponse.data.items = [];
         aRepoResponse.data.total_count = 0;
 
-        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(aRepoResponse));
+        github.search.issuesAndPullRequests.mockReturnValueOnce(
+            Promise.resolve(aRepoResponse)
+        );
 
         await addWordsMatterIfRequire(context, owner, repo);
 
@@ -375,15 +416,19 @@ describe('Repository management', () => {
         expect(github.issues.create).toBeCalled();
     });
 
-    it('A repo with a valid project lifecycle badge should not have a project lifecycle badge issue created', async () => {
+    // tslint:disable-next-line
+    it("A repo with a valid project lifecycle badge should not have a project lifecycle badge issue created", async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
 
         const myReadmeResponse = JSON.parse(JSON.stringify(readmeResponse));
+        // tslint:disable-next-line
         myReadmeResponse.data.content = `Here's a valid project badge. [![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)`;
         // @ts-ignore
-        fetchFileContent.mockReturnValueOnce(Promise.resolve(myReadmeResponse.data));
+        fetchFileContent.mockReturnValueOnce(
+            Promise.resolve(myReadmeResponse.data)
+        );
 
         await requestLifecycleBadgeIfRequired(context, owner, repo);
 
@@ -393,7 +438,8 @@ describe('Repository management', () => {
         expect(github.issues.create).not.toBeCalled();
     });
 
-    it('A repo with an open project lifecycle badge issue should not have another project lifecycle badge issue created', async () => {
+    // tslint:disable-next-line
+    it("A repo with an open project lifecycle badge issue should not have another project lifecycle badge issue created", async () => {
         context = new Context(repoScheduleEvent, github as any, {} as any);
         const owner = context.payload.installation.account.login;
         const repo = context.payload.repository.name;
@@ -401,7 +447,9 @@ describe('Repository management', () => {
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
 
-        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPulls));
+        github.search.issuesAndPullRequests.mockReturnValueOnce(
+            Promise.resolve(issuesAndPulls)
+        );
 
         await requestLifecycleBadgeIfRequired(context, owner, repo);
 
@@ -418,7 +466,9 @@ describe('Repository management', () => {
 
         // @ts-ignore
         fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
-        github.search.issuesAndPullRequests.mockReturnValueOnce(Promise.resolve(issuesAndPullsEmpty));
+        github.search.issuesAndPullRequests.mockReturnValueOnce(
+            Promise.resolve(issuesAndPullsEmpty)
+        );
         await requestLifecycleBadgeIfRequired(context, owner, repo);
 
         expect(fetchFileContent).toBeCalled();
@@ -442,19 +492,53 @@ describe('Repository management', () => {
         expect(loadTemplate).not.toBeCalled();
         expect(github.issues.create).not.toBeCalled();
     });
-
 });
 
 describe('doesContentHaveLifecycleBadge', () => {
     it('Valid lifecycle badges should return true', () => {
-        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)')).toBe(true);
-        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)')).toBe(true);
-        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Stable-97ca00)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)')).toBe(true);
-        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)')).toBe(true);
-        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)')).toBe(true);
+        expect(
+            doesContentHaveLifecycleBadge(
+                // tslint:disable-next-line
+                "[![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+            )
+        ).toBe(true);
+        expect(
+            doesContentHaveLifecycleBadge(
+                // tslint:disable-next-line
+                "[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+            )
+        ).toBe(true);
+        expect(
+            doesContentHaveLifecycleBadge(
+                // tslint:disable-next-line
+                "[![img](https://img.shields.io/badge/Lifecycle-Stable-97ca00)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+            )
+        ).toBe(true);
+        expect(
+            doesContentHaveLifecycleBadge(
+                // tslint:disable-next-line
+                "[![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+            )
+        ).toBe(true);
+        expect(
+            doesContentHaveLifecycleBadge(
+                // tslint:disable-next-line
+                "[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+            )
+        ).toBe(true);
     });
     it('Invalid lifecycle badges should return false', () => {
-        expect(doesContentHaveLifecycleBadge('![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)')).toBe(false);
-        expect(doesContentHaveLifecycleBadge('[![img](https://img.shields.io/badge/Lifecycle-Invalid-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)')).toBe(false);
+        expect(
+            doesContentHaveLifecycleBadge(
+                // tslint:disable-next-line
+                "![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)"
+            )
+        ).toBe(false);
+        expect(
+            doesContentHaveLifecycleBadge(
+                // tslint:disable-next-line
+                "[![img](https://img.shields.io/badge/Lifecycle-Invalid-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+            )
+        ).toBe(false);
     });
 });
