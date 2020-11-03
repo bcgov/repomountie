@@ -24,6 +24,8 @@ export const BOT_NAME = 'repo-mountie';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 
+export const REPO_README = 'README.md';
+
 export const HELP_DESK = {
   SUPPORT_USERS: ['jleach'],
 };
@@ -48,6 +50,7 @@ export const ISSUE_TITLES = {
   ADD_LICENSE: 'Add missing license',
   RENAME_STATUS: 'Rename PIA and STRA status from exempt',
   WORDS_MATTER: 'Lets use common phrasing',
+  LIFECYCLE_BADGES: 'Add project lifecycle badge',
 };
 
 export const BRANCHES = {
@@ -77,6 +80,7 @@ export const TEXT_FILES = {
   WHY_RENAME_STATUS: 'templates/why-rename-status.md',
   WHY_TOPICS: 'templates/why-topics.md',
   WORDS_MATTER: 'templates/words-matter.md',
+  LIFECYCLE_BADGES: 'templates/lifecycle-badges.md',
 };
 
 export const COMMANDS = {
@@ -88,6 +92,9 @@ export const REGEXP = {
   compliance:
     '@repo-mountie\\s+update-(pia|stra)\\s+(in-progress|completed|TBD|not-required)',
   help: '@repo-mountie\\s+help',
+  // prettier-ignore
+  // tslint:disable-next-line
+  lifecycle_badge: '\\[\\!\\[img\\]\\(https://img\\.shields\\.io/badge/Lifecycle-(Maturing-007EC6|Experimental-339999|Stable-97ca00|Dormant-%23ff7f2a|Retired-d45500)\\)\\]\\(https://github\\.com/bcgov/repomountie/blob/master/doc/lifecycle-badges\\.md\\)',
 };
 
 export const ACCESS_CONTROL = {

@@ -28,6 +28,8 @@ import {
   COMMIT_MESSAGES,
   ISSUE_TITLES,
   MINISTRY_SHORT_CODES,
+  REGEXP,
+  REPO_README,
   TEMPLATES,
   TEXT_FILES,
 } from '../constants';
@@ -359,6 +361,86 @@ export const addLicenseIfRequired = async (
       logger.error(err.message);
     }
 
+    throw err;
+  }
+};
+
+/**
+ *
+ * @param {string} reg Regular expression to be used
+ * @param {string} teststring String to be tested against
+ * @returns True if there is a match, false otherwise
+ */
+export const doesContentHaveLifecycleBadge = (teststring: string): boolean => {
+  const re = new RegExp(REGEXP.lifecycle_badge);
+  return re.test(teststring);
+};
+
+/**
+ * If a repo doesn't have a project lifecycle badge,
+ * create an issue requesting that a project lifecycle badge is
+ * added to the repo.
+ * @param context The event context context
+ * @param owner The organization name
+ * @param repo The repo name
+ */
+export const requestLifecycleBadgeIfRequired = async (
+  context: Context,
+  owner: string,
+  repo: string
+) => {
+  try {
+    const readmeData = await fetchFileContent(context, REPO_README);
+
+    if (!readmeData) {
+      logger.info(
+        `README file does not exist in ${context.payload.repository.name}`
+      );
+      return;
+    }
+
+    // Check if README has project badges
+    const re = doesContentHaveLifecycleBadge(readmeData.content);
+    if (re) {
+      return;
+    }
+
+    // If there is an open project lifecycle badge issue,
+    // do not create another project lifecycle badge issue.
+    const query = `repo:${owner}/${repo} is:open is:issue author:app/${BOT_NAME} "${ISSUE_TITLES.LIFECYCLE_BADGES}"`;
+    const issuesResponse = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
+    });
+    const totalCount = issuesResponse.data.total_count
+      ? issuesResponse.data.total_count
+      : 0;
+
+    if (totalCount > 0) {
+      return;
+    }
+
+    // Create an issue requesting that a project lifecycle badge is
+    // added to the repo.
+    const body: string = await loadTemplate(TEXT_FILES.LIFECYCLE_BADGES);
+
+    await context.github.issues.create({
+      body,
+      owner,
+      repo,
+      title: ISSUE_TITLES.LIFECYCLE_BADGES,
+    });
+  } catch (err) {
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(
+        `Unable to check project lifecycle badge in ${context.payload.repository.name}`
+      );
+    } else {
+      logger.error(err.message);
+    }
     throw err;
   }
 };

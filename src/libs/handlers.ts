@@ -34,6 +34,7 @@ import {
   addMinistryTopicIfRequired,
   addSecurityComplianceInfoIfRequired,
   addWordsMatterIfRequire,
+  requestLifecycleBadgeIfRequired,
 } from './repository';
 
 export const memberAddedOrEdited = async (context: Context): Promise<void> => {
@@ -56,9 +57,9 @@ export const pullRequestOpened = async (context: Context): Promise<void> => {
   if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
     // prettier-ignore
     logger.info(
-            `Skipping PR ${context.payload.pull_request.number} for repo ${context.payload.repository.name
-            } because its not from an allowed installation`
-        );
+      `Skipping PR ${context.payload.pull_request.number} for repo ${context.payload.repository.name
+      } because its not from an allowed installation`
+    );
 
     return;
   }
@@ -94,9 +95,9 @@ export const issueCommentCreated = async (context: Context): Promise<void> => {
   if (!ACCESS_CONTROL.allowedInstallations.includes(owner)) {
     // prettier-ignore
     logger.info(
-            `Skipping issue ${context.payload.issue.number} for repo ${context.payload.repository.name
-            } because its not from an allowed installation`
-        );
+      `Skipping issue ${context.payload.issue.number} for repo ${context.payload.repository.name
+      } because its not from an allowed installation`
+    );
 
     return;
   }
@@ -153,6 +154,7 @@ export const repositoryScheduled = async (
       addSecurityComplianceInfoIfRequired(context, owner, repo),
       addCollaboratorsToMyIssues(context, owner, repo),
       requestUpdateForMyIssues(context, owner, repo),
+      requestLifecycleBadgeIfRequired(context, owner, repo),
     ]);
   } catch (err) {
     const message = `Unable to complete all housekeeping tasks, repo is ${repo}`;
