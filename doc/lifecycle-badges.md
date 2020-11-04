@@ -18,7 +18,7 @@ The codebase is being roughed out, but finer details are likely to change.
 The project is in a reliable state and major changes are unlikely to happen.
 
 
-[![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md) - ```[![img](https://img.shields.io/badge/Lifecycle-Dormant-%23ff7f2a)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)```\
+[![img](https://img.shields.io/badge/Lifecycle-Dormant-ff7f2a)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md) - ```[![img](https://img.shields.io/badge/Lifecycle-Dormant-ff7f2a)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)```\
 The project is currently not under active development, but there are plans to redevelop.
 
 
