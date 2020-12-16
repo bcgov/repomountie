@@ -27,13 +27,13 @@ import { checkForStaleIssues, created } from './issue';
 import {
   addCollaboratorsToMyIssues,
   requestUpdateForMyIssues,
-  validatePullRequestIfRequired
+  validatePullRequestIfRequired,
 } from './pullrequest';
 import {
   addLicenseIfRequired,
   addMinistryTopicIfRequired,
   addSecurityComplianceInfoIfRequired,
-  addWordsMatterIfRequire
+  addWordsMatterIfRequire,
 } from './repository';
 
 export const memberAddedOrEdited = async (context: Context): Promise<void> => {
