@@ -476,9 +476,11 @@ describe('Repository management', () => {
     // "Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)"
     // @ts-ignore
     fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
+
     github.search.issuesAndPullRequests.mockReturnValueOnce(
       Promise.resolve(issuesAndPullsEmpty)
     );
+
     await requestLifecycleBadgeIfRequired(context, owner, repo);
 
     expect(fetchFileContent).toBeCalled();
