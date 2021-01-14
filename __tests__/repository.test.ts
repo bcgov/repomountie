@@ -423,8 +423,14 @@ describe('Repository management', () => {
     const repo = context.payload.repository.name;
 
     const myReadmeResponse = JSON.parse(JSON.stringify(readmeResponse));
-    // tslint:disable-next-line
-    myReadmeResponse.data.content = `Here's a valid project badge. [![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)`;
+
+    // tslint:disable
+    const contentString =
+      "Here's a valid project badge. [![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)";
+    // tslint:enable
+    const encodedContent = Buffer.from(contentString).toString('base64');
+
+    myReadmeResponse.data.content = encodedContent;
     // @ts-ignore
     fetchFileContent.mockReturnValueOnce(
       Promise.resolve(myReadmeResponse.data)
@@ -444,6 +450,8 @@ describe('Repository management', () => {
     const owner = context.payload.installation.account.login;
     const repo = context.payload.repository.name;
 
+    // readmeResponse.data.content is the base64 encoded of:
+    // "Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)"
     // @ts-ignore
     fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
 
@@ -464,6 +472,8 @@ describe('Repository management', () => {
     const owner = context.payload.installation.account.login;
     const repo = context.payload.repository.name;
 
+    // readmeResponse.data.content is the base64 encoded of:
+    // "Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)"
     // @ts-ignore
     fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
     github.search.issuesAndPullRequests.mockReturnValueOnce(
