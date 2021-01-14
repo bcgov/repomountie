@@ -9,7 +9,7 @@
     "git_url": "https://api.github.com/repos/bcgov/glarb/git/blobs/fc5f44d45e03b298219083b201db858f7a06aa1d",
     "download_url": "https://raw.githubusercontent.com/bcgov/glarb/master/rmconfig.json",
     "type": "file",
-    "content": "Here's an invalid project badge. ![img](https://img.shields.io/badge/Lifecycle-Testing-007EC6)",
+    "content": "SGVyZSdzIGFuIGludmFsaWQgcHJvamVjdCBiYWRnZS4gIVtpbWddKGh0dHBzOi8vaW1nLnNoaWVsZHMuaW8vYmFkZ2UvTGlmZWN5Y2xlLVRlc3RpbmctMDA3RUM2KQ",
     "encoding": "base64",
     "_links": {
       "self": "https://api.github.com/repos/bcgov/glarb/contents/rmconfig.json?ref=master",
