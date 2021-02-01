@@ -38,11 +38,19 @@ objects:
           - ""
         resources:
           - imagestreamimages
+        verbs:
+          - get
+          - list
+      - apiGroups:
+          - image.openshift.io
+          - ""
+        resources:
           - imagestreamtags
         verbs:
           - create
           - get
           - list
+          - update
       - apiGroups:
           - image.openshift.io
           - ""
