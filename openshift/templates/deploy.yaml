@@ -1,4 +1,4 @@
-# Copyright 2020 The Province of British Columbia
+# Copyright 2021 The Province of British Columbia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,67 @@ metadata:
     description: Repomountie application.
   name: repomountie
 objects:
+  - apiVersion: security.devops.gov.bc.ca/v1alpha1
+    kind: ExternalNetwork
+    metadata:
+      # This metadata field will be what you see with the command
+      # `oc get externalnetwork` or `kubctl get externalnetwork`.
+      name: all-things-external
+      labels:
+        app: repomountie
+    spec:
+      # This name will be used internally by Aporeto; it should match
+      # the `name` field in metadata above.
+      description: |
+        specify a custom external network that can be
+        referenced by name.
+      entries:
+        - 0.0.0.0/0
+      servicePorts:
+        - "tcp/80"
+        - "tcp/443"
+  - apiVersion: security.devops.gov.bc.ca/v1alpha1
+    kind: NetworkSecurityPolicy
+    metadata:
+      name: bot-to-external
+      labels:
+        app: repomountie
+    spec:
+      description: |
+        allow bot pods to talk to external services
+      source:
+        - - '$namespace=${NAMESPACE}'
+          - 'component=bot'
+      destination:
+        - - 'ext:name=all-things-external'
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: repomountie-config
+      labels:
+        app: repomountie
+    data:
+      config.json: |
+        {
+          "sso": {
+            "authUrl": "https://oidc.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/auth",
+            "tokenUrl": "https://oidc.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/token",
+            "certsUrl": "https://oidc.gov.bc.ca/auth/realms/devhub/protocol/openid-connect/certs"
+          },
+          "staleIssueMaxDaysOld": 120
+        }
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: repomountie
+        component: bot
+      name: bot-env
+    data:
+      APP_ID: ${APP_ID}
+      LOG_LEVEL: debug
+      PORT: "8080"
+      NODE_ENV: production
   - apiVersion: v1
     kind: Secret
     metadata:
@@ -27,8 +88,8 @@ objects:
         app: repomountie
       name: github-creds
     stringData:
-      webhook-secret: ${WEBHOOK_SECRET}
-      private-key: ${PRIVATE_KEY}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      PRIVATE_KEY: ${PRIVATE_KEY}
     type: Opaque
   - apiVersion: v1
     kind: Route
@@ -55,41 +116,27 @@ objects:
       labels:
         app: repomountie
     spec:
-      # selector:
-      #   matchLabels:
-      #     role: repomountie
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        app: repomountie
+        component: bot
       template:
         metadata:
           labels:
             app: repomountie
-            role: bot
+            component: bot
         spec:
-          terminationGracePeriodSeconds: 10
+          terminationGracePeriodSeconds: 15
           containers:
             - name: bot
               ports:
                 - containerPort: 8080
-              env:
-                - name: APP_ID
-                  value: ${APP_ID}
-                - name: LOG_LEVEL
-                  value: debug
-                # - name: PRIVATE_KEY_PATH
-                #   value: /etc/github-creds/key.pem
-                - name: WEBHOOK_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      key: webhook-secret
-                      name: github-creds
-                - name: PRIVATE_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      key: private-key
-                      name: github-creds
-                - name: PORT
-                  value: "8080"
-                - name: NODE_ENV
-                  value: production
+              envFrom:
+              - secretRef:
+                  name: github-creds
+              - configMapRef:
+                  name: bot-env
               resources:
                 limits:
                   cpu: 500m
@@ -114,7 +161,7 @@ objects:
             from:
               kind: ImageStreamTag
               name: "repomountie:${REPOMOUNTIE_IMAGE_TAG}"
-              namespace: devhub-tools
+              namespace: 85d4e0-tools
         - type: ConfigChange
   - apiVersion: v1
     kind: Service
@@ -150,4 +197,9 @@ parameters:
   - name: REPOMOUNTIE_IMAGE_TAG
     description: |
       The tag used to deploy the repomountie component.
+    required: true
+  - name: NAMESPACE
+    description: |
+      The namespace where the components are being deployed
+      and the associated NSP could be created.
     required: true
