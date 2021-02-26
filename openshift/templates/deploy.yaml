@@ -20,39 +20,6 @@ metadata:
     description: Repomountie application.
   name: repomountie
 objects:
-  - apiVersion: security.devops.gov.bc.ca/v1alpha1
-    kind: ExternalNetwork
-    metadata:
-      # This metadata field will be what you see with the command
-      # `oc get externalnetwork` or `kubctl get externalnetwork`.
-      name: all-things-external
-      labels:
-        app: repomountie
-    spec:
-      # This name will be used internally by Aporeto; it should match
-      # the `name` field in metadata above.
-      description: |
-        specify a custom external network that can be
-        referenced by name.
-      entries:
-        - 0.0.0.0/0
-      servicePorts:
-        - "tcp/80"
-        - "tcp/443"
-  - apiVersion: security.devops.gov.bc.ca/v1alpha1
-    kind: NetworkSecurityPolicy
-    metadata:
-      name: bot-to-external
-      labels:
-        app: repomountie
-    spec:
-      description: |
-        allow bot pods to talk to external services
-      source:
-        - - '$namespace=${NAMESPACE}'
-          - 'component=bot'
-      destination:
-        - - 'ext:name=all-things-external'
   - apiVersion: v1
     kind: ConfigMap
     metadata:
@@ -133,10 +100,10 @@ objects:
               ports:
                 - containerPort: 8080
               envFrom:
-              - secretRef:
-                  name: github-creds
-              - configMapRef:
-                  name: bot-env
+                - secretRef:
+                    name: github-creds
+                - configMapRef:
+                    name: bot-env
               resources:
                 limits:
                   cpu: 500m
