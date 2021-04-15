@@ -1,4 +1,5 @@
-<a href="https://codeclimate.com/github/bcgov/repomountie/maintainability"><img src="https://api.codeclimate.com/v1/badges/a62462e3e0a6843c3778/maintainability" />&nbsp;&nbsp;&nbsp;</a><a href="https://codeclimate.com/github/bcgov/repomountie/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a62462e3e0a6843c3778/test_coverage" /></a>
+<a href="https://codeclimate.com/github/bcgov/repomountie/maintainability"><img src="https://api.codeclimate.com/v1/badges/a62462e3e0a6843c3778/maintainability" />&nbsp;&nbsp;&nbsp;</a><a href="https://codeclimate.com/github/bcgov/repomountie/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a62462e3e0a6843c3778/test_coverage" /></a> &nbsp;
+[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
 ## About
 
