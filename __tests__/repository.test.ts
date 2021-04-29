@@ -423,8 +423,14 @@ describe('Repository management', () => {
     const repo = context.payload.repository.name;
 
     const myReadmeResponse = JSON.parse(JSON.stringify(readmeResponse));
-    // tslint:disable-next-line
-    myReadmeResponse.data.content = `Here's a valid project badge. [![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)`;
+
+    // tslint:disable
+    const contentString =
+      "Here's a valid project badge. ![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)";
+    // tslint:enable
+    const encodedContent = Buffer.from(contentString).toString('base64');
+
+    myReadmeResponse.data.content = encodedContent;
     // @ts-ignore
     fetchFileContent.mockReturnValueOnce(
       Promise.resolve(myReadmeResponse.data)
@@ -444,6 +450,8 @@ describe('Repository management', () => {
     const owner = context.payload.installation.account.login;
     const repo = context.payload.repository.name;
 
+    // readmeResponse.data.content is the base64 encoded of:
+    // "Here's an invalid project badge. ![img](https://img.shields.io/badge/Invalid-Badge-007EC6)"
     // @ts-ignore
     fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
 
@@ -464,11 +472,15 @@ describe('Repository management', () => {
     const owner = context.payload.installation.account.login;
     const repo = context.payload.repository.name;
 
+    // readmeResponse.data.content is the base64 encoded of:
+    // "Here's an invalid project badge. ![img](https://img.shields.io/badge/Invalid-Badge-007EC6)"
     // @ts-ignore
     fetchFileContent.mockReturnValueOnce(Promise.resolve(readmeResponse.data));
+
     github.search.issuesAndPullRequests.mockReturnValueOnce(
       Promise.resolve(issuesAndPullsEmpty)
     );
+
     await requestLifecycleBadgeIfRequired(context, owner, repo);
 
     expect(fetchFileContent).toBeCalled();
@@ -499,45 +511,46 @@ describe('doesContentHaveLifecycleBadge', () => {
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        "[![](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        "![](https://img.shields.io/badge/Lifecycle-Stable-97ca00)"
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![img](https://img.shields.io/badge/Lifecycle-Stable-97ca00)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        "[![lifecycle:stable](https://img.shields.io/badge/Lifecycle-Stable-97ca00)]"
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![img](https://img.shields.io/badge/Lifecycle-Dormant-ff7f2a)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        "[![lifecycle:dormant](https://img.shields.io/badge/Lifecycle-Dormant-ff7f2a)](https://github.com/bcgov/repomountie/)"
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        "[![random-text](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
       )
     ).toBe(true);
   });
+
   it('Invalid lifecycle badges should return false', () => {
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)"
+        "![img](https://img.shields.io/badge/Invalid-Badge-339999)"
       )
     ).toBe(false);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![img](https://img.shields.io/badge/Lifecycle-Invalid-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        "[![img](https://img.shields.io/badge/Invalid-Badge-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
       )
     ).toBe(false);
   });

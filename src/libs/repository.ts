@@ -399,8 +399,11 @@ export const requestLifecycleBadgeIfRequired = async (
       return;
     }
 
+    // readmeData.content is base64 encoded
+    const decodedContent = Buffer.from(readmeData.content, 'base64').toString();
+
     // Check if README has project badges
-    const re = doesContentHaveLifecycleBadge(readmeData.content);
+    const re = doesContentHaveLifecycleBadge(decodedContent);
     if (re) {
       return;
     }

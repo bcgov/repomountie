@@ -94,7 +94,7 @@ export const REGEXP = {
   help: '@repo-mountie\\s+help',
   // prettier-ignore
   // tslint:disable-next-line
-  lifecycle_badge: '\\[\\!\\[img\\]\\(https://img\\.shields\\.io/badge/Lifecycle-(Maturing-007EC6|Experimental-339999|Stable-97ca00|Dormant-ff7f2a|Retired-d45500)\\)\\]\\(https://github\\.com/bcgov/repomountie/blob/master/doc/lifecycle-badges\\.md\\)',
+  lifecycle_badge: '!\\[.*\\]\\(https:\\/\\/img\\.shields\\.io\\/badge\\/Lifecycle-(Maturing-007EC6|Experimental-339999|Stable-97ca00|Dormant-ff7f2a|Retired-d45500)\\)',
 };
 
 export const ACCESS_CONTROL = {
