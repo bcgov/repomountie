@@ -16,11 +16,11 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
+export const SCHEDULER_DELAY: number = 60 * 1000; // one day
 
 export const COMMENT_TRIGGER_WORD = 'help';
 
-export const BOT_NAME = 'repo-mountie';
+export const BOT_NAME = 'repomountie-test2';
 
 export const REPO_CONFIG_FILE = 'rmconfig.json';
 
@@ -98,7 +98,7 @@ export const REGEXP = {
 };
 
 export const ACCESS_CONTROL = {
-  allowedInstallations: ['bcgov', 'fullboar'],
+  allowedInstallations: ['bcgov', 'fullboar', 'test-repomountie-aj'],
   allowedSsoClients: ['reggie-api'],
 };
 

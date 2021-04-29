@@ -15,7 +15,7 @@
   "scripts": {
     "build": "NODE_ENV=production gulp",
     "dev": "nodemon --watch src --inspect=5858 -e ts,tsx --exec node -r ts-node/register ./src/main.ts",
-    "start": "probot run ./build/src/index.js",
+    "start": "probot run ./build/index.js",
     "report": "ts-node scripts/report.ts",
     "test:lint": "NODE_ENV=test tslint src/**/*.ts",
     "test": "NODE_ENV=test jest __tests__",
