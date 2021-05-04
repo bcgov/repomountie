@@ -16,7 +16,7 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-export const ONE_DAY = 24 * 60 * 60 * 1000;
+export const ONE_DAY: number = 24 * 60 * 60 * 1000;
 
 export const SCHEDULER_DELAY: number = ONE_DAY; // one day
 
