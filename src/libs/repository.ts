@@ -463,9 +463,9 @@ export const requestLifecycleBadgeIfRequired = async (
 
     const daysInactive = getDaysPassed(updatedAt);
 
-    const isConsidredAsInactive = INACTIVE_DAYS < daysInactive;
+    const isConsideredAsInactive = INACTIVE_DAYS < daysInactive;
 
-    if (isConsidredAsInactive) {
+    if (isConsideredAsInactive) {
       // Create an issue reminding the repository is inactive
       const text: string = await loadTemplate(TEXT_FILES.INACTIVE_REPO);
 
