@@ -16,7 +16,11 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-export const SCHEDULER_DELAY: number = 24 * 60 * 60 * 1000; // one day
+export const ONE_DAY = 24 * 60 * 60 * 1000;
+
+export const SCHEDULER_DELAY: number = ONE_DAY; // one day
+
+export const INACTIVE_DAYS: number = 180;
 
 export const COMMENT_TRIGGER_WORD = 'help';
 
@@ -51,6 +55,7 @@ export const ISSUE_TITLES = {
   RENAME_STATUS: 'Rename PIA and STRA status from exempt',
   WORDS_MATTER: 'Lets use common phrasing',
   LIFECYCLE_BADGES: 'Add project lifecycle badge',
+  INACTIVE_REPO: `It's Been a While Since This Repository has Been Updated`,
 };
 
 export const BRANCHES = {
@@ -81,6 +86,7 @@ export const TEXT_FILES = {
   WHY_TOPICS: 'templates/why-topics.md',
   WORDS_MATTER: 'templates/words-matter.md',
   LIFECYCLE_BADGES: 'templates/lifecycle-badges.md',
+  INACTIVE_REPO: 'templates/inactive_repo_reminder.md',
 };
 
 export const COMMANDS = {

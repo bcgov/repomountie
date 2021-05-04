@@ -18,6 +18,7 @@
 
 import fs from 'fs';
 import util from 'util';
+import { ONE_DAY } from '../constants';
 
 /**
  * Check if a string is valid JSON
@@ -67,4 +68,19 @@ export const loadTemplate = async (path: string): Promise<string> => {
     const message = `Unable to load template ${path}`;
     throw new Error(`${message}, error = ${err.message}`);
   }
+};
+
+/**
+ * Calculate the number of days passed from today.
+ *
+ * @param {string} date The string date value
+ * @returns {number} The number of days with decimal points
+ */
+export const getDaysPassed = (date: string): number => {
+  const today = new Date();
+  const target = new Date(date);
+
+  const diffTime = today.getTime() - target.getTime();
+
+  return diffTime / ONE_DAY;
 };
