@@ -33,7 +33,7 @@ import {
   REPO_README,
   TEMPLATES,
   TEXT_FILES,
-  // INACTIVE_DAYS,
+  INACTIVE_DAYS,
 } from '../constants';
 import {
   addFileViaPullRequest,
@@ -463,9 +463,9 @@ export const requestLifecycleBadgeIfRequired = async (
 
     const daysInactive = getDaysPassed(updatedAt);
 
-    // const isConsidredAsInactive = INACTIVE_DAYS < daysInactive;
+    const isConsidredAsInactive = INACTIVE_DAYS < daysInactive;
 
-    if (true) {
+    if (isConsidredAsInactive) {
       // Create an issue reminding the repository is inactive
       const text: string = await loadTemplate(TEXT_FILES.INACTIVE_REPO);
 
