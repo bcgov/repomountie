@@ -94,7 +94,7 @@ export const REGEXP = {
   help: '@repo-mountie\\s+help',
   // prettier-ignore
   // tslint:disable-next-line
-  lifecycle_badge: '\\[!\\[Lifecycle\\].*\\]',
+  lifecycle_badge: '\\[!\\[(Lifecycle\\].*\\]|\\(.*lifecycle-badges.md\\))',
 };
 
 export const ACCESS_CONTROL = {
