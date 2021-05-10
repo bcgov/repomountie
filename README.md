@@ -1,3 +1,5 @@
+[![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](<Redirect-URL>)
+
 <a href="https://codeclimate.com/github/bcgov/repomountie/maintainability"><img src="https://api.codeclimate.com/v1/badges/a62462e3e0a6843c3778/maintainability" />&nbsp;&nbsp;&nbsp;</a><a href="https://codeclimate.com/github/bcgov/repomountie/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a62462e3e0a6843c3778/test_coverage" /></a>
 
 ## About
