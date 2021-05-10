@@ -20,29 +20,34 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
-import { Context } from 'probot';
 import template from 'lodash/template';
+import { Context } from 'probot';
 import {
   BOT_NAME,
   BRANCHES,
   COMMIT_FILE_NAMES,
   COMMIT_MESSAGES,
-  ISSUE_TITLES,
+
+
+
+
+
+
+  INACTIVE_DAYS, ISSUE_TITLES,
   MINISTRY_SHORT_CODES,
   REGEXP,
   REPO_README,
   TEMPLATES,
-  TEXT_FILES,
-  INACTIVE_DAYS,
+  TEXT_FILES
 } from '../constants';
 import {
   addFileViaPullRequest,
   checkIfFileExists,
   checkIfRefExists,
   fetchFileContent,
-  hasPullRequestWithTitle,
+  hasPullRequestWithTitle
 } from './ghutils';
-import { extractMessage, loadTemplate, getDaysPassed } from './utils';
+import { extractMessage, getDaysPassed, loadTemplate } from './utils';
 
 export const addWordsMatterIfRequire = async (
   context: Context,
@@ -457,7 +462,7 @@ export const requestLifecycleBadgeIfRequired = async (
  * @param owner The organization name
  * @param repo The repo name
  */
- export const remindInactiveRepository = async (context: Context, owner: string, repo: string) => {
+export const remindInactiveRepository = async (context: Context, owner: string, repo: string) => {
   try {
     const updatedAt = context.payload.repository.updated_at;
 
