@@ -34,8 +34,9 @@ import {
   doesContentHaveLifecycleBadge,
   fixDeprecatedComplianceStatus,
   requestLifecycleBadgeIfRequired,
+  remindInactiveRepository,
 } from '../src/libs/repository';
-import { loadTemplate } from '../src/libs/utils';
+import { loadTemplate, getDaysPassed } from '../src/libs/utils';
 import helper from './src/helper';
 
 // const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
@@ -80,6 +81,7 @@ jest.mock('../src/libs/ghutils', () => ({
 jest.mock('../src/libs/utils', () => ({
   loadTemplate: jest.fn(),
   extractMessage: jest.fn(),
+  getDaysPassed: jest.fn(),
 }));
 
 describe('Repository management', () => {
@@ -503,6 +505,21 @@ describe('Repository management', () => {
     expect(github.search.issuesAndPullRequests).not.toBeCalled();
     expect(loadTemplate).not.toBeCalled();
     expect(github.issues.create).not.toBeCalled();
+  });
+
+  it('An inactive repo has repo-reminder issue created', async () => {
+    context = new Context(repoScheduleEvent, github as any, {} as any);
+    const owner = context.payload.installation.account.login;
+    const repo = context.payload.repository.name;
+
+    // @ts-ignore
+    getDaysPassed.mockReturnValueOnce(365);
+
+    await remindInactiveRepository(context, owner, repo);
+
+    expect(getDaysPassed).toBeCalled();
+    expect(loadTemplate).toBeCalled();
+    expect(github.issues.create).toBeCalled();
   });
 });
 

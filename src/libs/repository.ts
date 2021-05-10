@@ -21,6 +21,7 @@
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
 import { Context } from 'probot';
+import template from 'lodash/template';
 import {
   BOT_NAME,
   BRANCHES,
@@ -32,6 +33,7 @@ import {
   REPO_README,
   TEMPLATES,
   TEXT_FILES,
+  INACTIVE_DAYS,
 } from '../constants';
 import {
   addFileViaPullRequest,
@@ -40,7 +42,7 @@ import {
   fetchFileContent,
   hasPullRequestWithTitle,
 } from './ghutils';
-import { extractMessage, loadTemplate } from './utils';
+import { extractMessage, loadTemplate, getDaysPassed } from './utils';
 
 export const addWordsMatterIfRequire = async (
   context: Context,
@@ -441,6 +443,43 @@ export const requestLifecycleBadgeIfRequired = async (
       logger.error(
         `Unable to check project lifecycle badge in ${context.payload.repository.name}`
       );
+    } else {
+      logger.error(err.message);
+    }
+    throw err;
+  }
+};
+
+/**
+ * If a repo has been inactive for certain period,
+ * create an issue reminding it.
+ * @param context The event context context
+ * @param owner The organization name
+ * @param repo The repo name
+ */
+ export const remindInactiveRepository = async (context: Context, owner: string, repo: string) => {
+  try {
+    const updatedAt = context.payload.repository.updated_at;
+
+    const daysInactive = getDaysPassed(updatedAt);
+
+    const isConsideredAsInactive = INACTIVE_DAYS < daysInactive;
+
+    if (isConsideredAsInactive) {
+      // Create an issue reminding the repository is inactive
+      const text: string = await loadTemplate(TEXT_FILES.INACTIVE_REPO);
+
+      await context.github.issues.create({
+        body: template(text)({ daysInactive: daysInactive.toFixed(2) }),
+        owner,
+        repo,
+        title: ISSUE_TITLES.INACTIVE_REPO,
+      });
+    }
+  } catch (err) {
+    const message = extractMessage(err);
+    if (message) {
+      logger.error(`Unable to check repository activities in ${context.payload.repository.name}`);
     } else {
       logger.error(err.message);
     }
