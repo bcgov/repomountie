@@ -511,6 +511,12 @@ describe('doesContentHaveLifecycleBadge', () => {
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
+        "[![Lifecycle](https://img.shields.io/badge/Lifecycle-Stable-97ca00?style=for-the-badge)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+      )
+    ).toBe(true);
+    expect(
+      doesContentHaveLifecycleBadge(
+        // tslint:disable-next-line
         "[![](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
       )
     ).toBe(true);
