@@ -76,7 +76,6 @@ export const verify = (
   return done(err, false);
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const authmware = async (app) => {
   app.use(passport.initialize());
   app.use(passport.session());

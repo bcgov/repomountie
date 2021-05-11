@@ -34,6 +34,7 @@ process.env.TZ = 'UTC';
 
 if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
   process.on('unhandledRejection', (reason, p) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: `stack` does not exist on type
     const stack = typeof reason !== 'undefined' ? reason.stack : 'unknown';
     // Token decode errors are OK in test because we use a faux token for

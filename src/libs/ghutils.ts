@@ -296,7 +296,7 @@ export const addFileViaPullRequest = async (
   srcBranchName: string,
   fileName: string,
   fileData: string,
-  fileSHA: string = ''
+  fileSHA = ''
 ) => {
   try {
     const params = { owner, repo };

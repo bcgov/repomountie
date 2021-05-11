@@ -18,7 +18,7 @@
 // Created by Jason Leach on 2018-10-15.
 //
 
-import express from "express"; // tslint:disable-line
+import express from 'express'; // tslint:disable-line
 import { Application } from 'probot';
 import { authmware } from './authmware';
 
@@ -27,6 +27,7 @@ export const routes = (app: Application) => {
 
   // This middleware will get called before each route.
   exp.use(async (req, res, next) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     req.app = app;
     next();

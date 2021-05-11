@@ -20,20 +20,20 @@
 
 import { logger } from '@bcgov/common-nodejs-utils';
 import yaml from 'js-yaml';
-import { Context } from 'probot';
 import template from 'lodash/template';
+import { Context } from 'probot';
 import {
   BOT_NAME,
   BRANCHES,
   COMMIT_FILE_NAMES,
   COMMIT_MESSAGES,
+  INACTIVE_DAYS,
   ISSUE_TITLES,
   MINISTRY_SHORT_CODES,
   REGEXP,
   REPO_README,
   TEMPLATES,
   TEXT_FILES,
-  INACTIVE_DAYS,
 } from '../constants';
 import {
   addFileViaPullRequest,
@@ -42,7 +42,7 @@ import {
   fetchFileContent,
   hasPullRequestWithTitle,
 } from './ghutils';
-import { extractMessage, loadTemplate, getDaysPassed } from './utils';
+import { extractMessage, getDaysPassed, loadTemplate } from './utils';
 
 export const addWordsMatterIfRequire = async (
   context: Context,
@@ -457,7 +457,11 @@ export const requestLifecycleBadgeIfRequired = async (
  * @param owner The organization name
  * @param repo The repo name
  */
- export const remindInactiveRepository = async (context: Context, owner: string, repo: string) => {
+export const remindInactiveRepository = async (
+  context: Context,
+  owner: string,
+  repo: string
+) => {
   try {
     const updatedAt = context.payload.repository.updated_at;
 
@@ -479,7 +483,9 @@ export const requestLifecycleBadgeIfRequired = async (
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
-      logger.error(`Unable to check repository activities in ${context.payload.repository.name}`);
+      logger.error(
+        `Unable to check repository activities in ${context.payload.repository.name}`
+      );
     } else {
       logger.error(err.message);
     }
