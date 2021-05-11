@@ -1,0 +1,12 @@
+.github
+.s2i
+.vscode
+build
+coverage
+data
+node_modules
+doc
+images
+scripts
+report
+templates
