@@ -20,13 +20,13 @@
 
 /* eslint-env es6 */
 
-'use strict';
+"use strict";
 
-import { getJwtCertificate, logger } from '@bcgov/common-nodejs-utils';
-import passport from 'passport';
-import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
-import config from '../config';
-import { ACCESS_CONTROL } from '../constants';
+import { getJwtCertificate, logger } from "@bcgov/common-nodejs-utils";
+import passport from "passport";
+import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
+import config from "../config";
+import { ACCESS_CONTROL } from "../constants";
 
 interface JwtStrategyConfig {
   jwtFromRequest: any;
@@ -59,7 +59,7 @@ export const verify = (
   if (jwtPayload) {
     if (!isAuthorized(jwtPayload)) {
       const message =
-        'This JWT does not have the proper role to use this service';
+        "This JWT does not have the proper role to use this service";
       logger.error(message);
 
       // Returning an `Error` as the first parameter to `done` does not have a meaningful
@@ -70,19 +70,18 @@ export const verify = (
     return done(null, {}); // OK.
   }
 
-  const err = new Error('Unable to authenticate');
+  const err = new Error("Unable to authenticate");
   // err.code = 401;
 
   return done(err, false);
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const authmware = async (app) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
   const { certificate, algorithm } = await getJwtCertificate(
-    config.get('sso:certsUrl')
+    config.get("sso:certsUrl")
   );
   const opts: JwtStrategyConfig = {
     algorithms: [algorithm],
@@ -93,7 +92,7 @@ export const authmware = async (app) => {
 
   // For development purposes only ignore the expiration
   // time of tokens.
-  if (config.get('environment') !== 'production') {
+  if (config.get("environment") !== "production") {
     opts.ignoreExpiration = true;
   }
 

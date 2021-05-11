@@ -19,14 +19,15 @@
 //
 
 import express from "express"; // tslint:disable-line
-import { Application } from 'probot';
-import { authmware } from './authmware';
+import { Application } from "probot";
+import { authmware } from "./authmware";
 
 export const routes = (app: Application) => {
   const exp = express();
 
   // This middleware will get called before each route.
   exp.use(async (req, res, next) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     req.app = app;
     next();
@@ -48,10 +49,10 @@ export const routes = (app: Application) => {
   app.router.use(exp);
 
   // Get an express router to expose new HTTP endpoints
-  const router = app.route('/bot');
+  const router = app.route("/bot");
 
   // Add a new route for health and liveliness probes.
-  router.get('/ehlo', (req: any, res: any) => res.status(200).end());
+  router.get("/ehlo", (req: any, res: any) => res.status(200).end());
 
   // router.get(
   //   '/github/membership',

@@ -16,10 +16,10 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-import { logger } from '@bcgov/common-nodejs-utils';
-import { Application, Context } from 'probot';
-import createScheduler from 'probot-scheduler';
-import { SCHEDULER_DELAY } from './constants';
+import { logger } from "@bcgov/common-nodejs-utils";
+import { Application, Context } from "probot";
+import createScheduler from "probot-scheduler";
+import { SCHEDULER_DELAY } from "./constants";
 import {
   issueCommentCreated,
   memberAddedOrEdited,
@@ -27,18 +27,19 @@ import {
   repositoryCreated,
   repositoryDeleted,
   repositoryScheduled,
-} from './libs/handlers';
-import { routes } from './libs/routes';
+} from "./libs/handlers";
+import { routes } from "./libs/routes";
 
-process.env.TZ = 'UTC';
+process.env.TZ = "UTC";
 
-if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
-  process.on('unhandledRejection', (reason, p) => {
+if (["development", "test"].includes(process.env.NODE_ENV || "development")) {
+  process.on("unhandledRejection", (reason, p) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: `stack` does not exist on type
-    const stack = typeof reason !== 'undefined' ? reason.stack : 'unknown';
+    const stack = typeof reason !== "undefined" ? reason.stack : "unknown";
     // Token decode errors are OK in test because we use a faux token for
     // mock objects.
-    if (stack.includes('HttpError: A JSON web token could not be decoded')) {
+    if (stack.includes("HttpError: A JSON web token could not be decoded")) {
       return;
     }
 
@@ -49,7 +50,7 @@ if (['development', 'test'].includes(process.env.NODE_ENV || 'development')) {
 }
 
 export = async (app: Application) => {
-  logger.info('Robot Loaded!!!');
+  logger.info("Robot Loaded!!!");
 
   routes(app);
 
@@ -59,18 +60,18 @@ export = async (app: Application) => {
   });
 
   app.on(
-    'schedule.repository',
+    "schedule.repository",
     async (context: Context) => await repositoryScheduled(context, scheduler)
   );
-  app.on('repository.created', repositoryCreated);
-  app.on('pull_request.opened', pullRequestOpened);
-  app.on('issue_comment.created', issueCommentCreated);
+  app.on("repository.created", repositoryCreated);
+  app.on("pull_request.opened", pullRequestOpened);
+  app.on("issue_comment.created", issueCommentCreated);
   app.on(
-    'repository.deleted',
+    "repository.deleted",
     async (context: Context) => await repositoryDeleted(context, scheduler)
   );
-  app.on('member.added', memberAddedOrEdited);
-  app.on('member.edited', memberAddedOrEdited);
+  app.on("member.added", memberAddedOrEdited);
+  app.on("member.edited", memberAddedOrEdited);
 
   // app.on('repository_vulnerability_alert.create', blarb);
 };

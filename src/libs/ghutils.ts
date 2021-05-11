@@ -17,11 +17,11 @@
 // Created by Jason Leach on 2018-10-01.
 //
 
-import { logger } from '@bcgov/common-nodejs-utils';
-import yaml from 'js-yaml';
-import { Context } from 'probot';
-import { COMMIT_FILE_NAMES, REPO_CONFIG_FILE } from '../constants';
-import { PullState, RepoAffiliation } from './enums';
+import { logger } from "@bcgov/common-nodejs-utils";
+import yaml from "js-yaml";
+import { Context } from "probot";
+import { COMMIT_FILE_NAMES, REPO_CONFIG_FILE } from "../constants";
+import { PullState, RepoAffiliation } from "./enums";
 
 interface RepoMountiePullRequestConfig {
   maxLinesChanged: number;
@@ -83,7 +83,7 @@ export const checkIfRefExists = async (
 export const checkIfFileExists = async (
   context,
   fileName,
-  ref = 'master'
+  ref = "master"
 ): Promise<boolean> => {
   try {
     await fetchFileContent(context, fileName, ref);
@@ -127,7 +127,7 @@ export const fetchContentsForFile = async (
       .shift();
 
     if (!lastCommit) {
-      logger.info('Unable to find last commit.');
+      logger.info("Unable to find last commit.");
       return;
     }
 
@@ -140,8 +140,8 @@ export const fetchContentsForFile = async (
 
     const data: any = response.data;
 
-    if (data.content && data.type !== 'file') {
-      logger.info('Unusable content type retrieved.');
+    if (data.content && data.type !== "file") {
+      logger.info("Unusable content type retrieved.");
       return;
     }
 
@@ -180,8 +180,8 @@ export const fetchFileContent = async (
 
     const data: any = response.data;
 
-    if (data.content && data.type !== 'file') {
-      throw new Error('No content returned or wrong file type.');
+    if (data.content && data.type !== "file") {
+      throw new Error("No content returned or wrong file type.");
     }
 
     return data;
@@ -208,11 +208,11 @@ export const fetchComplianceFile = async (
       context,
       COMMIT_FILE_NAMES.COMPLIANCE
     );
-    const fileContentAsString = Buffer.from(data.content, 'base64').toString();
+    const fileContentAsString = Buffer.from(data.content, "base64").toString();
 
     return yaml.safeLoad(fileContentAsString);
   } catch (err) {
-    const message = 'Unable to fetch compliance file.';
+    const message = "Unable to fetch compliance file.";
     logger.error(`${message}, error = ${err.message}`);
 
     throw new Error(message);
@@ -231,10 +231,10 @@ export const fetchConfigFile = async (
 ): Promise<RepoMountieConfig> => {
   try {
     const data: any = await fetchFileContent(context, REPO_CONFIG_FILE);
-    const fileContentAsString = Buffer.from(data.content, 'base64').toString();
+    const fileContentAsString = Buffer.from(data.content, "base64").toString();
     return JSON.parse(fileContentAsString);
   } catch (err) {
-    const message = 'Unable to fetch config file.';
+    const message = "Unable to fetch config file.";
     logger.error(`${message}, error = ${err.message}`);
 
     throw new Error(message);
@@ -264,7 +264,7 @@ export const labelExists = async (
     const myMatches = result.data.filter((item) => item.name === labelName);
     return myMatches.length > 0;
   } catch (err) {
-    const message = 'Unable to fetch repo labels';
+    const message = "Unable to fetch repo labels";
     logger.error(`${message}, error = ${err.message}`);
 
     return false;
@@ -296,7 +296,7 @@ export const addFileViaPullRequest = async (
   srcBranchName: string,
   fileName: string,
   fileData: string,
-  fileSHA: string = ''
+  fileSHA = ""
 ) => {
   try {
     const params = { owner, repo };
@@ -315,13 +315,13 @@ export const addFileViaPullRequest = async (
       sha: mainbr.data.object.sha, // where we fork from
     });
 
-    const aParams: any = fileSHA !== '' ? { ...params, sha: fileSHA } : params;
+    const aParams: any = fileSHA !== "" ? { ...params, sha: fileSHA } : params;
 
     // Add the file to the new branch
     await context.github.repos.createOrUpdateFile({
       ...aParams,
       branch: srcBranchName,
-      content: Buffer.from(fileData).toString('base64'),
+      content: Buffer.from(fileData).toString("base64"),
       message: commitMessage,
       path: fileName,
     });
@@ -436,7 +436,7 @@ export const assignUsersToIssue = async (
       : context.issue({ assignees });
     await context.github.issues.addAssignees(aParams);
   } catch (err) {
-    const message = 'Unable to assign user to issue.';
+    const message = "Unable to assign user to issue.";
     logger.error(`${message}, error = ${err.message}`);
 
     throw err;
@@ -467,7 +467,7 @@ export const isOrgMember = async (
       return true;
     }
 
-    const message = 'Unexpected return code looking up user';
+    const message = "Unexpected return code looking up user";
     logger.info(`${message}, code = ${response.status}`);
 
     return false;
@@ -477,7 +477,7 @@ export const isOrgMember = async (
       return false;
     }
 
-    const message = 'Unable to lookup user';
+    const message = "Unable to lookup user";
     logger.error(`${message}, error = ${err.message}`);
 
     throw err;
