@@ -18,9 +18,9 @@
 // Created by Jason Leach on 2018-10-15.
 //
 
-import express from "express"; // tslint:disable-line
-import { Application } from "probot";
-import { authmware } from "./authmware";
+import express from 'express'; // tslint:disable-line
+import { Application } from 'probot';
+import { authmware } from './authmware';
 
 export const routes = (app: Application) => {
   const exp = express();
@@ -49,10 +49,10 @@ export const routes = (app: Application) => {
   app.router.use(exp);
 
   // Get an express router to expose new HTTP endpoints
-  const router = app.route("/bot");
+  const router = app.route('/bot');
 
   // Add a new route for health and liveliness probes.
-  router.get("/ehlo", (req: any, res: any) => res.status(200).end());
+  router.get('/ehlo', (req: any, res: any) => res.status(200).end());
 
   // router.get(
   //   '/github/membership',
