@@ -81,7 +81,7 @@ export const requestUpdateForMyIssues = async (
 
     await Promise.all(promises);
   } catch (err) {
-    const message = `Unable to request PR update`;
+    const message = 'Unable to request PR update';
     logger.error(`${message}, error = ${err.message}`);
   }
 };
@@ -146,7 +146,7 @@ export const addCollaboratorsToMyIssues = async (
 
     await Promise.all(promises);
   } catch (err) {
-    const message = `Unable to assign users to PR`;
+    const message = 'Unable to assign users to PR';
     logger.error(`${message}, error = ${err.message}`);
   }
 };
