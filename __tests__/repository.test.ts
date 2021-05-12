@@ -37,6 +37,7 @@ import {
   remindInactiveRepository,
 } from '../src/libs/repository';
 import { loadTemplate, getDaysPassed } from '../src/libs/utils';
+import { INACTIVE_DAYS } from '../src/constants';
 import helper from './src/helper';
 
 // const p0 = path.join(__dirname, 'fixtures/context-no-lic.json');
@@ -507,19 +508,60 @@ describe('Repository management', () => {
     expect(github.issues.create).not.toBeCalled();
   });
 
-  it('An inactive repo has repo-reminder issue created', async () => {
+  it('An active repo should not have a repo-reminder issue created', async () => {
     context = new Context(repoScheduleEvent, github as any, {} as any);
     const owner = context.payload.installation.account.login;
     const repo = context.payload.repository.name;
 
     // @ts-ignore
-    getDaysPassed.mockReturnValueOnce(365);
+    getDaysPassed.mockReturnValueOnce(INACTIVE_DAYS - 1);
 
     await remindInactiveRepository(context, owner, repo);
 
     expect(getDaysPassed).toBeCalled();
+    expect(github.search.issuesAndPullRequests).not.toBeCalled();
+    expect(loadTemplate).not.toBeCalled();
+    expect(github.issues.create).not.toBeCalled();
+  });
+
+  it('A dormant repo should have a repo-reminder issue created if it has not created one already', async () => {
+    context = new Context(repoScheduleEvent, github as any, {} as any);
+    const owner = context.payload.installation.account.login;
+    const repo = context.payload.repository.name;
+
+    // @ts-ignore
+    getDaysPassed.mockReturnValueOnce(INACTIVE_DAYS + 1);
+
+    github.search.issuesAndPullRequests.mockReturnValueOnce(
+      Promise.resolve(issuesAndPullsEmpty)
+    );
+
+    await remindInactiveRepository(context, owner, repo);
+
+    expect(getDaysPassed).toBeCalled();
+    expect(github.search.issuesAndPullRequests).toBeCalled();
     expect(loadTemplate).toBeCalled();
     expect(github.issues.create).toBeCalled();
+  });
+
+  it('A dormant repo should not have a repo-reminder issue created if it has created one already', async () => {
+    context = new Context(repoScheduleEvent, github as any, {} as any);
+    const owner = context.payload.installation.account.login;
+    const repo = context.payload.repository.name;
+
+    // @ts-ignore
+    getDaysPassed.mockReturnValueOnce(INACTIVE_DAYS + 1);
+
+    github.search.issuesAndPullRequests.mockReturnValueOnce(
+      Promise.resolve(issuesAndPulls)
+    );
+
+    await remindInactiveRepository(context, owner, repo);
+
+    expect(getDaysPassed).toBeCalled();
+    expect(github.search.issuesAndPullRequests).toBeCalled();
+    expect(loadTemplate).not.toBeCalled();
+    expect(github.issues.create).not.toBeCalled();
   });
 });
 

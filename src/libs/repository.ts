@@ -27,6 +27,7 @@ import {
   BRANCHES,
   COMMIT_FILE_NAMES,
   COMMIT_MESSAGES,
+  ONE_DAY,
   INACTIVE_DAYS,
   ISSUE_TITLES,
   MINISTRY_SHORT_CODES,
@@ -466,20 +467,47 @@ export const remindInactiveRepository = async (
     const updatedAt = context.payload.repository.updated_at;
 
     const daysInactive = getDaysPassed(updatedAt);
-
     const isConsideredAsInactive = INACTIVE_DAYS < daysInactive;
 
-    if (isConsideredAsInactive) {
-      // Create an issue reminding the repository is inactive
-      const text: string = await loadTemplate(TEXT_FILES.INACTIVE_REPO);
-
-      await context.github.issues.create({
-        body: template(text)({ daysInactive: Math.round(daysInactive), daysInactiveLimit: INACTIVE_DAYS }),
-        owner,
-        repo,
-        title: ISSUE_TITLES.INACTIVE_REPO,
-      });
+    // If the repo is actively maintained, do not create an issue.
+    if (!isConsideredAsInactive) {
+      return;
     }
+
+    // see https://docs.github.com/en/github/searching-for-information-on-github/searching-issues-and-pull-requests#search-by-when-an-issue-or-pull-request-was-created-or-last-updated
+    const timeSearchFrom = new Date().getTime() - ONE_DAY * INACTIVE_DAYS;
+    const timeSearchFromISO = new Date(timeSearchFrom).toISOString();
+
+    // If there is an open/closed dormant repo issue, do not create another one.
+    // The query makes sure that it only checkes the issues created within the "inactive period".
+    const query = `repo:${owner}/${repo} is:issue author:app/${BOT_NAME} created:>${timeSearchFromISO} "${ISSUE_TITLES.INACTIVE_REPO}"`;
+    const issuesResponse = await context.github.search.issuesAndPullRequests({
+      order: 'desc',
+      per_page: 100,
+      q: query,
+      sort: 'updated',
+    });
+
+    const totalCount = issuesResponse.data.total_count
+      ? issuesResponse.data.total_count
+      : 0;
+
+    if (totalCount > 0) {
+      return;
+    }
+
+    // Create an issue reminding the repository is inactive
+    const text: string = await loadTemplate(TEXT_FILES.INACTIVE_REPO);
+
+    await context.github.issues.create({
+      body: template(text)({
+        daysInactive: Math.round(daysInactive),
+        daysInactiveLimit: INACTIVE_DAYS,
+      }),
+      owner,
+      repo,
+      title: ISSUE_TITLES.INACTIVE_REPO,
+    });
   } catch (err) {
     const message = extractMessage(err);
     if (message) {
