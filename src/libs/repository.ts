@@ -474,7 +474,7 @@ export const remindInactiveRepository = async (
       const text: string = await loadTemplate(TEXT_FILES.INACTIVE_REPO);
 
       await context.github.issues.create({
-        body: template(text)({ daysInactive: Math.round(daysInactive), inactiveDays: INACTIVE_DAYS }),
+        body: template(text)({ daysInactive: Math.round(daysInactive), daysInactiveLimit: INACTIVE_DAYS }),
         owner,
         repo,
         title: ISSUE_TITLES.INACTIVE_REPO,
