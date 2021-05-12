@@ -465,7 +465,6 @@ export const remindInactiveRepository = async (
 ) => {
   try {
     const updatedAt = context.payload.repository.updated_at;
-
     const daysInactive = getDaysPassed(updatedAt);
     const isConsideredAsInactive = INACTIVE_DAYS < daysInactive;
 
@@ -476,11 +475,11 @@ export const remindInactiveRepository = async (
 
     // see https://docs.github.com/en/github/searching-for-information-on-github/searching-issues-and-pull-requests#search-by-when-an-issue-or-pull-request-was-created-or-last-updated
     const timeSearchFrom = new Date().getTime() - ONE_DAY * INACTIVE_DAYS;
-    const timeSearchFromISO = new Date(timeSearchFrom).toISOString();
+    const timeSearchFromAsISO = new Date(timeSearchFrom).toISOString();
 
     // If there is an open/closed dormant repo issue, do not create another one.
     // The query makes sure that it only checkes the issues created within the "inactive period".
-    const query = `repo:${owner}/${repo} is:issue author:app/${BOT_NAME} created:>${timeSearchFromISO} "${ISSUE_TITLES.INACTIVE_REPO}"`;
+    const query = `repo:${owner}/${repo} is:issue author:app/${BOT_NAME} created:>${timeSearchFromAsISO} "${ISSUE_TITLES.INACTIVE_REPO}"`;
     const issuesResponse = await context.github.search.issuesAndPullRequests({
       order: 'desc',
       per_page: 100,
