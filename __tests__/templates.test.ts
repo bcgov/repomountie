@@ -16,17 +16,19 @@
 // Created by Jon Langlois on 2021-05-12.
 //
 
-import template from 'lodash/template';
-import { TEXT_FILES } from '../src/constants';
-import { loadTemplate } from '../src/libs/utils';
+import template from "lodash/template";
+import { TEXT_FILES } from "../src/constants";
+import { loadTemplate } from "../src/libs/utils";
 
-describe('Template Snapshots', () => {
-  it('Loads the expected template for inactive repository issues', async () => {
-    const inactiveIssueText: string = await loadTemplate(TEXT_FILES.INACTIVE_REPO);
+describe("Template Snapshots", () => {
+  it("Loads the expected template for inactive repository issues", async () => {
+    const inactiveIssueText: string = await loadTemplate(
+      TEXT_FILES.INACTIVE_REPO
+    );
     expect(
       template(inactiveIssueText)({
-        daysInactive: 1,
-        daysInactiveLimit: 2,
+        daysInactive: 14,
+        daysInactiveLimit: 7,
       })
     ).toMatchSnapshot();
   });
