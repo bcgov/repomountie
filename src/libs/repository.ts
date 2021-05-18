@@ -473,29 +473,45 @@ export const remindInactiveRepository = async (
       return;
     }
 
+    const baseQuery = `repo:${owner}/${repo} is:issue author:app/${BOT_NAME} "${ISSUE_TITLES.INACTIVE_REPO}"`;
+
+    const openIssuesQuery = `${baseQuery} is:open`;
+    const { data: openIssueData } =
+      await context.github.search.issuesAndPullRequests({
+        order: 'desc',
+        per_page: 1,
+        q: openIssuesQuery,
+        sort: 'created',
+      });
+
+    // If the repository has open dormant issue,
+    // do not create an issue as repomountie already creates a comment every 90 days.
+    if (openIssueData.items.length > 0) {
+      return;
+    }
+
     // see https://docs.github.com/en/github/searching-for-information-on-github/searching-issues-and-pull-requests#search-by-when-an-issue-or-pull-request-was-created-or-last-updated
     const timeSearchFrom = new Date().getTime() - ONE_DAY * INACTIVE_DAYS;
     const timeSearchFromAsISO = new Date(timeSearchFrom).toISOString();
 
     // If there is an open/closed dormant repo issue, do not create another one.
     // The query makes sure that it only checkes the issues created within the "inactive period".
-    const query = `repo:${owner}/${repo} is:issue author:app/${BOT_NAME} created:>${timeSearchFromAsISO} "${ISSUE_TITLES.INACTIVE_REPO}"`;
-    const issuesResponse = await context.github.search.issuesAndPullRequests({
-      order: 'desc',
-      per_page: 100,
-      q: query,
-      sort: 'updated',
-    });
+    const closedIssuesQuery = `${baseQuery} is:closed created:>${timeSearchFromAsISO}`;
+    const { data: closedIssueData } =
+      await context.github.search.issuesAndPullRequests({
+        order: 'desc',
+        per_page: 1,
+        q: closedIssuesQuery,
+        sort: 'created',
+      });
 
-    const totalCount = issuesResponse.data.total_count
-      ? issuesResponse.data.total_count
-      : 0;
-
-    if (totalCount > 0) {
+    // If the repository has a closed `dormant` issue created less than 180 days ago,
+    // do not create an issue as it considers as an active repository.
+    if (closedIssueData.items.length > 0) {
       return;
     }
 
-    // Create an issue reminding the repository is inactive
+    // Create a `dormant` issue.
     const text: string = await loadTemplate(TEXT_FILES.INACTIVE_REPO);
 
     await context.github.issues.create({

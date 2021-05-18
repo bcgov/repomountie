@@ -532,7 +532,7 @@ describe('Repository management', () => {
     // @ts-ignore
     getDaysPassed.mockReturnValueOnce(INACTIVE_DAYS + 1);
 
-    github.search.issuesAndPullRequests.mockReturnValueOnce(
+    github.search.issuesAndPullRequests.mockReturnValue(
       Promise.resolve(issuesAndPullsEmpty)
     );
 
