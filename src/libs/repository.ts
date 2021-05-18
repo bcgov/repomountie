@@ -494,7 +494,6 @@ export const remindInactiveRepository = async (
     const timeSearchFrom = new Date().getTime() - ONE_DAY * INACTIVE_DAYS;
     const timeSearchFromAsISO = new Date(timeSearchFrom).toISOString();
 
-    // If there is an open/closed dormant repo issue, do not create another one.
     // The query makes sure that it only checkes the issues created within the "inactive period".
     const closedIssuesQuery = `${baseQuery} is:closed created:>${timeSearchFromAsISO}`;
     const { data: closedIssueData } =
