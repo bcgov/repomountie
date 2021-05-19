@@ -481,7 +481,7 @@ export const remindInactiveRepository = async (
         order: 'desc',
         per_page: 1,
         q: openIssuesQuery,
-        sort: 'created',
+        sort: 'updated',
       });
 
     // If the repository has open dormant issue,
@@ -494,17 +494,17 @@ export const remindInactiveRepository = async (
     const timeSearchFrom = new Date().getTime() - ONE_DAY * INACTIVE_DAYS;
     const timeSearchFromAsISO = new Date(timeSearchFrom).toISOString();
 
-    // The query makes sure that it only checkes the issues created within the "inactive period".
-    const closedIssuesQuery = `${baseQuery} is:closed created:>${timeSearchFromAsISO}`;
+    // The query makes sure that it only checkes the issues updated within the "inactive period".
+    const closedIssuesQuery = `${baseQuery} is:closed updated:>${timeSearchFromAsISO}`;
     const { data: closedIssueData } =
       await context.github.search.issuesAndPullRequests({
         order: 'desc',
         per_page: 1,
         q: closedIssuesQuery,
-        sort: 'created',
+        sort: 'updated',
       });
 
-    // If the repository has a closed `dormant` issue created less than 180 days ago,
+    // If the repository has a closed `dormant` issue updated less than 180 days ago,
     // do not create an issue as it considers as an active repository.
     if (closedIssueData.items.length > 0) {
       return;
