@@ -16,15 +16,15 @@
 // Created by Jon Langlois on 2021-05-12.
 //
 
-import template from "lodash/template";
-import { TEXT_FILES } from "../src/constants";
-import { loadTemplate } from "../src/libs/utils";
+import template from 'lodash/template';
 
-describe("Template Snapshots", () => {
-  it("Loads the expected template for inactive repository issues", async () => {
-    const inactiveIssueText: string = await loadTemplate(
-      TEXT_FILES.INACTIVE_REPO
-    );
+describe('Template Snapshots', () => {
+  it('Process template for inactive repository issues', async () => {
+    // Can not load templates because FS is mocked for speed in
+    // unit testing.
+    const inactiveIssueText =
+      'Bla <%- daysInactive %> days. Blarb <%- daysInactiveLimit %> days.';
+
     expect(
       template(inactiveIssueText)({
         daysInactive: 14,

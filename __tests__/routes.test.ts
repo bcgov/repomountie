@@ -16,7 +16,7 @@
 // Created by Jason Leach on 2018-07-20.
 //
 
-import { default as request } from 'supertest'; // eslint-disable-line
+import { default as request } from "supertest"; // eslint-disable-line
 import app from '../src';
 
 describe('Test monitoring routes', () => {

@@ -89,7 +89,7 @@ describe('Issues (and PRs)', () => {
       github as any,
       {} as any
     );
-    context.payload.comment.body = 'I\'m a teapot';
+    context.payload.comment.body = "I'm a teapot";
 
     // @ts-ignore
     isOrgMember.mockReturnValueOnce(Promise.resolve(true));

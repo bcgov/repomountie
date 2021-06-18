@@ -74,7 +74,7 @@ describe('Bot command processing', () => {
   });
 
   it('Valid compliance commands are processed', async () => {
-    const comment = `@repo-mountie update-pia completed\n@repo-mountie update-stra completed`;
+    const comment = '@repo-mountie update-pia completed\n@repo-mountie update-stra completed';
     const result = applyComplianceCommands(comment, doc);
     expect(result).toMatchSnapshot();
   });
@@ -89,7 +89,7 @@ describe('Bot command processing', () => {
 
   it('Non-help comments are ignored', async () => {
     context = new Context(issueCommentEvent, github as any, {} as any);
-    context.payload.comment.body = 'I\'m a teapot';
+    context.payload.comment.body = "I'm a teapot";
     const result = helpDeskSupportRequired(context.payload);
 
     expect(result).toBeFalsy();
@@ -97,7 +97,7 @@ describe('Bot command processing', () => {
 
   it('Missing file causes update to be skipped', async () => {
     context = new Context(issueCommentEvent, github as any, {} as any);
-    context.payload.comment.body = `@repo-mountie update-pia completed`;
+    context.payload.comment.body = '@repo-mountie update-pia completed';
     // @ts-ignore
     fetchContentsForFile.mockReturnValueOnce(undefined);
 
@@ -109,7 +109,7 @@ describe('Bot command processing', () => {
 
   it('Invalid command causes update to be skipped', async () => {
     context = new Context(issueCommentEvent, github as any, {} as any);
-    context.payload.comment.body = `@repo-mountie update-blarb completed`;
+    context.payload.comment.body = '@repo-mountie update-blarb completed';
     // @ts-ignore
     fetchContentsForFile.mockReturnValueOnce(content.data);
 
@@ -121,7 +121,7 @@ describe('Bot command processing', () => {
 
   it('Compliance commands are processed appropriately', async () => {
     context = new Context(issueCommentEvent, github as any, {} as any);
-    context.payload.comment.body = `@repo-mountie update-pia completed`;
+    context.payload.comment.body = '@repo-mountie update-pia completed';
     // @ts-ignore
     fetchContentsForFile.mockReturnValueOnce(content.data);
 
@@ -133,7 +133,7 @@ describe('Bot command processing', () => {
 
   it('An error is handled correctly', async () => {
     context = new Context(issueCommentEvent, github as any, {} as any);
-    context.payload.comment.body = `@repo-mountie help`;
+    context.payload.comment.body = '@repo-mountie help';
     context.payload.issue.title = ISSUE_TITLES.ADD_COMPLIANCE;
     context.payload.sender.type = 'User';
 

@@ -26,9 +26,7 @@
 //         repositories: [],
 //     });
 
-let github;
-
-github = {
+const github = {
   paginate: jest.fn().mockReturnValue([]),
   apps: {
     listRepos: {

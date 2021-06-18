@@ -70,10 +70,6 @@
     "./src/**/*.ts": [
       "npx prettier ./src/**/*.ts --write",
       "eslint ./src/**/*.ts --fix"
-    ],
-    "./__tests__/**/*.ts": [
-      "npx prettier ./__tests__/**/*.ts --write",
-      "eslint ./__tests__/**/*.ts --fix"
     ]
   },
   "engines": {

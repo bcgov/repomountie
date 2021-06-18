@@ -420,7 +420,7 @@ describe('Repository management', () => {
   });
 
   // tslint:disable-next-line
-  it("A repo with a valid project lifecycle badge should not have a project lifecycle badge issue created", async () => {
+  it('A repo with a valid project lifecycle badge should not have a project lifecycle badge issue created', async () => {
     context = new Context(repoScheduleEvent, github as any, {} as any);
     const owner = context.payload.installation.account.login;
     const repo = context.payload.repository.name;
@@ -448,7 +448,7 @@ describe('Repository management', () => {
   });
 
   // tslint:disable-next-line
-  it("A repo with an open project lifecycle badge issue should not have another project lifecycle badge issue created", async () => {
+  it('A repo with an open project lifecycle badge issue should not have another project lifecycle badge issue created', async () => {
     context = new Context(repoScheduleEvent, github as any, {} as any);
     const owner = context.payload.installation.account.login;
     const repo = context.payload.repository.name;
@@ -570,37 +570,37 @@ describe('doesContentHaveLifecycleBadge', () => {
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![Lifecycle](https://img.shields.io/badge/Lifecycle-Stable-97ca00?style=for-the-badge)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        '[![Lifecycle](https://img.shields.io/badge/Lifecycle-Stable-97ca00?style=for-the-badge)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)'
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        '[![](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)'
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "![](https://img.shields.io/badge/Lifecycle-Stable-97ca00)"
+        '![](https://img.shields.io/badge/Lifecycle-Stable-97ca00)'
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![lifecycle:stable](https://img.shields.io/badge/Lifecycle-Stable-97ca00)]"
+        '[![lifecycle:stable](https://img.shields.io/badge/Lifecycle-Stable-97ca00)]'
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![lifecycle:dormant](https://img.shields.io/badge/Lifecycle-Dormant-ff7f2a)](https://github.com/bcgov/repomountie/)"
+        '[![lifecycle:dormant](https://img.shields.io/badge/Lifecycle-Dormant-ff7f2a)](https://github.com/bcgov/repomountie/)'
       )
     ).toBe(true);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![random-text](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        '[![random-text](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)'
       )
     ).toBe(true);
   });
@@ -609,13 +609,13 @@ describe('doesContentHaveLifecycleBadge', () => {
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "![img](https://img.shields.io/badge/Invalid-Badge-339999)"
+        '![img](https://img.shields.io/badge/Invalid-Badge-339999)'
       )
     ).toBe(false);
     expect(
       doesContentHaveLifecycleBadge(
         // tslint:disable-next-line
-        "[![img](https://img.shields.io/badge/Invalid-Badge-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)"
+        '[![img](https://img.shields.io/badge/Invalid-Badge-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)'
       )
     ).toBe(false);
   });

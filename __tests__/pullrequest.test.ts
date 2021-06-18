@@ -151,18 +151,18 @@ describe('Pull requests', () => {
   });
 
   it('No commands are processed correctly', () => {
-    const body = 'I\'m a teapot';
+    const body = "I'm a teapot";
     expect(extractCommands(body).length).toBe(0);
   });
 
   it('A valid command is extracted', () => {
-    const body = 'I\'m a teapot\n /bot-ignore-length';
+    const body = "I'm a teapot\n /bot-ignore-length";
 
     expect(extractCommands(body).length).toBe(1);
   });
 
   it('Invalid commands are ignored', () => {
-    let body = 'I\'m a teapot';
+    let body = "I'm a teapot";
     body += '\n /bot-ignore-length';
     body += '\n /rm-blarb';
 
