@@ -3,17 +3,6 @@ name: Node Build & CI
 on: [push]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-node@master
-        with:
-          node-version: "12"
-      - run: |
-          npm ci
-          npm run test
-          npm run test:lint
   quality:
     runs-on: ubuntu-latest
     steps:
@@ -21,6 +10,17 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: "12"
+      - name: npm install, and lint
+        run: |
+          npm ci
+          npm run test:lint --if-present
+        env:
+          CI: "true"
+      - name: unit test
+        run: |
+          npm run test:coverage --if-present
+        env:
+          CI: "true"
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
