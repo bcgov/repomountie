@@ -46,7 +46,7 @@ jobs:
       #     debug: "true"
   build:
     runs-on: ubuntu-latest
-    needs: [test, quality]
+    needs: [quality]
     strategy:
       matrix:
         node-version: [12.x]
