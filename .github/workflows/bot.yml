@@ -11,14 +11,22 @@ jobs:
         with:
           node-version: "12"
       - run: npm ci
-      - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v2.3.0
+      # - name: Test & publish code coverage
+      #   uses: paambaati/codeclimate-action@v2.3.0
+      #   env:
+      #     CC_TEST_REPORTER_ID: ${{ secrets.TestReporterID }}
+      #     CI: "true"
+      #   with:
+      #     coverageCommand: npm run test:coverage
+      #     debug: "true"
+      - name: Run Sonar Analysis
+        run: mvn sonar:sonar
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.organization=bcgov-sonarcloud
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
         env:
-          CC_TEST_REPORTER_ID: ${{ secrets.TestReporterID }}
-          CI: "true"
-        with:
-          coverageCommand: npm run test:coverage
-          debug: "true"
+          GITHUB_TOKEN: ${{ github.token }}
   build:
     runs-on: ubuntu-latest
     needs: test
@@ -46,14 +54,6 @@ jobs:
           npm run build --if-present
         env:
           CI: "true"
-      - name: Run Sonar Analysis
-        run: mvn sonar:sonar
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.organization=bcgov-sonarcloud
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
   s2i-build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
