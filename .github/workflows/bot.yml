@@ -10,6 +10,15 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: "12"
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
       - name: npm install, and lint
         run: |
           npm ci
@@ -18,6 +27,7 @@ jobs:
           CI: "true"
       - name: unit test
         run: |
+          npm ci
           npm run test:coverage --if-present
         env:
           CI: "true"
