@@ -55,7 +55,7 @@ export const ISSUE_TITLES = {
   RENAME_STATUS: 'Rename PIA and STRA status from exempt',
   WORDS_MATTER: 'Lets use common phrasing',
   LIFECYCLE_BADGES: 'Add project lifecycle badge',
-  INACTIVE_REPO: 'It\'s Been a While Since This Repository has Been Updated',
+  INACTIVE_REPO: "It's Been a While Since This Repository has Been Updated",
 };
 
 export const BRANCHES = {
