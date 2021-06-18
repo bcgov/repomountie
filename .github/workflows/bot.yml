@@ -19,14 +19,11 @@ jobs:
       #   with:
       #     coverageCommand: npm run test:coverage
       #     debug: "true"
-      - name: Run Sonar Analysis
-        run: mvn sonar:sonar
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.organization=bcgov-sonarcloud
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   build:
     runs-on: ubuntu-latest
     needs: test
