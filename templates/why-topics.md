@@ -51,6 +51,7 @@ Once topics are added, you can use them in GitHub's search. For example, enter s
 | JEDC | Jobs, Economic Development & Competitiveness |
 | LBR | Labour Policy & Legislation |
 | LDB | BC Liquor Distribution Branch |
+| LWRS | Land, Water and Resource Stewardship |
 | MMHA | Mental Health & Addictions |
 | MAH | Municipal Affairs & Housing |
 | BCPC | Pension Corporation |
