@@ -122,7 +122,7 @@ export const MINISTRY_SHORT_CODES = [
   'EMPR',
   'ENV',
   'FIN',
-  'FLNR',
+  'FOR',
   'HLTH',
   'IRR',
   'JEDC',

@@ -45,7 +45,7 @@ Once topics are added, you can use them in GitHub's search. For example, enter s
 | EMPR | Energy, Mines & Petroleum Resources |
 | ENV | Environment & Climate Change Strategy |
 | FIN | Finance |
-| FLNR | Forests, Lands, Natural Resource Operations & Rural Development |
+| FOR | Forests |
 | HLTH | Health |
 | IRR | Indigenous Relations & Reconciliation |
 | JEDC | Jobs, Economic Development & Competitiveness |
