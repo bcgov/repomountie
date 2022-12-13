@@ -128,7 +128,7 @@ export const MINISTRY_SHORT_CODES = [
   'JEDC',
   'LBR',
   'LDB',
-  'LWRS',
+  'WLRS',
   'MMHA',
   'MAH',
   'BCPC',
