@@ -30,7 +30,7 @@
     "nconf": "^0.10.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
-    "probot": "^9.11.5",
+    "probot": "^12.3.0",
     "probot-scheduler": "^2.0.0-beta.1",
     "transform-runtime": "0.0.0"
   },
@@ -52,7 +52,7 @@
     "husky": "^4.3.0",
     "jest": "^26.1.0",
     "lint-staged": "^10.4.0",
-    "nodemon": "^2.0.4",
+    "nodemon": "^2.0.20",
     "prettier": "^2.3.0",
     "smee-client": "^1.1.0",
     "standard": "^14.3.4",
