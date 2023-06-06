@@ -59,5 +59,6 @@ Once topics are added, you can use them in GitHub's search. For example, enter s
 | SDPR | Social Development & Poverty Reduction |
 | TCA | Tourism, Arts & Culture |
 | TRAN | Transportation & Infrastructure |
+| WLRS | Water, Land and Resource Stewardship |
 
 **NOTE** See an error or omission? Please create an issue [here](https://github.com/bcgov/repomountie/issues) to get it remedied.
